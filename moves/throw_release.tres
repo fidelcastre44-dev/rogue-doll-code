@@ -10,6 +10,6 @@ notes = "Lancer visé (amélioration, throw_move = \"throw\") : lancé après l'
 active = 0.0
 cancel = 0.12
 end = 0.3
-flags = PackedStringArray()
+flags = PackedStringArray("anime")
 keys = [[0.0, "throw_hold"], [0.08, "throw_out"], [0.3, "guard"]]
 present = PackedStringArray("active", "cancel", "end", "lunge", "keys")

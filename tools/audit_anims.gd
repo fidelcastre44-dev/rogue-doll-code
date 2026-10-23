@@ -27,6 +27,8 @@ func _run() -> void:
 		if end_t <= 0.0 or not a.has("keys") or a.keys.is_empty():
 			continue
 		var prev := {}
+		var qprev := {}
+		var peak := {}
 		var pops := 0.0
 		var pop_who := ""
 		var under := 0.0
@@ -35,6 +37,13 @@ func _run() -> void:
 		var dt := 1.0 / 120.0
 		while t <= end_t:
 			h.apply_pose(h.pose_at(id, t))
+			for jn in ["hips", "spine", "head", "sh_l", "el_l", "sh_r", "el_r"]:
+				var q: Quaternion = h.j[jn].quaternion
+				if qprev.has(jn):
+					var w: float = qprev[jn].angle_to(q)
+					if w > peak.get(jn, [0.0, 0.0])[0]:
+						peak[jn] = [w, t]
+				qprev[jn] = q
 			var cur := {}
 			for e in EFF:
 				cur[e] = h.global_basis.inverse() * (h.j[e].global_position - h.global_position)
@@ -66,6 +75,16 @@ func _run() -> void:
 				if dmax > 170.0:
 					flips.append("%s %s→%s" % [jn, k0, k1])
 		var issues := []
+		# cascade : si presque tout le haut du corps atteint sa vitesse maximale à la même image, il bouge « d'un bloc »
+		var times := []
+		for jn in peak:
+			if peak[jn][0] > deg_to_rad(1.0):
+				times.append(snappedf(peak[jn][1], dt))
+		var same := 0
+		for x in times:
+			same = maxi(same, times.count(x))
+		if times.size() >= 4 and same >= times.size() - 1:
+			issues.append("tout bouge d'un bloc (%d articulations sur %d au même instant)" % [same, times.size()])
 		if pops > 0.09:
 			issues.append("à-coup %.0f cm/image (%s)" % [pops * 100.0, pop_who])
 		if under < -0.06:

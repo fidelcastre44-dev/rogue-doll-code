@@ -10,6 +10,6 @@ notes = "Charge de la boule d'énergie : mains jointes à la hanche, la boule gr
 active = 99.0
 cancel = 99.0
 end = 99.0
-flags = PackedStringArray()
+flags = PackedStringArray("anime")
 keys = [[0.0, "from"], [0.15, "hado_load"], [99.0, "hado_load"]]
 present = PackedStringArray("active", "cancel", "end", "lunge", "keys")

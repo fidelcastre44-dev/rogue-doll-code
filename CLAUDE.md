@@ -64,7 +64,13 @@ Godot 4.7 + Jolt. Équipe : Paul (code avec Claude, son), Thibaud (visuels, game
 - `tools/cmu/` + `tools/import_cmu.gd` : **animations reprises de captures CMU** (libres de droits, v0.213-0.214). `clips.py` = quel coup vient de
   quelle capture et à quels instants ; `retarget.py` = reprise sur le héros en blocs ; `import_cmu.gd` = poses `cmu_<coup>_<n>` + clés des
   fiches, recalées sur la direction et la portée de l'ancien coup (`old_tips.json`). Mode d'emploi : `tools/cmu/README.md`.
-- `tools/audit_anims.gd` : audit chiffré des animations, sans rendu (à-coups, membres sous le sol, pieds qui glissent, rotations > 170°).
+- `tools/audit_anims.gd` : audit chiffré des animations, sans rendu (à-coups, membres sous le sol, pieds qui glissent, rotations > 170°,
+  « tout bouge d'un bloc » = pas de cascade ; C = marche/course, D = sbires, B = déplacements de la carte).
+- **Style combat anime (v0.215)** : `tools/anime_moves.gd` (relançable, repart de `tools/anime/source.json`) met le mot `anime` sur
+  les fiches faites main -> `player._cascade` (chaque articulation joue la fiche avec une avance : bassin d'abord, bras pile à
+  l'heure, tête en retard), amplifie × 1,8 les poses des coups (`ax_<coup>_<n>`, visées vers l'ancien point d'impact) et fige
+  0,05 s l'impact. Coups capturés : `anime` + `amp` dans `tools/cmu/clips.py`. **Après une retouche de fiche faite main, relancer
+  l'outil** (sinon ses poses `ax_` restent les anciennes) ; une nouvelle fiche est prise si on supprime `source.json` (à refaire de zéro).
 - `tools/shot_tool.gd` (+ `../shot.sh` hors projet) : rendu d'images d'un coup du labo en vue de profil / dessus / poursuite, pour vérifier une animation.
 - États « punitifs » (`PENALTY` dans player.gd : drop_land, sm_land, tackle_slam, pd_land) : rien ne les coupe ; `AIR_LOCKED` : coups aériens
   qu'aucune esquive ne coupe (ils durent jusqu'à la réception).

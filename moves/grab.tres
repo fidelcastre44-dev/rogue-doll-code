@@ -7,10 +7,10 @@ script = ExtResource("1_xwerm")
 id = &"grab"
 display_name = "Chope"
 notes = "3e élément d'une clé : \"lin\" = vitesse constante, \"in\" = part lentement et accélère (sinon : part vite et freine). Chope : passe la garde. Ratée, elle te laisse ouvert un moment. Réussie, elle enchaîne sur \"slam\"."
-cancel = 0.5
-end = 0.5
+cancel = 0.5675
+end = 0.5675
 roll_ok = 0.3
 step = 2.5
-flags = PackedStringArray("grab")
-keys = [[0.0, "from"], [0.1, "grab_reach"], [0.28, "grab_reach"], [0.5, "guard"]]
+flags = PackedStringArray("grab", "anime")
+keys = [[0.0, "from"], [0.1, "ax_grab_1"], [0.1675, "ax_grab_1", "step"], [0.34750000000000003, "ax_grab_2"], [0.5675, "guard"]]
 present = PackedStringArray("active", "cancel", "end", "roll", "grab", "lunge", "step", "keys")

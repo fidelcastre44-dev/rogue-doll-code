@@ -7,25 +7,29 @@ place par rapport à eux comme dans la capture ; plant_at = [(de, à, pieds)] po
 aim = instant qui donne la direction du coup (sinon hit) ; lift = bassin relevé (m) ; pose = préfixe des poses créées.
 Ancien format accepté : samples = [(temps du jeu, temps de la capture[, pieds])] (les durées de la fiche ne changent pas)."""
 
+AMP = 1.8   # v0.215 : amplitude des coups (écart à la garde × 1,8), style combat anime (choix de Paul)
+
+# cancel_r = où tombe l'annulation dans le retour (0 = juste après le figé, 1 = à la fin), repris des fiches d'origine.
+# anime = rythme combat anime en secondes réelles : armé (windup), frappe sèche (strike), figé à l'impact (hold), retour (recover).
 CLIPS = [
     # Jab (bras avant) : 144_14 « Left_Punch_Sequence002 », 3e jab (garde haute, le bassin tourne dans le coup puis revient).
-    {"move": "jab", "file": "144_14", "tip": "fist_l", "t0": 3.32, "hit": 3.58, "t1": 3.82, "speed": 2.0, "pose": "cmu_jab"},
+    {"move": "jab", "file": "144_14", "tip": "fist_l", "t0": 3.32, "hit": 3.58, "t1": 3.82, "anime": {"windup": 0.05, "strike": 0.03, "hold": 0.05, "recover": 0.16}, "cancel_r": 0.2, "amp": AMP, "pose": "cmu_jab"},
     # Direct (bras arrière) : 144_20 « Punch_Sequence », 1er direct.
-    {"move": "cross", "file": "144_20", "tip": "fist_r", "t0": 1.38, "hit": 1.68, "t1": 1.95, "speed": 2.0, "pose": "cmu_cross"},
+    {"move": "cross", "file": "144_20", "tip": "fist_r", "t0": 1.38, "hit": 1.68, "t1": 1.95, "anime": {"windup": 0.07, "strike": 0.035, "hold": 0.05, "recover": 0.2}, "cancel_r": 0.2, "amp": AMP, "pose": "cmu_cross"},
     # Chassé / coup de pied avant : 144_05 « Front_Kicking », 1er coup.
-    {"move": "kick", "file": "144_05", "tip": "foot_r", "t0": 0.67, "hit": 1.22, "t1": 1.9, "speed": 2.0, "plant": "l",
+    {"move": "kick", "file": "144_05", "tip": "foot_r", "t0": 0.67, "hit": 1.22, "t1": 1.9, "anime": {"windup": 0.1, "strike": 0.04, "hold": 0.05, "recover": 0.26}, "cancel_r": 0.34, "amp": AMP, "aim_y": 1.15, "plant": "l",
      "plant_at": [(0.0, 0.72, "lr"), (1.86, 9.0, "lr")], "pose": "cmu_kick"},
     # Crochet gauche : 15_13 « boxing », grand crochet armé large (le bras part de derrière et balaie à hauteur de tête).
-    {"move": "hook", "file": "15_13", "tip": "fist_l", "t0": 68.0, "hit": 68.32, "t1": 68.7, "speed": 2.0, "pose": "cmu_hook"},
+    {"move": "hook", "file": "15_13", "tip": "fist_l", "t0": 68.0, "hit": 68.32, "t1": 68.7, "anime": {"windup": 0.1, "strike": 0.04, "hold": 0.05, "recover": 0.22}, "cancel_r": 0.357, "amp": AMP, "pose": "cmu_hook"},
     # Uppercut gauche : 15_13 « boxing », le poing part de la hanche et remonte sous le menton.
-    {"move": "upper", "file": "15_13", "tip": "fist_l", "t0": 54.62, "hit": 54.95, "t1": 55.3, "speed": 2.0, "pose": "cmu_upper"},
+    {"move": "upper", "file": "15_13", "tip": "fist_l", "t0": 54.62, "hit": 54.95, "t1": 55.3, "anime": {"windup": 0.09, "strike": 0.04, "hold": 0.05, "recover": 0.22}, "cancel_r": 0.83, "amp": AMP, "pose": "cmu_upper"},
     # High kick latéral : 135_07 « Mawashigeri » (coup de pied circulaire à hauteur de tête), 1er coup.
-    {"move": "hikick", "file": "135_07", "tip": "foot_r", "t0": 0.55, "hit": 1.0, "t1": 1.45, "speed": 2.0, "plant": "l",
+    {"move": "hikick", "file": "135_07", "tip": "foot_r", "t0": 0.55, "hit": 1.0, "t1": 1.45, "anime": {"windup": 0.13, "strike": 0.05, "hold": 0.05, "recover": 0.28}, "cancel_r": 0.375, "amp": AMP, "plant": "l",
      "plant_at": [(0.0, 0.57, "lr")], "pose": "cmu_hikick"},
     # Shoot de foot et shoot d'objet : 10_01 « kick soccer ball » (le ballon est frappé au ras du sol à 5,0 s).
-    {"move": "soccer_kick", "file": "10_01", "tip": "foot_r", "t0": 4.59, "hit": 5.0, "aim": 5.1, "t1": 5.5, "speed": 2.0,
+    {"move": "soccer_kick", "file": "10_01", "tip": "foot_r", "t0": 4.59, "hit": 5.0, "aim": 5.1, "t1": 5.5, "anime": {"windup": 0.12, "strike": 0.05, "hold": 0.05, "recover": 0.26}, "cancel_r": 0.36, "amp": AMP,
      "plant": "l", "plant_at": [(0.0, 4.66, "lr")], "lift": 0.05, "pose": "cmu_soccer"},
-    {"move": "prop_kick", "file": "10_01", "tip": "foot_r", "t0": 4.59, "hit": 5.0, "aim": 5.1, "t1": 5.5, "speed": 2.0,
+    {"move": "prop_kick", "file": "10_01", "tip": "foot_r", "t0": 4.59, "hit": 5.0, "aim": 5.1, "t1": 5.5, "anime": {"windup": 0.12, "strike": 0.05, "hold": 0.05, "recover": 0.26}, "cancel_r": 0.36, "amp": AMP,
      "plant": "l", "plant_at": [(0.0, 4.66, "lr")], "lift": 0.05, "pose": "cmu_propkick"},
 ]
 

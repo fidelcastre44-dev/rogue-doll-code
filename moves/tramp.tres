@@ -11,6 +11,6 @@ active = 99.0
 cancel = 0.15
 end = 0.6
 air = true
-flags = PackedStringArray()
+flags = PackedStringArray("anime")
 keys = [[0.0, "from"], [0.06, "tramp_tuck"], [0.28, "tramp_open"], [0.6, "air_rest"]]
 present = PackedStringArray()

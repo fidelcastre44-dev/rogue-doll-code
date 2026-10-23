@@ -8,9 +8,9 @@ id = &"hook"
 display_name = "Crochet"
 notes = "Crochet gauche (3e coup, light_move = \"hook\") : bras armé large, le buste tourne et le poing balaie à plat ; il l'envoie sur ta droite.
 Animation reprise de la capture CMU 15_13 (tools/cmu)."
-active = 0.216
-cancel = 0.336
-end = 0.5525
+active = 0.189
+cancel = 0.391
+end = 0.6335
 tip = "fist_l"
 radius = 0.5
 damage = 14.0
@@ -24,5 +24,5 @@ shake = 0.8
 lunge = 1.0
 step = 3.0
 flags = PackedStringArray()
-keys = [[0.0, "from"], [0.0225, "cmu_hook_0", "lin"], [0.045, "cmu_hook_1", "lin"], [0.0675, "cmu_hook_2", "lin"], [0.09, "cmu_hook_3", "lin"], [0.1125, "cmu_hook_4", "lin"], [0.135, "cmu_hook_5", "lin"], [0.1575, "cmu_hook_6", "lin"], [0.18, "cmu_hook_7", "lin"], [0.2025, "cmu_hook_8", "lin"], [0.216, "cmu_hook_9", "lin"], [0.2475, "cmu_hook_10", "lin"], [0.27, "cmu_hook_11", "lin"], [0.2925, "cmu_hook_12", "lin"], [0.315, "cmu_hook_13", "lin"], [0.3375, "cmu_hook_14", "lin"], [0.36, "cmu_hook_15", "lin"], [0.3825, "cmu_hook_16", "lin"], [0.405, "cmu_hook_17", "lin"], [0.4275, "cmu_hook_18", "lin"], [0.45, "cmu_hook_19", "lin"], [0.4725, "cmu_hook_20", "lin"], [0.5525, "guard", "inout"]]
+keys = [[0.0, "from"], [0.0771, "cmu_hook_0", "lin"], [0.135, "cmu_hook_1", "lin"], [0.1485, "cmu_hook_2", "lin"], [0.162, "cmu_hook_3", "lin"], [0.1755, "cmu_hook_4", "lin"], [0.189, "cmu_hook_5", "lin"], [0.2565, "cmu_hook_6", "lin"], [0.2826, "cmu_hook_7", "lin"], [0.3086, "cmu_hook_8", "lin"], [0.3347, "cmu_hook_9", "lin"], [0.3607, "cmu_hook_10", "lin"], [0.3868, "cmu_hook_11", "lin"], [0.4128, "cmu_hook_12", "lin"], [0.4389, "cmu_hook_13", "lin"], [0.4649, "cmu_hook_14", "lin"], [0.491, "cmu_hook_15", "lin"], [0.517, "cmu_hook_16", "lin"], [0.5431, "cmu_hook_17", "lin"], [0.5535, "cmu_hook_18", "lin"], [0.6335, "guard", "inout"]]
 present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "dmg", "drop", "stop", "shake", "up", "lunge", "step", "side_r", "guard_break", "keys")

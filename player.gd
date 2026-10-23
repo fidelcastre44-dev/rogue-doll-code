@@ -1404,6 +1404,12 @@ func _animate(dt: float) -> void:
 ## Pose du coup `id` à l'instant `tt` : les clés de sa fiche, interpolées (courbe "lin", "in" ou amortie par défaut).
 ## Sert au jeu et à l'éditeur de poses de la salle de test.
 func pose_at(id: String, tt: float) -> Dictionary:
+	if ATK[id].get("anime", false):
+		return _cascade(id, tt)
+	return _pose_at(id, tt)
+
+
+func _pose_at(id: String, tt: float) -> Dictionary:
 	var keys: Array = ATK[id].keys
 	for i in range(keys.size() - 1):
 		if tt <= keys[i + 1][0] or i == keys.size() - 2:
@@ -1421,6 +1427,31 @@ func pose_at(id: String, tt: float) -> Dictionary:
 					u = 1.0 - (1.0 - u) * (1.0 - u)   # départ sec, arrivée amortie
 			return _mix(_key(keys[i][1]), _key(keys[i + 1][1]), u)
 	return _key(keys[0][1])
+
+
+## Style combat anime (v0.215, fiches avec le mot « anime ») : chaque articulation joue l'animation avec un petit décalage
+## de temps. Le bassin et les jambes sont en avance, puis le buste, les épaules, et le bras qui frappe arrive pile à l'heure ;
+## la tête suit en retard. Le mouvement part du bassin et se propage jusqu'au poing, comme dans les captures (où les
+## articulations n'atteignent jamais leur vitesse maximale à la même image). CASCADE = avance de chaque articulation, en maillons.
+const CASCADE := {"hips": 2.6, "hip_l": 2.6, "kn_l": 2.6, "hip_r": 2.6, "kn_r": 2.6, "spine": 1.8, "sh_l": 1.0, "sh_r": 1.0, "el_l": 0.0, "el_r": 0.0, "head": -1.0}
+const CASCADE_UNIT := 0.012   # un maillon (s, temps de fiche)
+
+
+func _cascade(id: String, tt: float) -> Dictionary:
+	var end: float = ATK[id].end
+	var ramp := smoothstep(0.0, 0.06, tt)   # l'avance s'installe en douceur au départ du coup (pas de saut depuis la pose d'avant)
+	var by_lead := {}
+	var out := {}
+	for n in CASCADE:
+		var lead: float = CASCADE[n]
+		if not by_lead.has(lead):
+			by_lead[lead] = _pose_at(id, clampf(tt + lead * CASCADE_UNIT * ramp, 0.0, maxf(end, tt)))
+		var r: Dictionary = by_lead[lead]
+		if lead == 2.6:
+			out.hips_pos = r.hips_pos
+			out.ik = r.ik
+		out[n] = r[n]
+	return out
 
 
 ## Pose les articulations du squelette (pieds plantés par IK).

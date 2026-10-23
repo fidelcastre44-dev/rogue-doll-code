@@ -12,6 +12,6 @@ cancel = 99.0
 end = 99.0
 roll_ok = 99.0
 air = true
-flags = PackedStringArray()
+flags = PackedStringArray("anime")
 keys = [[0.0, "from"], [0.1, "sj_dive"], [99.0, "sj_dive"]]
 present = PackedStringArray()

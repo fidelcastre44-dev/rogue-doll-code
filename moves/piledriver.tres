@@ -11,6 +11,6 @@ active = 99.0
 cancel = 99.0
 end = 99.0
 air = true
-flags = PackedStringArray("atelier")
+flags = PackedStringArray("atelier", "anime")
 keys = [[0.0, "from"], [0.12, "pd_hook"], [0.26, "pd_crouch2"], [0.34, "pd_hook"], [0.6, "pd_flat"], [99.0, "pd_flat"]]
 present = PackedStringArray()

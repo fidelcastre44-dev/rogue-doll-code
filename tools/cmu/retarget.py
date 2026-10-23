@@ -207,6 +207,41 @@ def cycle(folder, c):
     return {"clip": c["file"], "frames": frames, "stride": float(move * rt.s), "period": c["period"]}
 
 
+def anime_samples(b, c, src):
+    """Rythme « combat anime » (v0.215) : armé lisible (t0 -> a, en W s), frappe sèche (a -> impact, en S s, 5 images),
+    pose figée à l'impact (H s), retour amorti (impact -> t1, en R s). a = le moment où le membre part vraiment
+    (sa vitesse dépasse 35 % de son pic). Temps réels en secondes, convertis en temps de fiche (× vitesse d'attaque)."""
+    I = b.idx
+    fr = lambda t: int(round(t / b.dt))
+    an = c["anime"]
+    W, S, H, R = (an[k] * ATTACK_SPEED for k in ("windup", "strike", "hold", "recover"))
+    ts = np.arange(c["t0"], c["hit"] + 1e-6, b.dt)
+    pos = np.array([b.fk(fr(x))[0][I[src]] - b.fk(fr(x))[0][0] for x in ts])
+    v = np.r_[0.0, np.linalg.norm(np.diff(pos, axis=0), axis=1)]
+    pk = v.max()
+    a = c["t0"]
+    for x, vv in zip(ts, v):
+        if vv < 0.35 * pk:
+            a = x
+    a = min(max(a, c["t0"] + 0.02), c["hit"] - 0.03)
+    def plant(x):
+        pl = c.get("plant", "lr")
+        for a0, a1, p in c.get("plant_at", []):
+            if a0 <= x <= a1:
+                pl = p
+        return pl
+    out = []
+    for x in np.arange(c["t0"] + 1 / 30, a - 1e-6, 1 / 30):
+        out.append((round((x - c["t0"]) / (a - c["t0"]) * W, 4), float(x), plant(x)))
+    for i in range(5):
+        x = a + (c["hit"] - a) * i / 4
+        out.append((round(W + S * i / 4, 4), float(x), plant(x)))
+    out.append((round(W + S + H, 4), c["hit"], plant(c["hit"])))
+    for x in list(np.arange(c["hit"] + 1 / 30, c["t1"] - 1e-6, 1 / 30)) + [c["t1"]]:
+        out.append((round(W + S + H + (x - c["hit"]) / (c["t1"] - c["hit"]) * R, 4), float(x), plant(x)))
+    return out, {"active": round(W + S, 4), "end": round(W + S + H + R + c.get("blend", 0.08), 4), "hold": round(H, 4)}
+
+
 def getup(folder, c):
     """Relevé (fin d'une fiche) : les clés de la fiche jusqu'à `keep` (temps du jeu) restent (il est couché), puis la capture,
     du bassin qui décolle (t0) à debout (t1), `speed` fois plus vite. Le héros finit planté là où la capture se tient debout."""
@@ -269,7 +304,9 @@ def run(folder, dest):
         ground = min(min((Y @ C @ b.fk(f)[0][I[n]])[1] for n in ("LeftFoot", "RightFoot")) for f in range(lo, hi + 1, 2))
         timing = None
         samples = c.get("samples")
-        if samples is None:
+        if c.get("anime"):
+            samples, timing = anime_samples(b, c, src)
+        elif samples is None:
             # rythme de la capture, accéléré `speed` fois (temps des fiches = avant la vitesse d'attaque du héros)
             sp = c.get("speed", 2.0) / ATTACK_SPEED
             step = c.get("step", 1.0 / 30.0)
@@ -293,7 +330,8 @@ def run(folder, dest):
         rest = [rt.frame(fr(c[k]), yaw, ground, c.get("plant", "lr")) for k in ("t0", "t1")]   # garde de la capture, avant et après
         res[c["move"]] = {"clip": c["file"], "pose": c["pose"], "frames": frames, "rest": rest, "curve": c.get("curve", "lin"),
                           "end_key": c.get("end_key", "guard"), "align": c.get("align", True),
-                          "reach": c.get("reach", False), "timing": timing}
+                          "reach": c.get("reach", False), "timing": timing, "amp": c.get("amp", 1.0), "cancel_r": c.get("cancel_r"),
+                          **({"aim_y": c["aim_y"]} if "aim_y" in c else {})}
     json.dump(res, open(dest, "w"), indent=1)
     print("ok", list(res))
 

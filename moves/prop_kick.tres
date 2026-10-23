@@ -8,9 +8,9 @@ id = &"prop_kick"
 display_name = "Shoot d'objet"
 notes = "Atelier des coups (à tester).
 Animation reprise de la capture CMU 10_01 (tools/cmu)."
-active = 0.2768
-cancel = 0.428
-end = 0.6943
+active = 0.2295
+cancel = 0.452
+end = 0.728
 flags = PackedStringArray("atelier")
-keys = [[0.0, "from"], [0.0225, "cmu_propkick_0", "lin"], [0.045, "cmu_propkick_1", "lin"], [0.0675, "cmu_propkick_2", "lin"], [0.09, "cmu_propkick_3", "lin"], [0.1125, "cmu_propkick_4", "lin"], [0.135, "cmu_propkick_5", "lin"], [0.1575, "cmu_propkick_6", "lin"], [0.18, "cmu_propkick_7", "lin"], [0.2025, "cmu_propkick_8", "lin"], [0.225, "cmu_propkick_9", "lin"], [0.2475, "cmu_propkick_10", "lin"], [0.2768, "cmu_propkick_11", "lin"], [0.2925, "cmu_propkick_12", "lin"], [0.315, "cmu_propkick_13", "lin"], [0.3375, "cmu_propkick_14", "lin"], [0.36, "cmu_propkick_15", "lin"], [0.3825, "cmu_propkick_16", "lin"], [0.405, "cmu_propkick_17", "lin"], [0.4275, "cmu_propkick_18", "lin"], [0.45, "cmu_propkick_19", "lin"], [0.4725, "cmu_propkick_20", "lin"], [0.495, "cmu_propkick_21", "lin"], [0.5175, "cmu_propkick_22", "lin"], [0.54, "cmu_propkick_23", "lin"], [0.5625, "cmu_propkick_24", "lin"], [0.585, "cmu_propkick_25", "lin"], [0.6075, "cmu_propkick_26", "lin"], [0.6143, "cmu_propkick_27", "lin"], [0.6943, "guard", "inout"]]
+keys = [[0.0, "from"], [0.0196, "cmu_propkick_0", "lin"], [0.0393, "cmu_propkick_1", "lin"], [0.0589, "cmu_propkick_2", "lin"], [0.0785, "cmu_propkick_3", "lin"], [0.0982, "cmu_propkick_4", "lin"], [0.1178, "cmu_propkick_5", "lin"], [0.1375, "cmu_propkick_6", "lin"], [0.1571, "cmu_propkick_7", "lin"], [0.162, "cmu_propkick_8", "lin"], [0.1789, "cmu_propkick_9", "lin"], [0.1958, "cmu_propkick_10", "lin"], [0.2126, "cmu_propkick_11", "lin"], [0.2295, "cmu_propkick_12", "lin"], [0.297, "cmu_propkick_13", "lin"], [0.3204, "cmu_propkick_14", "lin"], [0.3438, "cmu_propkick_15", "lin"], [0.3672, "cmu_propkick_16", "lin"], [0.3906, "cmu_propkick_17", "lin"], [0.414, "cmu_propkick_18", "lin"], [0.4374, "cmu_propkick_19", "lin"], [0.4608, "cmu_propkick_20", "lin"], [0.4842, "cmu_propkick_21", "lin"], [0.5076, "cmu_propkick_22", "lin"], [0.531, "cmu_propkick_23", "lin"], [0.5544, "cmu_propkick_24", "lin"], [0.5778, "cmu_propkick_25", "lin"], [0.6012, "cmu_propkick_26", "lin"], [0.6246, "cmu_propkick_27", "lin"], [0.648, "cmu_propkick_28", "lin"], [0.728, "guard", "inout"]]
 present = PackedStringArray()

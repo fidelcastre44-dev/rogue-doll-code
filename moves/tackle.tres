@@ -10,6 +10,6 @@ notes = "Atelier des coups (à tester)."
 active = 99.0
 cancel = 99.0
 end = 99.0
-flags = PackedStringArray("atelier")
+flags = PackedStringArray("atelier", "anime")
 keys = [[0.0, "from"], [0.08, "tk_run"], [99.0, "tk_run"]]
 present = PackedStringArray()

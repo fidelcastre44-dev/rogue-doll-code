@@ -59,10 +59,10 @@ func _run() -> void:
 				md.cancel = snappedf(md.cancel + (md.end - old_end), 0.001)
 			md.keys = kept
 		elif m.get("timing") != null:   # rythme de la capture : la fiche prend ses durées (annulation au même rapport qu'avant)
-			var r := (md.cancel - md.active) / maxf(md.end - md.active, 0.001)
+			var r: float = m.cancel_r if m.get("cancel_r") != null else (md.cancel - md.active) / maxf(md.end - md.active, 0.001)
 			md.active = m.timing.active
 			md.end = m.timing.end
-			md.cancel = snappedf(md.active + r * (md.end - md.active), 0.001)
+			md.cancel = snappedf(md.active + m.timing.get("hold", 0.0) + r * (md.end - md.active - m.timing.get("hold", 0.0)), 0.001)
 		var fr := []
 		var yaw := 0.0
 		for f in m.frames:
@@ -76,6 +76,14 @@ func _run() -> void:
 			yaw = _fit(h, fr, md, old_tips[id].pos, m.get("reach", false))
 		if m.rest != null:
 			_from_guard(h, fr, m.rest, md, yaw)
+		if m.get("amp", 1.0) > 1.0:
+			_exaggerate(h, fr, m.amp)
+			if old_tips.has(id) and m.get("align", true):
+				_fit(h, fr, md, old_tips[id].pos, false, deg_to_rad(20), true)   # l'amplitude a pu dévier un peu la frappe : on la recale (20° au plus)
+				var aim: Array = old_tips[id].pos.duplicate()
+				if m.has("aim_y"):
+					aim[1] = m.aim_y
+				_aim(h, fr, md, Vector3(aim[0], aim[1], aim[2]))
 		if m.get("keep") != null:
 			_above_ground(h, fr)
 		var keys := [[0.0, "from"]] if m.get("keep") == null else md.keys.duplicate()
@@ -204,7 +212,7 @@ func _cycles(h, cyc: Dictionary) -> void:
 
 ## Recale la capture sur l'ancien coup : même direction de frappe (on tourne tout le corps autour des pieds), et au moins
 ## la même allonge (le bassin avance et le pied avant fait un pas pendant le coup, puis reviennent) : la portée du coup ne change pas.
-func _fit(h, fr: Array, md: MoveData, old: Array, reach: bool) -> float:
+func _fit(h, fr: Array, md: MoveData, old: Array, reach: bool, max_turn := PI, bell := false) -> float:
 	var target := Vector3(old[0], old[1], old[2])
 	var hit: Dictionary = fr[0]
 	for F in fr:
@@ -215,11 +223,16 @@ func _fit(h, fr: Array, md: MoveData, old: Array, reach: bool) -> float:
 	for it in 4:   # direction
 		var tip := _tip(h, hit, md.tip)
 		var d: float = flat.call(target).angle_to(flat.call(tip))
+		d = clampf(yaw + d, -max_turn, max_turn) - yaw
 		yaw += d
-		var rot := Basis(Vector3.UP, d)   # angle_to est mesuré dans le plan (x, z) : signe inverse d'une rotation autour de +Y
 		for F in fr:
-			F.hips = Quaternion(Vector3.UP, d) * F.hips
-			F.hips_pos = rot * F.hips_pos
+			# bell : seulement autour de l'impact (le départ et la fin restent sur la garde)
+			var k := 1.0
+			if bell:
+				var hold := md.active + (md.cancel - md.active) * 0.5
+				k = smoothstep(0.0, md.active, F.t) if F.t <= md.active else 1.0 - smoothstep(hold, md.end * 0.9, F.t)
+			F.hips = Quaternion(Vector3.UP, d * k) * F.hips   # angle_to est mesuré dans le plan (x, z) : signe inverse d'une rotation autour de +Y
+			F.hips_pos = Basis(Vector3.UP, d * k) * F.hips_pos
 	var front := ""
 	for s in ["foot_l", "foot_r"]:
 		if hit[s] != null and (front == "" or hit[s].z < hit[front].z):
@@ -267,6 +280,76 @@ func _from_guard(h, fr: Array, rest: Array, md: MoveData, yaw: float) -> void:
 			F[jn] = Quaternion.IDENTITY.slerp(c, 1.0 - w) * F[jn]
 		var rh := Basis(Vector3.UP, yaw) * Vector3(R.hips_pos[0], R.hips_pos[1], R.hips_pos[2])
 		F.hips_pos += (h.GUARD.get("hips_pos", Vector3.ZERO) - rh) * (1.0 - w)
+
+
+## Style combat anime (v0.215) : chaque articulation s'écarte `amp` fois plus de la garde (bassin, buste, épaules, hanches,
+## position du bassin). Coudes et genoux restent entre tendus et repliés ; une rotation ne gagne pas plus de 70° et reste
+## sous 175° (pas de membre qui passe à travers le corps). Les jambes plantées (IK) ne bougent pas.
+func _exaggerate(h, fr: Array, amp: float) -> void:
+	var gr: Dictionary = h._resolve(h.GUARD)
+	var gq := {}
+	for jn in JN:
+		gq[jn] = gr[jn]
+	for s in gr.ik:
+		var leg: Array = h._ik(gr, s)
+		gq["hip_" + s] = leg[0]
+		gq["kn_" + s] = leg[1]
+	var ghp: Vector3 = h.GUARD.get("hips_pos", Vector3.ZERO)
+	for F in fr:
+		for jn in JN:
+			var side: String = jn.substr(jn.length() - 1)
+			if (jn.begins_with("hip_") or jn.begins_with("kn_")) and F["foot_" + side] != null:
+				continue
+			var g: Quaternion = gq[jn]
+			var q: Quaternion = F[jn]
+			if jn.begins_with("el_") or jn.begins_with("kn_"):   # charnière : un seul angle, autour de X
+				var a0 := wrapf(2.0 * atan2(g.x, g.w), -PI, PI)
+				var a1 := wrapf(2.0 * atan2(q.x, q.w), -PI, PI)
+				var na := a0 + (a1 - a0) * amp
+				na = clampf(na, 0.0, deg_to_rad(160)) if jn.begins_with("el_") else clampf(na, deg_to_rad(-160), 0.0)
+				F[jn] = Quaternion(Vector3.RIGHT, na)
+				continue
+			var d := g.inverse() * q
+			var ang := d.get_angle()
+			if ang < 0.001:
+				continue
+			var k := amp if jn != "hips" else 1.0 + (amp - 1.0) * 0.4   # bassin : moins (sinon il tourne le dos à l'ennemi)
+			var na := minf(minf(ang * k, ang + deg_to_rad(70)), deg_to_rad(175))
+			F[jn] = g * Quaternion(d.get_axis().normalized(), na)
+		var hp: Vector3 = ghp + (F.hips_pos - ghp) * amp
+		hp.y = maxf(hp.y, -0.55)
+		F.hips_pos = hp
+
+
+## Vise : autour de l'impact, le membre qui frappe (bras ou jambe) est tourné depuis l'épaule / la hanche pour que le poing
+## ou le pied parte vers la cible (direction et hauteur de l'ancien coup), à sa propre allonge. Dosé en cloche autour de l'impact.
+func _aim(h, fr: Array, md: MoveData, target: Vector3) -> void:
+	var side: String = md.tip.substr(md.tip.length() - 1)
+	var root_j: String = ("sh_" if md.tip.begins_with("fist") else "hip_") + side
+	var parent: String = "spine" if root_j.begins_with("sh") else "hips"
+	var hold := md.active + (md.cancel - md.active) * 0.5
+	for F in fr:
+		var w := smoothstep(md.active * 0.35, md.active, F.t) if F.t <= md.active else 1.0 - smoothstep(md.active, hold + 0.1, F.t)
+		if w <= 0.0:
+			continue
+		for it in 2:
+			_tip(h, F, md.tip)
+			var piv: Vector3 = h.global_basis.inverse() * (h.j[root_j].global_position - h.global_position)
+			var tipp: Vector3 = h.global_basis.inverse() * (h.j[md.tip].global_position - h.global_position)
+			var cur := (tipp - piv).normalized()
+			# cible : là où frappait l'ancien coup (les coups de pied : au moins à 80 % de l'allonge de la jambe)
+			var limb := 0.6 if root_j.begins_with("sh") else 0.88
+			var flat := Vector2(target.x, target.z)
+			var reach_h := flat.length() if root_j.begins_with("sh") else maxf(flat.length(), Vector2(piv.x, piv.z).length() + limb * 0.8)   # pieds : au moins 80 % de l'allonge
+			var tgt := Vector3(flat.normalized().x * reach_h, target.y, flat.normalized().y * reach_h)
+			var want := (tgt - piv).normalized()
+			if cur.dot(want) > 0.9999:
+				break
+			var rot := Quaternion(cur, want)
+			var pb: Basis = (h.global_basis.inverse() * h.j[parent].global_basis).orthonormalized()
+			var pq := pb.get_rotation_quaternion()
+			var local_rot := pq.inverse() * rot * pq   # la même rotation, dans le repère du parent
+			F[root_j] = Quaternion.IDENTITY.slerp(local_rot, w) * F[root_j]
 
 
 ## Relevés : nos bras sont plus longs que ceux de la capture (rapport aux jambes) ; quand une main, la tête ou un pied passe

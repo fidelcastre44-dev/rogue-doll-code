@@ -239,6 +239,15 @@ se hisser sur un rebord, glissade, atterrissages, coups aériens.
 - Pas de capture qui corresponde : coup de pied retourné, lancers d'objet (la capture lance une balle à une main), parade,
   ramasser, coups aériens, prises : restent faits main.
 
+## Version 0.215 : style combat anime
+
+- **Coups capturés** (jab, direct, chassé, high kick, crochet, uppercut, shoots) : amplitude × 1,8 (écart à la garde) et rythme anime :
+  armé lisible, frappe sèche en 3-4 images, pose figée 0,05 s à l'impact, retour amorti. Le chassé touche en 0,14 s (0,27 avant).
+  La frappe est revisée vers l'ancien point d'impact (le chassé va plus loin et plus haut, façon anime).
+- **Animations faites main** (71 fiches) : cascade (le bassin part en avance, puis buste, épaules, le bras arrive pile à l'impact,
+  la tête suit) ; les 42 coups (frappes, prises, lancers, aériens) ont leurs poses amplifiées × 1,8 et le figé de 0,05 s
+  (outil `tools/anime_moves.gd`, relançable ; clés d'origine dans `tools/anime/source.json`).
+
 ## Problèmes notés (à régler plus tard)
 
 - **Chope plongeante** : en pratique on n'a presque jamais d'ennemi en l'air à attraper, sauf après un shoryuken ou un lanceur ; souvent on l'a débloquée sans rien pour faire décoller les ennemis. Pistes : la proposer seulement si on a un lanceur, la rendre possible sur un ennemi debout (saut + R1 = il l'emporte), ou donner un petit lanceur de base.

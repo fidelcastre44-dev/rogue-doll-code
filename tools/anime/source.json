@@ -1,0 +1,3884 @@
+{
+	"air": {
+		"active": 0.06,
+		"cancel": 0.14,
+		"end": 0.24,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.06,
+				"air_jab"
+			],
+			[
+				0.1,
+				"air_jab"
+			],
+			[
+				0.24,
+				"air_rest"
+			]
+		]
+	},
+	"air_cross": {
+		"active": 0.06,
+		"cancel": 0.14,
+		"end": 0.24,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.06,
+				"air_cross"
+			],
+			[
+				0.1,
+				"air_cross"
+			],
+			[
+				0.24,
+				"air_rest"
+			]
+		]
+	},
+	"air_hook": {
+		"active": 0.12,
+		"cancel": 0.26,
+		"end": 0.4,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.07,
+				"air_hook_load"
+			],
+			[
+				0.12,
+				"air_hook",
+				"in"
+			],
+			[
+				0.18,
+				"air_hook_through"
+			],
+			[
+				0.4,
+				"air_rest"
+			]
+		]
+	},
+	"air_kick": {
+		"active": 0.27,
+		"cancel": 0.5,
+		"end": 0.55,
+		"flags": [
+			"dropkick"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.1,
+				"dk_tuck1"
+			],
+			[
+				0.2,
+				"dk_tuck2"
+			],
+			[
+				0.27,
+				"dk_ext"
+			],
+			[
+				0.4,
+				"dk_ext"
+			],
+			[
+				0.55,
+				"air_rest"
+			]
+		]
+	},
+	"air_knee": {
+		"active": 0.1,
+		"cancel": 0.24,
+		"end": 0.34,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.1,
+				"knee_up"
+			],
+			[
+				0.17,
+				"knee_up"
+			],
+			[
+				0.34,
+				"air_rest"
+			]
+		]
+	},
+	"air_slam": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.08,
+				"grab_reach"
+			],
+			[
+				0.2,
+				"airslam_dive"
+			],
+			[
+				99.0,
+				"airslam_dive"
+			]
+		]
+	},
+	"air_upper": {
+		"active": 0.1,
+		"cancel": 0.26,
+		"end": 0.36,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.05,
+				"air_upper_load"
+			],
+			[
+				0.1,
+				"air_upper",
+				"in"
+			],
+			[
+				0.18,
+				"air_upper"
+			],
+			[
+				0.36,
+				"air_rest"
+			]
+		]
+	},
+	"airslam_land": {
+		"active": 99.0,
+		"cancel": 0.3,
+		"end": 0.5,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.05,
+				"pound",
+				"in"
+			],
+			[
+				0.25,
+				"pound"
+			],
+			[
+				0.5,
+				"guard"
+			]
+		]
+	},
+	"axe": {
+		"active": 0.3,
+		"cancel": 0.42,
+		"end": 0.62,
+		"flags": [
+			"crush"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.06,
+				"fl_crouch"
+			],
+			[
+				0.14,
+				"fl_tuck1"
+			],
+			[
+				0.22,
+				"fl_tuck2"
+			],
+			[
+				0.3,
+				"fl_strike",
+				"in"
+			],
+			[
+				0.38,
+				"fl_through"
+			],
+			[
+				0.62,
+				"fl_land"
+			]
+		]
+	},
+	"bicycle": {
+		"active": 0.16,
+		"cancel": 0.42,
+		"end": 0.6,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.07,
+				"bc2_load"
+			],
+			[
+				0.13,
+				"bc2_over"
+			],
+			[
+				0.2,
+				"bc2_kick",
+				"in"
+			],
+			[
+				0.32,
+				"bc2_kick"
+			],
+			[
+				0.6,
+				"air_rest"
+			]
+		]
+	},
+	"capoeira": {
+		"active": 0.12,
+		"cancel": 0.42,
+		"end": 0.6,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.08,
+				"cp_hands"
+			],
+			[
+				0.42,
+				"cp_hands"
+			],
+			[
+				0.6,
+				"guard"
+			]
+		]
+	},
+	"charge": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.12,
+				"chamber"
+			],
+			[
+				99.0,
+				"chamber"
+			]
+		]
+	},
+	"charge_hado": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.15,
+				"hado_load"
+			],
+			[
+				99.0,
+				"hado_load"
+			]
+		]
+	},
+	"charge_sho": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.15,
+				"sho_load"
+			],
+			[
+				99.0,
+				"sho_load"
+			]
+		]
+	},
+	"cheese_grater": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.12,
+				"cg_drag_l"
+			],
+			[
+				99.0,
+				"cg_drag_l"
+			]
+		]
+	},
+	"cheese_grater_r": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.12,
+				"cg_drag_r"
+			],
+			[
+				99.0,
+				"cg_drag_r"
+			]
+		]
+	},
+	"club_hold": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.15,
+				"club_hold"
+			],
+			[
+				99.0,
+				"club_hold"
+			]
+		]
+	},
+	"club_swing": {
+		"active": 0.62,
+		"cancel": 0.75,
+		"end": 0.8,
+		"flags": [
+			"club"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.16,
+				"club_side"
+			],
+			[
+				0.32,
+				"club_back",
+				"lin"
+			],
+			[
+				0.46,
+				"club_up",
+				"lin"
+			],
+			[
+				0.62,
+				"club_down",
+				"in"
+			],
+			[
+				0.8,
+				"club_hold"
+			]
+		]
+	},
+	"collar": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.12,
+				"collar_hold"
+			],
+			[
+				99.0,
+				"collar_hold"
+			]
+		]
+	},
+	"collar_finish": {
+		"active": 0.0,
+		"cancel": 0.05,
+		"end": 0.25,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"collar_punch"
+			],
+			[
+				0.25,
+				"guard"
+			]
+		]
+	},
+	"collar_punch": {
+		"active": 0.06,
+		"cancel": 0.13,
+		"end": 0.18,
+		"flags": [
+			"collar_punch"
+		],
+		"keys": [
+			[
+				0.0,
+				"collar_hold"
+			],
+			[
+				0.06,
+				"collar_punch"
+			],
+			[
+				0.09,
+				"collar_punch"
+			],
+			[
+				0.18,
+				"collar_hold"
+			]
+		]
+	},
+	"cross": {
+		"active": 0.1418,
+		"cancel": 0.443,
+		"end": 0.5593,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.0117,
+				"cmu_cross_0",
+				"lin"
+			],
+			[
+				0.0233,
+				"cmu_cross_1",
+				"lin"
+			],
+			[
+				0.035,
+				"cmu_cross_2",
+				"lin"
+			],
+			[
+				0.0467,
+				"cmu_cross_3",
+				"lin"
+			],
+			[
+				0.0583,
+				"cmu_cross_4",
+				"lin"
+			],
+			[
+				0.07,
+				"cmu_cross_5",
+				"lin"
+			],
+			[
+				0.0817,
+				"cmu_cross_6",
+				"lin"
+			],
+			[
+				0.0933,
+				"cmu_cross_7",
+				"lin"
+			],
+			[
+				0.0945,
+				"cmu_cross_8",
+				"lin"
+			],
+			[
+				0.1063,
+				"cmu_cross_9",
+				"lin"
+			],
+			[
+				0.1181,
+				"cmu_cross_10",
+				"lin"
+			],
+			[
+				0.1299,
+				"cmu_cross_11",
+				"lin"
+			],
+			[
+				0.1418,
+				"cmu_cross_12",
+				"lin"
+			],
+			[
+				0.2093,
+				"cmu_cross_13",
+				"lin"
+			],
+			[
+				0.2426,
+				"cmu_cross_14",
+				"lin"
+			],
+			[
+				0.2759,
+				"cmu_cross_15",
+				"lin"
+			],
+			[
+				0.3093,
+				"cmu_cross_16",
+				"lin"
+			],
+			[
+				0.3426,
+				"cmu_cross_17",
+				"lin"
+			],
+			[
+				0.3759,
+				"cmu_cross_18",
+				"lin"
+			],
+			[
+				0.4093,
+				"cmu_cross_19",
+				"lin"
+			],
+			[
+				0.4426,
+				"cmu_cross_20",
+				"lin"
+			],
+			[
+				0.4759,
+				"cmu_cross_21",
+				"lin"
+			],
+			[
+				0.4793,
+				"cmu_cross_22",
+				"lin"
+			],
+			[
+				0.5593,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"disarm": {
+		"active": 0.1,
+		"cancel": 0.3,
+		"end": 0.42,
+		"flags": [
+			"v212"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.08,
+				"dis_grab"
+			],
+			[
+				0.2,
+				"dis_pull"
+			],
+			[
+				0.42,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"dive": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.11,
+				"air_hammer_up"
+			],
+			[
+				0.2,
+				"air_hammer_arch",
+				"lin"
+			],
+			[
+				99.0,
+				"air_hammer_arch"
+			]
+		]
+	},
+	"dive_kick": {
+		"active": 0.05,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.05,
+				"divekick"
+			],
+			[
+				99.0,
+				"divekick"
+			]
+		]
+	},
+	"dive_land": {
+		"active": 99.0,
+		"cancel": 0.3,
+		"end": 0.5,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.05,
+				"pound",
+				"in"
+			],
+			[
+				0.26,
+				"pound"
+			],
+			[
+				0.5,
+				"guard"
+			]
+		]
+	},
+	"drop_kick": {
+		"active": 0.18,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.08,
+				"dk_tuck1"
+			],
+			[
+				0.18,
+				"dk_ext",
+				"in"
+			],
+			[
+				0.4,
+				"dk_ext"
+			],
+			[
+				99.0,
+				"dk_ext"
+			]
+		]
+	},
+	"drop_land": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 2.811,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.06,
+				"back_lie",
+				"in"
+			],
+			[
+				0.5,
+				"back_lie"
+			],
+			[
+				0.85,
+				"back_lie2"
+			],
+			[
+				1.25,
+				"back_lie"
+			],
+			[
+				1.6,
+				"back_lie2"
+			],
+			[
+				1.66,
+				"cmu_up_drop_0",
+				"lin"
+			],
+			[
+				1.69,
+				"cmu_up_drop_1",
+				"lin"
+			],
+			[
+				1.72,
+				"cmu_up_drop_2",
+				"lin"
+			],
+			[
+				1.75,
+				"cmu_up_drop_3",
+				"lin"
+			],
+			[
+				1.78,
+				"cmu_up_drop_4",
+				"lin"
+			],
+			[
+				1.81,
+				"cmu_up_drop_5",
+				"lin"
+			],
+			[
+				1.84,
+				"cmu_up_drop_6",
+				"lin"
+			],
+			[
+				1.87,
+				"cmu_up_drop_7",
+				"lin"
+			],
+			[
+				1.9,
+				"cmu_up_drop_8",
+				"lin"
+			],
+			[
+				1.93,
+				"cmu_up_drop_9",
+				"lin"
+			],
+			[
+				1.96,
+				"cmu_up_drop_10",
+				"lin"
+			],
+			[
+				1.99,
+				"cmu_up_drop_11",
+				"lin"
+			],
+			[
+				2.02,
+				"cmu_up_drop_12",
+				"lin"
+			],
+			[
+				2.05,
+				"cmu_up_drop_13",
+				"lin"
+			],
+			[
+				2.08,
+				"cmu_up_drop_14",
+				"lin"
+			],
+			[
+				2.11,
+				"cmu_up_drop_15",
+				"lin"
+			],
+			[
+				2.14,
+				"cmu_up_drop_16",
+				"lin"
+			],
+			[
+				2.17,
+				"cmu_up_drop_17",
+				"lin"
+			],
+			[
+				2.2,
+				"cmu_up_drop_18",
+				"lin"
+			],
+			[
+				2.23,
+				"cmu_up_drop_19",
+				"lin"
+			],
+			[
+				2.26,
+				"cmu_up_drop_20",
+				"lin"
+			],
+			[
+				2.29,
+				"cmu_up_drop_21",
+				"lin"
+			],
+			[
+				2.32,
+				"cmu_up_drop_22",
+				"lin"
+			],
+			[
+				2.35,
+				"cmu_up_drop_23",
+				"lin"
+			],
+			[
+				2.38,
+				"cmu_up_drop_24",
+				"lin"
+			],
+			[
+				2.41,
+				"cmu_up_drop_25",
+				"lin"
+			],
+			[
+				2.44,
+				"cmu_up_drop_26",
+				"lin"
+			],
+			[
+				2.47,
+				"cmu_up_drop_27",
+				"lin"
+			],
+			[
+				2.5,
+				"cmu_up_drop_28",
+				"lin"
+			],
+			[
+				2.53,
+				"cmu_up_drop_29",
+				"lin"
+			],
+			[
+				2.56,
+				"cmu_up_drop_30",
+				"lin"
+			],
+			[
+				2.59,
+				"cmu_up_drop_31",
+				"lin"
+			],
+			[
+				2.62,
+				"cmu_up_drop_32",
+				"lin"
+			],
+			[
+				2.65,
+				"cmu_up_drop_33",
+				"lin"
+			],
+			[
+				2.68,
+				"cmu_up_drop_34",
+				"lin"
+			],
+			[
+				2.71,
+				"cmu_up_drop_35",
+				"lin"
+			],
+			[
+				2.731,
+				"cmu_up_drop_36",
+				"lin"
+			],
+			[
+				2.811,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"elbow": {
+		"active": 0.09,
+		"cancel": 0.2,
+		"end": 0.34,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.05,
+				"elbow_load"
+			],
+			[
+				0.09,
+				"elbow",
+				"in"
+			],
+			[
+				0.15,
+				"elbow"
+			],
+			[
+				0.34,
+				"guard"
+			]
+		]
+	},
+	"flip_jump": {
+		"active": 99.0,
+		"cancel": 0.2,
+		"end": 0.34,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.1,
+				"fl_tuck1"
+			],
+			[
+				0.2,
+				"fl_tuck2"
+			],
+			[
+				0.34,
+				"air_rest"
+			]
+		]
+	},
+	"flop": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				99.0,
+				"from"
+			]
+		]
+	},
+	"flop_land": {
+		"active": 99.0,
+		"cancel": 1.013,
+		"end": 1.2635,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.06,
+				"cmu_up_flop_0",
+				"lin"
+			],
+			[
+				0.3,
+				"cmu_up_flop_1",
+				"lin"
+			],
+			[
+				0.39,
+				"cmu_up_flop_2",
+				"lin"
+			],
+			[
+				0.42,
+				"cmu_up_flop_3",
+				"lin"
+			],
+			[
+				0.45,
+				"cmu_up_flop_4",
+				"lin"
+			],
+			[
+				0.48,
+				"cmu_up_flop_5",
+				"lin"
+			],
+			[
+				0.51,
+				"cmu_up_flop_6",
+				"lin"
+			],
+			[
+				0.54,
+				"cmu_up_flop_7",
+				"lin"
+			],
+			[
+				0.57,
+				"cmu_up_flop_8",
+				"lin"
+			],
+			[
+				0.6,
+				"cmu_up_flop_9",
+				"lin"
+			],
+			[
+				0.63,
+				"cmu_up_flop_10",
+				"lin"
+			],
+			[
+				0.66,
+				"cmu_up_flop_11",
+				"lin"
+			],
+			[
+				0.69,
+				"cmu_up_flop_12",
+				"lin"
+			],
+			[
+				0.72,
+				"cmu_up_flop_13",
+				"lin"
+			],
+			[
+				0.75,
+				"cmu_up_flop_14",
+				"lin"
+			],
+			[
+				0.78,
+				"cmu_up_flop_15",
+				"lin"
+			],
+			[
+				0.81,
+				"cmu_up_flop_16",
+				"lin"
+			],
+			[
+				0.84,
+				"cmu_up_flop_17",
+				"lin"
+			],
+			[
+				0.87,
+				"cmu_up_flop_18",
+				"lin"
+			],
+			[
+				0.9,
+				"cmu_up_flop_19",
+				"lin"
+			],
+			[
+				0.93,
+				"cmu_up_flop_20",
+				"lin"
+			],
+			[
+				0.96,
+				"cmu_up_flop_21",
+				"lin"
+			],
+			[
+				0.99,
+				"cmu_up_flop_22",
+				"lin"
+			],
+			[
+				1.02,
+				"cmu_up_flop_23",
+				"lin"
+			],
+			[
+				1.05,
+				"cmu_up_flop_24",
+				"lin"
+			],
+			[
+				1.08,
+				"cmu_up_flop_25",
+				"lin"
+			],
+			[
+				1.11,
+				"cmu_up_flop_26",
+				"lin"
+			],
+			[
+				1.14,
+				"cmu_up_flop_27",
+				"lin"
+			],
+			[
+				1.17,
+				"cmu_up_flop_28",
+				"lin"
+			],
+			[
+				1.1835,
+				"cmu_up_flop_29",
+				"lin"
+			],
+			[
+				1.2635,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"flop_prep": {
+		"active": 0.16,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [
+			"flop_launch"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.12,
+				"flop_crouch",
+				"in"
+			],
+			[
+				99.0,
+				"flop_crouch"
+			]
+		]
+	},
+	"grab": {
+		"active": 0.1,
+		"cancel": 0.5,
+		"end": 0.5,
+		"flags": [
+			"grab"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.1,
+				"grab_reach"
+			],
+			[
+				0.28,
+				"grab_reach"
+			],
+			[
+				0.5,
+				"guard"
+			]
+		]
+	},
+	"hadoken": {
+		"active": 0.11,
+		"cancel": 0.26,
+		"end": 0.38,
+		"flags": [
+			"projectile"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.06,
+				"hado_load"
+			],
+			[
+				0.11,
+				"hado_push",
+				"in"
+			],
+			[
+				0.22,
+				"hado_push"
+			],
+			[
+				0.38,
+				"guard"
+			]
+		]
+	},
+	"hammer": {
+		"active": 0.21,
+		"cancel": 0.26,
+		"end": 0.38,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.11,
+				"air_hammer_up"
+			],
+			[
+				0.17,
+				"air_hammer_arch",
+				"lin"
+			],
+			[
+				0.21,
+				"air_hammer",
+				"in"
+			],
+			[
+				0.26,
+				"air_hammer"
+			],
+			[
+				0.38,
+				"air_rest"
+			]
+		]
+	},
+	"hammer_fist": {
+		"active": 0.22,
+		"cancel": 0.4,
+		"end": 0.6,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.12,
+				"hf_up"
+			],
+			[
+				0.22,
+				"pound",
+				"in"
+			],
+			[
+				0.4,
+				"pound"
+			],
+			[
+				0.6,
+				"guard"
+			]
+		]
+	},
+	"headbutt": {
+		"active": 0.24,
+		"cancel": 0.32,
+		"end": 0.5,
+		"flags": [
+			"headbutt"
+		],
+		"keys": [
+			[
+				0.0,
+				"collar_hold"
+			],
+			[
+				0.12,
+				"hb_load"
+			],
+			[
+				0.17,
+				"hb_load"
+			],
+			[
+				0.24,
+				"hb_hit",
+				"in"
+			],
+			[
+				0.3,
+				"hb_hit"
+			],
+			[
+				0.5,
+				"guard"
+			]
+		]
+	},
+	"hikick": {
+		"active": 0.243,
+		"cancel": 0.625,
+		"end": 0.7685,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.0139,
+				"cmu_hikick_0",
+				"lin"
+			],
+			[
+				0.0279,
+				"cmu_hikick_1",
+				"lin"
+			],
+			[
+				0.0418,
+				"cmu_hikick_2",
+				"lin"
+			],
+			[
+				0.0557,
+				"cmu_hikick_3",
+				"lin"
+			],
+			[
+				0.0696,
+				"cmu_hikick_4",
+				"lin"
+			],
+			[
+				0.0836,
+				"cmu_hikick_5",
+				"lin"
+			],
+			[
+				0.0975,
+				"cmu_hikick_6",
+				"lin"
+			],
+			[
+				0.1114,
+				"cmu_hikick_7",
+				"lin"
+			],
+			[
+				0.1254,
+				"cmu_hikick_8",
+				"lin"
+			],
+			[
+				0.1393,
+				"cmu_hikick_9",
+				"lin"
+			],
+			[
+				0.1532,
+				"cmu_hikick_10",
+				"lin"
+			],
+			[
+				0.1671,
+				"cmu_hikick_11",
+				"lin"
+			],
+			[
+				0.1755,
+				"cmu_hikick_12",
+				"lin"
+			],
+			[
+				0.1924,
+				"cmu_hikick_13",
+				"lin"
+			],
+			[
+				0.2093,
+				"cmu_hikick_14",
+				"lin"
+			],
+			[
+				0.2261,
+				"cmu_hikick_15",
+				"lin"
+			],
+			[
+				0.243,
+				"cmu_hikick_16",
+				"lin"
+			],
+			[
+				0.3105,
+				"cmu_hikick_17",
+				"lin"
+			],
+			[
+				0.3385,
+				"cmu_hikick_18",
+				"lin"
+			],
+			[
+				0.3665,
+				"cmu_hikick_19",
+				"lin"
+			],
+			[
+				0.3945,
+				"cmu_hikick_20",
+				"lin"
+			],
+			[
+				0.4225,
+				"cmu_hikick_21",
+				"lin"
+			],
+			[
+				0.4505,
+				"cmu_hikick_22",
+				"lin"
+			],
+			[
+				0.4785,
+				"cmu_hikick_23",
+				"lin"
+			],
+			[
+				0.5065,
+				"cmu_hikick_24",
+				"lin"
+			],
+			[
+				0.5345,
+				"cmu_hikick_25",
+				"lin"
+			],
+			[
+				0.5625,
+				"cmu_hikick_26",
+				"lin"
+			],
+			[
+				0.5905,
+				"cmu_hikick_27",
+				"lin"
+			],
+			[
+				0.6185,
+				"cmu_hikick_28",
+				"lin"
+			],
+			[
+				0.6465,
+				"cmu_hikick_29",
+				"lin"
+			],
+			[
+				0.6745,
+				"cmu_hikick_30",
+				"lin"
+			],
+			[
+				0.6885,
+				"cmu_hikick_31",
+				"lin"
+			],
+			[
+				0.7685,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"hip_throw": {
+		"active": 0.36,
+		"cancel": 0.62,
+		"end": 0.85,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.12,
+				"ht2_load"
+			],
+			[
+				0.36,
+				"ht2_throw",
+				"in"
+			],
+			[
+				0.55,
+				"ht2_throw"
+			],
+			[
+				0.85,
+				"guard"
+			]
+		]
+	},
+	"hook": {
+		"active": 0.189,
+		"cancel": 0.527,
+		"end": 0.6335,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.0771,
+				"cmu_hook_0",
+				"lin"
+			],
+			[
+				0.135,
+				"cmu_hook_1",
+				"lin"
+			],
+			[
+				0.1485,
+				"cmu_hook_2",
+				"lin"
+			],
+			[
+				0.162,
+				"cmu_hook_3",
+				"lin"
+			],
+			[
+				0.1755,
+				"cmu_hook_4",
+				"lin"
+			],
+			[
+				0.189,
+				"cmu_hook_5",
+				"lin"
+			],
+			[
+				0.2565,
+				"cmu_hook_6",
+				"lin"
+			],
+			[
+				0.2826,
+				"cmu_hook_7",
+				"lin"
+			],
+			[
+				0.3086,
+				"cmu_hook_8",
+				"lin"
+			],
+			[
+				0.3347,
+				"cmu_hook_9",
+				"lin"
+			],
+			[
+				0.3607,
+				"cmu_hook_10",
+				"lin"
+			],
+			[
+				0.3868,
+				"cmu_hook_11",
+				"lin"
+			],
+			[
+				0.4128,
+				"cmu_hook_12",
+				"lin"
+			],
+			[
+				0.4389,
+				"cmu_hook_13",
+				"lin"
+			],
+			[
+				0.4649,
+				"cmu_hook_14",
+				"lin"
+			],
+			[
+				0.491,
+				"cmu_hook_15",
+				"lin"
+			],
+			[
+				0.517,
+				"cmu_hook_16",
+				"lin"
+			],
+			[
+				0.5431,
+				"cmu_hook_17",
+				"lin"
+			],
+			[
+				0.5535,
+				"cmu_hook_18",
+				"lin"
+			],
+			[
+				0.6335,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"jab": {
+		"active": 0.108,
+		"cancel": 0.387,
+		"end": 0.4715,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.0098,
+				"cmu_jab_0",
+				"lin"
+			],
+			[
+				0.0196,
+				"cmu_jab_1",
+				"lin"
+			],
+			[
+				0.0293,
+				"cmu_jab_2",
+				"lin"
+			],
+			[
+				0.0391,
+				"cmu_jab_3",
+				"lin"
+			],
+			[
+				0.0489,
+				"cmu_jab_4",
+				"lin"
+			],
+			[
+				0.0587,
+				"cmu_jab_5",
+				"lin"
+			],
+			[
+				0.0675,
+				"cmu_jab_6",
+				"lin"
+			],
+			[
+				0.0776,
+				"cmu_jab_7",
+				"lin"
+			],
+			[
+				0.0878,
+				"cmu_jab_8",
+				"lin"
+			],
+			[
+				0.0979,
+				"cmu_jab_9",
+				"lin"
+			],
+			[
+				0.108,
+				"cmu_jab_10",
+				"lin"
+			],
+			[
+				0.1755,
+				"cmu_jab_11",
+				"lin"
+			],
+			[
+				0.2055,
+				"cmu_jab_12",
+				"lin"
+			],
+			[
+				0.2355,
+				"cmu_jab_13",
+				"lin"
+			],
+			[
+				0.2655,
+				"cmu_jab_14",
+				"lin"
+			],
+			[
+				0.2955,
+				"cmu_jab_15",
+				"lin"
+			],
+			[
+				0.3255,
+				"cmu_jab_16",
+				"lin"
+			],
+			[
+				0.3555,
+				"cmu_jab_17",
+				"lin"
+			],
+			[
+				0.3855,
+				"cmu_jab_18",
+				"lin"
+			],
+			[
+				0.3915,
+				"cmu_jab_19",
+				"lin"
+			],
+			[
+				0.4715,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"kick": {
+		"active": 0.189,
+		"cancel": 0.551,
+		"end": 0.6875,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.0087,
+				"cmu_kick_0",
+				"lin"
+			],
+			[
+				0.0173,
+				"cmu_kick_1",
+				"lin"
+			],
+			[
+				0.026,
+				"cmu_kick_2",
+				"lin"
+			],
+			[
+				0.0346,
+				"cmu_kick_3",
+				"lin"
+			],
+			[
+				0.0433,
+				"cmu_kick_4",
+				"lin"
+			],
+			[
+				0.0519,
+				"cmu_kick_5",
+				"lin"
+			],
+			[
+				0.0606,
+				"cmu_kick_6",
+				"lin"
+			],
+			[
+				0.0692,
+				"cmu_kick_7",
+				"lin"
+			],
+			[
+				0.0779,
+				"cmu_kick_8",
+				"lin"
+			],
+			[
+				0.0865,
+				"cmu_kick_9",
+				"lin"
+			],
+			[
+				0.0952,
+				"cmu_kick_10",
+				"lin"
+			],
+			[
+				0.1038,
+				"cmu_kick_11",
+				"lin"
+			],
+			[
+				0.1125,
+				"cmu_kick_12",
+				"lin"
+			],
+			[
+				0.1212,
+				"cmu_kick_13",
+				"lin"
+			],
+			[
+				0.1298,
+				"cmu_kick_14",
+				"lin"
+			],
+			[
+				0.135,
+				"cmu_kick_15",
+				"lin"
+			],
+			[
+				0.1485,
+				"cmu_kick_16",
+				"lin"
+			],
+			[
+				0.162,
+				"cmu_kick_17",
+				"lin"
+			],
+			[
+				0.1755,
+				"cmu_kick_18",
+				"lin"
+			],
+			[
+				0.189,
+				"cmu_kick_19",
+				"lin"
+			],
+			[
+				0.2565,
+				"cmu_kick_20",
+				"lin"
+			],
+			[
+				0.2737,
+				"cmu_kick_21",
+				"lin"
+			],
+			[
+				0.2909,
+				"cmu_kick_22",
+				"lin"
+			],
+			[
+				0.3081,
+				"cmu_kick_23",
+				"lin"
+			],
+			[
+				0.3253,
+				"cmu_kick_24",
+				"lin"
+			],
+			[
+				0.3425,
+				"cmu_kick_25",
+				"lin"
+			],
+			[
+				0.3597,
+				"cmu_kick_26",
+				"lin"
+			],
+			[
+				0.3769,
+				"cmu_kick_27",
+				"lin"
+			],
+			[
+				0.3941,
+				"cmu_kick_28",
+				"lin"
+			],
+			[
+				0.4114,
+				"cmu_kick_29",
+				"lin"
+			],
+			[
+				0.4286,
+				"cmu_kick_30",
+				"lin"
+			],
+			[
+				0.4458,
+				"cmu_kick_31",
+				"lin"
+			],
+			[
+				0.463,
+				"cmu_kick_32",
+				"lin"
+			],
+			[
+				0.4802,
+				"cmu_kick_33",
+				"lin"
+			],
+			[
+				0.4974,
+				"cmu_kick_34",
+				"lin"
+			],
+			[
+				0.5146,
+				"cmu_kick_35",
+				"lin"
+			],
+			[
+				0.5318,
+				"cmu_kick_36",
+				"lin"
+			],
+			[
+				0.549,
+				"cmu_kick_37",
+				"lin"
+			],
+			[
+				0.5662,
+				"cmu_kick_38",
+				"lin"
+			],
+			[
+				0.5834,
+				"cmu_kick_39",
+				"lin"
+			],
+			[
+				0.6006,
+				"cmu_kick_40",
+				"lin"
+			],
+			[
+				0.6075,
+				"cmu_kick_41",
+				"lin"
+			],
+			[
+				0.6875,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"knee": {
+		"active": 0.1,
+		"cancel": 0.2,
+		"end": 0.34,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.1,
+				"knee_up"
+			],
+			[
+				0.17,
+				"knee_up"
+			],
+			[
+				0.34,
+				"air_rest"
+			]
+		]
+	},
+	"leg_mill": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.08,
+				"mill"
+			],
+			[
+				99.0,
+				"mill"
+			]
+		]
+	},
+	"pd_land": {
+		"active": 99.0,
+		"cancel": 1.342,
+		"end": 1.591,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.05,
+				"back_lie",
+				"in"
+			],
+			[
+				0.38,
+				"back_lie"
+			],
+			[
+				0.44,
+				"cmu_up_pd_0",
+				"lin"
+			],
+			[
+				0.47,
+				"cmu_up_pd_1",
+				"lin"
+			],
+			[
+				0.5,
+				"cmu_up_pd_2",
+				"lin"
+			],
+			[
+				0.53,
+				"cmu_up_pd_3",
+				"lin"
+			],
+			[
+				0.56,
+				"cmu_up_pd_4",
+				"lin"
+			],
+			[
+				0.59,
+				"cmu_up_pd_5",
+				"lin"
+			],
+			[
+				0.62,
+				"cmu_up_pd_6",
+				"lin"
+			],
+			[
+				0.65,
+				"cmu_up_pd_7",
+				"lin"
+			],
+			[
+				0.68,
+				"cmu_up_pd_8",
+				"lin"
+			],
+			[
+				0.71,
+				"cmu_up_pd_9",
+				"lin"
+			],
+			[
+				0.74,
+				"cmu_up_pd_10",
+				"lin"
+			],
+			[
+				0.77,
+				"cmu_up_pd_11",
+				"lin"
+			],
+			[
+				0.8,
+				"cmu_up_pd_12",
+				"lin"
+			],
+			[
+				0.83,
+				"cmu_up_pd_13",
+				"lin"
+			],
+			[
+				0.86,
+				"cmu_up_pd_14",
+				"lin"
+			],
+			[
+				0.89,
+				"cmu_up_pd_15",
+				"lin"
+			],
+			[
+				0.92,
+				"cmu_up_pd_16",
+				"lin"
+			],
+			[
+				0.95,
+				"cmu_up_pd_17",
+				"lin"
+			],
+			[
+				0.98,
+				"cmu_up_pd_18",
+				"lin"
+			],
+			[
+				1.01,
+				"cmu_up_pd_19",
+				"lin"
+			],
+			[
+				1.04,
+				"cmu_up_pd_20",
+				"lin"
+			],
+			[
+				1.07,
+				"cmu_up_pd_21",
+				"lin"
+			],
+			[
+				1.1,
+				"cmu_up_pd_22",
+				"lin"
+			],
+			[
+				1.13,
+				"cmu_up_pd_23",
+				"lin"
+			],
+			[
+				1.16,
+				"cmu_up_pd_24",
+				"lin"
+			],
+			[
+				1.19,
+				"cmu_up_pd_25",
+				"lin"
+			],
+			[
+				1.22,
+				"cmu_up_pd_26",
+				"lin"
+			],
+			[
+				1.25,
+				"cmu_up_pd_27",
+				"lin"
+			],
+			[
+				1.28,
+				"cmu_up_pd_28",
+				"lin"
+			],
+			[
+				1.31,
+				"cmu_up_pd_29",
+				"lin"
+			],
+			[
+				1.34,
+				"cmu_up_pd_30",
+				"lin"
+			],
+			[
+				1.37,
+				"cmu_up_pd_31",
+				"lin"
+			],
+			[
+				1.4,
+				"cmu_up_pd_32",
+				"lin"
+			],
+			[
+				1.43,
+				"cmu_up_pd_33",
+				"lin"
+			],
+			[
+				1.46,
+				"cmu_up_pd_34",
+				"lin"
+			],
+			[
+				1.49,
+				"cmu_up_pd_35",
+				"lin"
+			],
+			[
+				1.511,
+				"cmu_up_pd_36",
+				"lin"
+			],
+			[
+				1.591,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"piledriver": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.12,
+				"pd_hook"
+			],
+			[
+				0.26,
+				"pd_crouch2"
+			],
+			[
+				0.34,
+				"pd_hook"
+			],
+			[
+				0.6,
+				"pd_flat"
+			],
+			[
+				99.0,
+				"pd_flat"
+			]
+		]
+	},
+	"prop_bash": {
+		"active": 0.2,
+		"cancel": 0.35,
+		"end": 0.5,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.1,
+				"pb_up"
+			],
+			[
+				0.2,
+				"pb_down",
+				"in"
+			],
+			[
+				0.32,
+				"pb_down"
+			],
+			[
+				0.5,
+				"grab_lift"
+			]
+		]
+	},
+	"prop_hold": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.15,
+				"grab_lift"
+			],
+			[
+				99.0,
+				"grab_lift"
+			]
+		]
+	},
+	"prop_kick": {
+		"active": 0.2295,
+		"cancel": 0.595,
+		"end": 0.728,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.0196,
+				"cmu_propkick_0",
+				"lin"
+			],
+			[
+				0.0393,
+				"cmu_propkick_1",
+				"lin"
+			],
+			[
+				0.0589,
+				"cmu_propkick_2",
+				"lin"
+			],
+			[
+				0.0785,
+				"cmu_propkick_3",
+				"lin"
+			],
+			[
+				0.0982,
+				"cmu_propkick_4",
+				"lin"
+			],
+			[
+				0.1178,
+				"cmu_propkick_5",
+				"lin"
+			],
+			[
+				0.1375,
+				"cmu_propkick_6",
+				"lin"
+			],
+			[
+				0.1571,
+				"cmu_propkick_7",
+				"lin"
+			],
+			[
+				0.162,
+				"cmu_propkick_8",
+				"lin"
+			],
+			[
+				0.1789,
+				"cmu_propkick_9",
+				"lin"
+			],
+			[
+				0.1958,
+				"cmu_propkick_10",
+				"lin"
+			],
+			[
+				0.2126,
+				"cmu_propkick_11",
+				"lin"
+			],
+			[
+				0.2295,
+				"cmu_propkick_12",
+				"lin"
+			],
+			[
+				0.297,
+				"cmu_propkick_13",
+				"lin"
+			],
+			[
+				0.3204,
+				"cmu_propkick_14",
+				"lin"
+			],
+			[
+				0.3438,
+				"cmu_propkick_15",
+				"lin"
+			],
+			[
+				0.3672,
+				"cmu_propkick_16",
+				"lin"
+			],
+			[
+				0.3906,
+				"cmu_propkick_17",
+				"lin"
+			],
+			[
+				0.414,
+				"cmu_propkick_18",
+				"lin"
+			],
+			[
+				0.4374,
+				"cmu_propkick_19",
+				"lin"
+			],
+			[
+				0.4608,
+				"cmu_propkick_20",
+				"lin"
+			],
+			[
+				0.4842,
+				"cmu_propkick_21",
+				"lin"
+			],
+			[
+				0.5076,
+				"cmu_propkick_22",
+				"lin"
+			],
+			[
+				0.531,
+				"cmu_propkick_23",
+				"lin"
+			],
+			[
+				0.5544,
+				"cmu_propkick_24",
+				"lin"
+			],
+			[
+				0.5778,
+				"cmu_propkick_25",
+				"lin"
+			],
+			[
+				0.6012,
+				"cmu_propkick_26",
+				"lin"
+			],
+			[
+				0.6246,
+				"cmu_propkick_27",
+				"lin"
+			],
+			[
+				0.648,
+				"cmu_propkick_28",
+				"lin"
+			],
+			[
+				0.728,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"prop_shield": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.12,
+				"ps_hold"
+			],
+			[
+				99.0,
+				"ps_hold"
+			]
+		]
+	},
+	"prop_slam": {
+		"active": 0.2,
+		"cancel": 0.32,
+		"end": 0.55,
+		"flags": [
+			"prop_slam"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.2,
+				"grab_slam",
+				"in"
+			],
+			[
+				0.32,
+				"grab_slam"
+			],
+			[
+				0.55,
+				"guard"
+			]
+		]
+	},
+	"prop_swing": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.15,
+				"swing_hold"
+			],
+			[
+				99.0,
+				"swing_hold"
+			]
+		]
+	},
+	"prop_toss": {
+		"active": 0.07,
+		"cancel": 0.15,
+		"end": 0.35,
+		"flags": [
+			"prop_toss"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.07,
+				"throw_out",
+				"in"
+			],
+			[
+				0.35,
+				"guard"
+			]
+		]
+	},
+	"prop_wind": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.15,
+				"grab_lift"
+			],
+			[
+				0.6,
+				"throw_hold"
+			],
+			[
+				99.0,
+				"throw_hold"
+			]
+		]
+	},
+	"quake": {
+		"active": 0.2,
+		"cancel": 0.38,
+		"end": 0.6,
+		"flags": [
+			"quake"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.12,
+				"quake_up"
+			],
+			[
+				0.2,
+				"pound",
+				"in"
+			],
+			[
+				0.36,
+				"pound"
+			],
+			[
+				0.6,
+				"guard"
+			]
+		]
+	},
+	"rain": {
+		"active": 0.55,
+		"cancel": 0.9,
+		"end": 1.15,
+		"flags": [
+			"v212"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.18,
+				"rain_up"
+			],
+			[
+				0.55,
+				"rain_up"
+			],
+			[
+				0.75,
+				"rain_point",
+				"in"
+			],
+			[
+				1.15,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"rush": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.04,
+				"rush_l"
+			],
+			[
+				0.08,
+				"rush_r"
+			],
+			[
+				0.12,
+				"rush_l"
+			],
+			[
+				0.16,
+				"rush_r"
+			],
+			[
+				99.0,
+				"rush_r"
+			]
+		]
+	},
+	"rush_end": {
+		"active": 0.14,
+		"cancel": 0.3,
+		"end": 0.42,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.07,
+				"upper_load"
+			],
+			[
+				0.14,
+				"upper",
+				"in"
+			],
+			[
+				0.22,
+				"upper"
+			],
+			[
+				0.42,
+				"guard"
+			]
+		]
+	},
+	"shoryu": {
+		"active": 0.09,
+		"cancel": 0.3,
+		"end": 0.6,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.06,
+				"sho_load"
+			],
+			[
+				0.09,
+				"sho_hit",
+				"in"
+			],
+			[
+				0.16,
+				"sho_up"
+			],
+			[
+				0.32,
+				"sho_up2"
+			],
+			[
+				0.6,
+				"air_rest"
+			]
+		]
+	},
+	"sj_grab": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.1,
+				"sj_dive"
+			],
+			[
+				99.0,
+				"sj_dive"
+			]
+		]
+	},
+	"slam": {
+		"active": 0.38,
+		"cancel": 0.42,
+		"end": 0.7,
+		"flags": [
+			"slam"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.22,
+				"grab_lift"
+			],
+			[
+				0.38,
+				"grab_slam"
+			],
+			[
+				0.5,
+				"grab_slam"
+			],
+			[
+				0.7,
+				"guard"
+			]
+		]
+	},
+	"sm_land": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 1.3835,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.06,
+				"cmu_up_sm_0",
+				"lin"
+			],
+			[
+				0.42,
+				"cmu_up_sm_1",
+				"lin"
+			],
+			[
+				0.51,
+				"cmu_up_sm_2",
+				"lin"
+			],
+			[
+				0.54,
+				"cmu_up_sm_3",
+				"lin"
+			],
+			[
+				0.57,
+				"cmu_up_sm_4",
+				"lin"
+			],
+			[
+				0.6,
+				"cmu_up_sm_5",
+				"lin"
+			],
+			[
+				0.63,
+				"cmu_up_sm_6",
+				"lin"
+			],
+			[
+				0.66,
+				"cmu_up_sm_7",
+				"lin"
+			],
+			[
+				0.69,
+				"cmu_up_sm_8",
+				"lin"
+			],
+			[
+				0.72,
+				"cmu_up_sm_9",
+				"lin"
+			],
+			[
+				0.75,
+				"cmu_up_sm_10",
+				"lin"
+			],
+			[
+				0.78,
+				"cmu_up_sm_11",
+				"lin"
+			],
+			[
+				0.81,
+				"cmu_up_sm_12",
+				"lin"
+			],
+			[
+				0.84,
+				"cmu_up_sm_13",
+				"lin"
+			],
+			[
+				0.87,
+				"cmu_up_sm_14",
+				"lin"
+			],
+			[
+				0.9,
+				"cmu_up_sm_15",
+				"lin"
+			],
+			[
+				0.93,
+				"cmu_up_sm_16",
+				"lin"
+			],
+			[
+				0.96,
+				"cmu_up_sm_17",
+				"lin"
+			],
+			[
+				0.99,
+				"cmu_up_sm_18",
+				"lin"
+			],
+			[
+				1.02,
+				"cmu_up_sm_19",
+				"lin"
+			],
+			[
+				1.05,
+				"cmu_up_sm_20",
+				"lin"
+			],
+			[
+				1.08,
+				"cmu_up_sm_21",
+				"lin"
+			],
+			[
+				1.11,
+				"cmu_up_sm_22",
+				"lin"
+			],
+			[
+				1.14,
+				"cmu_up_sm_23",
+				"lin"
+			],
+			[
+				1.17,
+				"cmu_up_sm_24",
+				"lin"
+			],
+			[
+				1.2,
+				"cmu_up_sm_25",
+				"lin"
+			],
+			[
+				1.23,
+				"cmu_up_sm_26",
+				"lin"
+			],
+			[
+				1.26,
+				"cmu_up_sm_27",
+				"lin"
+			],
+			[
+				1.29,
+				"cmu_up_sm_28",
+				"lin"
+			],
+			[
+				1.3035,
+				"cmu_up_sm_29",
+				"lin"
+			],
+			[
+				1.3835,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"soccer_kick": {
+		"active": 0.2295,
+		"cancel": 0.595,
+		"end": 0.728,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.0196,
+				"cmu_soccer_0",
+				"lin"
+			],
+			[
+				0.0393,
+				"cmu_soccer_1",
+				"lin"
+			],
+			[
+				0.0589,
+				"cmu_soccer_2",
+				"lin"
+			],
+			[
+				0.0785,
+				"cmu_soccer_3",
+				"lin"
+			],
+			[
+				0.0982,
+				"cmu_soccer_4",
+				"lin"
+			],
+			[
+				0.1178,
+				"cmu_soccer_5",
+				"lin"
+			],
+			[
+				0.1375,
+				"cmu_soccer_6",
+				"lin"
+			],
+			[
+				0.1571,
+				"cmu_soccer_7",
+				"lin"
+			],
+			[
+				0.162,
+				"cmu_soccer_8",
+				"lin"
+			],
+			[
+				0.1789,
+				"cmu_soccer_9",
+				"lin"
+			],
+			[
+				0.1958,
+				"cmu_soccer_10",
+				"lin"
+			],
+			[
+				0.2126,
+				"cmu_soccer_11",
+				"lin"
+			],
+			[
+				0.2295,
+				"cmu_soccer_12",
+				"lin"
+			],
+			[
+				0.297,
+				"cmu_soccer_13",
+				"lin"
+			],
+			[
+				0.3204,
+				"cmu_soccer_14",
+				"lin"
+			],
+			[
+				0.3438,
+				"cmu_soccer_15",
+				"lin"
+			],
+			[
+				0.3672,
+				"cmu_soccer_16",
+				"lin"
+			],
+			[
+				0.3906,
+				"cmu_soccer_17",
+				"lin"
+			],
+			[
+				0.414,
+				"cmu_soccer_18",
+				"lin"
+			],
+			[
+				0.4374,
+				"cmu_soccer_19",
+				"lin"
+			],
+			[
+				0.4608,
+				"cmu_soccer_20",
+				"lin"
+			],
+			[
+				0.4842,
+				"cmu_soccer_21",
+				"lin"
+			],
+			[
+				0.5076,
+				"cmu_soccer_22",
+				"lin"
+			],
+			[
+				0.531,
+				"cmu_soccer_23",
+				"lin"
+			],
+			[
+				0.5544,
+				"cmu_soccer_24",
+				"lin"
+			],
+			[
+				0.5778,
+				"cmu_soccer_25",
+				"lin"
+			],
+			[
+				0.6012,
+				"cmu_soccer_26",
+				"lin"
+			],
+			[
+				0.6246,
+				"cmu_soccer_27",
+				"lin"
+			],
+			[
+				0.648,
+				"cmu_soccer_28",
+				"lin"
+			],
+			[
+				0.728,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"spin_counter": {
+		"active": 0.14,
+		"cancel": 0.32,
+		"end": 0.45,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.05,
+				"sc_load"
+			],
+			[
+				0.12,
+				"sc_out",
+				"in"
+			],
+			[
+				0.3,
+				"sc_out"
+			],
+			[
+				0.45,
+				"guard"
+			]
+		]
+	},
+	"spin_counter3": {
+		"active": 0.14,
+		"cancel": 0.72,
+		"end": 0.85,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.05,
+				"sc_load"
+			],
+			[
+				0.12,
+				"sc_out",
+				"in"
+			],
+			[
+				0.7,
+				"sc_out"
+			],
+			[
+				0.85,
+				"guard"
+			]
+		]
+	},
+	"spinkick": {
+		"active": 0.18,
+		"cancel": 0.3,
+		"end": 0.48,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.07,
+				"sk_turn"
+			],
+			[
+				0.13,
+				"sk_chamber"
+			],
+			[
+				0.18,
+				"sk_kick"
+			],
+			[
+				0.24,
+				"sk_kick"
+			],
+			[
+				0.32,
+				"sk_through"
+			],
+			[
+				0.48,
+				"guard"
+			]
+		]
+	},
+	"super_jump": {
+		"active": 99.0,
+		"cancel": 0.3,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.1,
+				"tramp_tuck"
+			],
+			[
+				0.35,
+				"tramp_open"
+			],
+			[
+				99.0,
+				"tramp_open"
+			]
+		]
+	},
+	"superman": {
+		"active": 0.2,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.09,
+				"sm_load"
+			],
+			[
+				0.2,
+				"sm_fly",
+				"in"
+			],
+			[
+				0.34,
+				"sm_fly"
+			],
+			[
+				99.0,
+				"sm_fly"
+			]
+		]
+	},
+	"suplex": {
+		"active": 0.5,
+		"cancel": 0.8,
+		"end": 1.05,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.1,
+				"sx_grip"
+			],
+			[
+				0.3,
+				"sx_lift"
+			],
+			[
+				0.5,
+				"sx_arch",
+				"in"
+			],
+			[
+				0.75,
+				"sx_arch"
+			],
+			[
+				1.05,
+				"guard"
+			]
+		]
+	},
+	"swing": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.15,
+				"swing_hold"
+			],
+			[
+				99.0,
+				"swing_hold"
+			]
+		]
+	},
+	"swing_finish": {
+		"active": 0.0,
+		"cancel": 0.1,
+		"end": 0.3,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"swing_hold"
+			],
+			[
+				0.3,
+				"guard"
+			]
+		]
+	},
+	"tackle": {
+		"active": 99.0,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.08,
+				"tk_run"
+			],
+			[
+				99.0,
+				"tk_run"
+			]
+		]
+	},
+	"tackle_slam": {
+		"active": 0.14,
+		"cancel": 0.75,
+		"end": 0.95,
+		"flags": [
+			"atelier"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.14,
+				"tk_dive",
+				"in"
+			],
+			[
+				0.32,
+				"tk_dive2"
+			],
+			[
+				0.5,
+				"tk_dive"
+			],
+			[
+				0.66,
+				"sm_push"
+			],
+			[
+				0.8,
+				"crouch"
+			],
+			[
+				0.95,
+				"guard"
+			]
+		]
+	},
+	"throw_release": {
+		"active": 0.0,
+		"cancel": 0.12,
+		"end": 0.3,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"throw_hold"
+			],
+			[
+				0.08,
+				"throw_out"
+			],
+			[
+				0.3,
+				"guard"
+			]
+		]
+	},
+	"tomoe": {
+		"active": 0.34,
+		"cancel": 0.8,
+		"end": 0.95,
+		"flags": [
+			"v212"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.12,
+				"tm_sit"
+			],
+			[
+				0.32,
+				"tm_back",
+				"inout"
+			],
+			[
+				0.55,
+				"back_lie"
+			],
+			[
+				0.78,
+				"crouch",
+				"inout"
+			],
+			[
+				0.95,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"tramp": {
+		"active": 99.0,
+		"cancel": 0.15,
+		"end": 0.6,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.06,
+				"tramp_tuck"
+			],
+			[
+				0.28,
+				"tramp_open"
+			],
+			[
+				0.6,
+				"air_rest"
+			]
+		]
+	},
+	"upper": {
+		"active": 0.1755,
+		"cancel": 0.593,
+		"end": 0.62,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.1215,
+				"cmu_upper_0",
+				"lin"
+			],
+			[
+				0.135,
+				"cmu_upper_1",
+				"lin"
+			],
+			[
+				0.1485,
+				"cmu_upper_2",
+				"lin"
+			],
+			[
+				0.162,
+				"cmu_upper_3",
+				"lin"
+			],
+			[
+				0.1755,
+				"cmu_upper_4",
+				"lin"
+			],
+			[
+				0.243,
+				"cmu_upper_5",
+				"lin"
+			],
+			[
+				0.2713,
+				"cmu_upper_6",
+				"lin"
+			],
+			[
+				0.2996,
+				"cmu_upper_7",
+				"lin"
+			],
+			[
+				0.3279,
+				"cmu_upper_8",
+				"lin"
+			],
+			[
+				0.3561,
+				"cmu_upper_9",
+				"lin"
+			],
+			[
+				0.3844,
+				"cmu_upper_10",
+				"lin"
+			],
+			[
+				0.4127,
+				"cmu_upper_11",
+				"lin"
+			],
+			[
+				0.441,
+				"cmu_upper_12",
+				"lin"
+			],
+			[
+				0.4693,
+				"cmu_upper_13",
+				"lin"
+			],
+			[
+				0.4976,
+				"cmu_upper_14",
+				"lin"
+			],
+			[
+				0.5259,
+				"cmu_upper_15",
+				"lin"
+			],
+			[
+				0.54,
+				"cmu_upper_16",
+				"lin"
+			],
+			[
+				0.62,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"wall_run": {
+		"active": 0.58,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.08,
+				"wr_run1"
+			],
+			[
+				0.18,
+				"wr_run2"
+			],
+			[
+				0.28,
+				"wr_run1"
+			],
+			[
+				0.38,
+				"bf_1"
+			],
+			[
+				0.5,
+				"bf_2"
+			],
+			[
+				0.58,
+				"wr_dive",
+				"in"
+			],
+			[
+				99.0,
+				"wr_dive"
+			]
+		]
+	},
+	"wall_run_h": {
+		"active": 0.62,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.06,
+				"wh_run"
+			],
+			[
+				0.54,
+				"wh_run"
+			],
+			[
+				0.62,
+				"wh_kick",
+				"in"
+			],
+			[
+				99.0,
+				"wh_kick"
+			]
+		]
+	},
+	"wave": {
+		"active": 0.5,
+		"cancel": 1.0,
+		"end": 1.15,
+		"flags": [
+			"v212"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.12,
+				"wv_a"
+			],
+			[
+				0.3,
+				"wv_b",
+				"inout"
+			],
+			[
+				0.48,
+				"wv_a",
+				"inout"
+			],
+			[
+				0.66,
+				"wv_b",
+				"inout"
+			],
+			[
+				0.84,
+				"wv_c",
+				"inout"
+			],
+			[
+				1.15,
+				"guard",
+				"inout"
+			]
+		]
+	},
+	"web": {
+		"active": 0.08,
+		"cancel": 99.0,
+		"end": 99.0,
+		"flags": [
+			"v212"
+		],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.08,
+				"web_aim"
+			],
+			[
+				0.3,
+				"web_pull",
+				"inout"
+			],
+			[
+				99.0,
+				"web_pull"
+			]
+		]
+	},
+	"web_throw": {
+		"active": 99.0,
+		"cancel": 0.25,
+		"end": 0.4,
+		"flags": [],
+		"keys": [
+			[
+				0.0,
+				"from"
+			],
+			[
+				0.1,
+				"web_fling"
+			],
+			[
+				0.4,
+				"guard",
+				"inout"
+			]
+		]
+	}
+}

@@ -11,6 +11,6 @@ active = 99.0
 cancel = 99.0
 end = 99.0
 air = true
-flags = PackedStringArray()
+flags = PackedStringArray("anime")
 keys = [[0.0, "from"], [0.08, "grab_reach"], [0.2, "airslam_dive"], [99.0, "airslam_dive"]]
 present = PackedStringArray("active", "cancel", "end", "air", "lunge", "keys")

@@ -9,6 +9,6 @@ display_name = "Objet en grand tour"
 active = 99.0
 cancel = 99.0
 end = 99.0
-flags = PackedStringArray()
+flags = PackedStringArray("anime")
 keys = [[0.0, "from"], [0.15, "swing_hold"], [99.0, "swing_hold"]]
 present = PackedStringArray("active", "cancel", "end", "lunge", "keys")
