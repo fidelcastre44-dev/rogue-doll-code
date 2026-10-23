@@ -271,6 +271,15 @@ se hisser sur un rebord, glissade, atterrissages, coups aériens.
   X ou Y quand le sbire ramené arrive = le fil est lâché et l'attaque part, tir en l'air en diagonale vers le bas.
 - **Labo** : coups rangés et colorés par bouton (X bleu, Y jaune, B rouge, A vert).
 
+## Version 0.217 (bilans de Thibaud du 23/10 au soir)
+
+- Plaqué du super saut : 4 poings au plus (`PIN_MAX`), puis le héros se relève, le sbire reste sonné 2 s au sol.
+- Zones de frappe agrandies : poings aériens, coups de pied Y (sol, air, sprint, piqué, bicyclette, courses au mur) et gros genou ;
+  les coups de jambe lourds frappent sur toute la jambe (genou -> un peu devant le pied, `do_hit`).
+- Coup de pied en course : plus d'impact, moins de glissade. Tacle glissé : plus annulable.
+- Sbires « boule de bowling » (`enemy.bowl`) : shoot de foot (moins loin, décolle un peu) et lancer du grand tour (plus vif, plus fort).
+- Chope : plus sur un sbire en l'air depuis le sol, plus sur un sbire couché sauf grand tour (le grand tour attrape aussi un sbire couché la tête vers nous).
+
 ## Problèmes notés (à régler plus tard)
 
 - **Chope plongeante** : en pratique on n'a presque jamais d'ennemi en l'air à attraper, sauf après un shoryuken ou un lanceur ; souvent on l'a débloquée sans rien pour faire décoller les ennemis. Pistes : la proposer seulement si on a un lanceur, la rendre possible sur un ennemi debout (saut + R1 = il l'emporte), ou donner un petit lanceur de base.
@@ -282,6 +291,8 @@ se hisser sur un rebord, glissade, atterrissages, coups aériens.
 - **Boss sniper** : posté en hauteur, il tire sur le joueur ; on doit **renvoyer ses balles en les frappant** pour l'atteindre.
 
 ## Essayées puis abandonnées
+
+- **Chope d'un sbire couché** (par le col, gardé 4 s) et **chope d'un sbire en l'air depuis le sol** : retirées en v0.217 (Thibaud). Le grand tour garde le sbire couché ; la chope plongeante garde le sbire en l'air.
 
 - **Drop kick** (Y en sprint, retombée sur le dos 2 s) : remplacé en v0.216 par le coup de pied en course (Thibaud : il figeait le joueur au sol). Fiches gardées.
 - **Chassé sauté** comme Y aérien de base : remplacé en v0.216 par le gros genou (il cassait l'élan des combos). Gardé en variante (`air_heavy = "dropkick"`).

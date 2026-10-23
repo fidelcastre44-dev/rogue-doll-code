@@ -341,7 +341,7 @@ func _run() -> void:
 	await wait(14)
 	await tap("grab")
 	await wait(12)
-	ok(p.attack == "web" or p.ups.stats.get("web_wall", 0) + p.ups.stats.get("web_prop", 0) > 0, "en l'air : le fil part (%s)" % p.attack)
+	ok(p.attack in ["web", "web_throw"] or p.ups.stats.get("web_wall", 0) + p.ups.stats.get("web_prop", 0) + p.ups.stats.get("web_enemy", 0) > 0, "en l'air : le fil part (%s)" % p.attack)
 	ok(LaboCatalog.find("m_mvkqkuvl0el5d").what.contains("élastique"), "fiche du labo à jour")
 
 	print("16. Labo : coups colorés par bouton")

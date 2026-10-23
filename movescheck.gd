@@ -10,6 +10,8 @@ var main: Node3D
 var f := 0
 var fails := []
 var phase := "up_setup"
+var downed_try := -1
+var v_corpse := Vector3.ZERO
 var pt := 0
 var peak := 0.0
 var flat := false
@@ -206,11 +208,21 @@ func _process(_dt: float) -> bool:
 				_check(e.hp < hp0, "le chassé sauté touche (vie %.0f -> %.0f)" % [hp0, e.hp])
 				_fresh(e)
 				_go("collar_setup")
-		"collar_setup":
+		"collar_setup":   # v0.217 : un sbire couché ne se chope plus par le col ; la chope par le col se teste sur un sbire debout
 			if k == 20:
 				e.toss(Vector3(0, 1, -1), 0.0)   # on le couche
-			if k > 30 and pel.y < 0.5 and e.state == "down" and e.parts.pelvis.linear_velocity.length() < 0.5:
+				downed_try = -1
+			if k > 30 and downed_try < 0 and pel.y < 0.5 and e.state == "down" and e.parts.pelvis.linear_velocity.length() < 0.5:
 				_place(p, e, 0.8)
+				p.grab_cd = 0.0
+				_tap("grab")
+				downed_try = k
+			if downed_try > 0 and k == downed_try + 40:
+				_check(p.attack != "collar", "couché : plus de chope par le col (%s)" % p.attack)
+				_fresh(e)
+			if downed_try > 0 and k == downed_try + 90:
+				_place(p, e, 0.8)
+				p.grab_cd = 0.0
 				hp0 = e.hp
 				_tap("grab")
 				_go("collar")
@@ -242,8 +254,11 @@ func _process(_dt: float) -> bool:
 				_check(e.state == "down" and pel.y > 1.0, "puis il repart en l'air (%s, bassin à %.2f m)" % [e.state, pel.y])
 				_go("collar2_setup")
 		"collar2_setup":
-			if k > 30 and pel.y < 0.5 and e.state == "down" and e.parts.pelvis.linear_velocity.length() < 0.5:
+			if k == 30:
+				_fresh(e)
+			if k == 80:
 				_place(p, e, 0.8)
+				p.grab_cd = 0.0
 				_tap("grab")
 				_go("collar2")
 			if k > 500:
@@ -272,14 +287,13 @@ func _process(_dt: float) -> bool:
 			if k == 120 * 4:   # 4 s après sa mort : le corps est encore là, l'uppercut le relance
 				_check(e.state == "dead", "4 s après sa mort, son corps est toujours là (%s)" % e.state)
 				_place(p, e, 0.8)
-				_tap("grab")   # chope au col sur le corps
+				v_corpse = pel
+				p.start("soccer_kick")   # v0.217 : plus de chope sur un corps couché ; on le shoote
 				peak = 0.0
-			if k in [120 * 4 + 40, 120 * 4 + 70, 120 * 4 + 100]:
-				_tap("light")
-			if k > 120 * 4 + 100:
-				peak = maxf(peak, pel.y)
+			if k > 120 * 4:
+				peak = maxf(peak, ((pel - v_corpse) * Vector3(1, 0, 1)).length())
 			if k == 120 * 5 + 20:
-				_check(peak > 1.0, "on peut encore taper le corps : chope au col, 3 droites, il repart en l'air (bassin monté à %.2f m)" % peak)
+				_check(peak > 0.5, "on peut encore taper le corps : le shoot l'envoie plus loin (%.2f m)" % peak)
 				_check(e.state == "dead", "chaque coup lui laisse un moment de plus avant de disparaître (%s)" % e.state)
 			if k == 120 * 8:
 				_check(e.state == "stand" and e.hp == e.MAX_HP, "puis un nouvel ennemi apparaît (%s)" % e.state)
@@ -362,7 +376,7 @@ func _process(_dt: float) -> bool:
 				swing_walk += Vector2(p.velocity.x, p.velocity.z).length() / 120.0
 				var ankle: Vector3 = e.parts.shin_l.global_transform * Vector3(0, -0.225, 0)
 				var hand: Vector3 = p.j.fist_r.global_position if p.swap_feet else p.j.fist_l.global_position
-				foot_y = maxf(foot_y, ankle.distance_to(hand)) if p.t > 0.3 else foot_y
+				foot_y = maxf(foot_y, ankle.distance_to(hand)) if p.t > 0.45 else foot_y   # v0.217 : prise possible de plus loin (le temps que les chevilles arrivent)
 				shin_top = maxf(shin_top, e.parts.pelvis.linear_velocity.length())
 				var axis: Vector3 = e.parts.head.global_position - e.parts.pelvis.global_position
 				if absf(axis.normalized().y) < 0.35 and ((pel - p.global_position) * Vector3(1, 0, 1)).length() > 0.8:

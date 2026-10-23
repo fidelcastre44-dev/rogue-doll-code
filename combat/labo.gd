@@ -477,7 +477,7 @@ func setup() -> void:
 	player.sprinting = false
 	player.velocity = Vector3.ZERO
 	# Appuis gardés en mémoire : on les oublie (un coup pressé avant la remise ne part pas dans la nouvelle situation).
-	for k in ["light_buf", "heavy_buf", "grab_buf", "jump_buf", "roll_buf", "air_buf", "recover_t"]:
+	for k in ["light_buf", "heavy_buf", "grab_buf", "jump_buf", "roll_buf", "air_buf", "recover_t", "grab_cd", "sweep_cd"]:
 		player.set(k, 0.0)
 	player.queued = false
 	player.queued2_t = -9.0

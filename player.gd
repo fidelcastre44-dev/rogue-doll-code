@@ -111,8 +111,8 @@ const PARRY_STUN := 1.3     # l'attaquant est sonné
 const RIPOSTE_WINDOW := 0.9 # riposte critique possible ce temps-là après une parade
 const SPECIAL_MAX := 100.0
 const SWING_HOLD := 3.0     # grand tour : on ne peut pas le tenir plus longtemps, il est lâché tout seul
-const SWING_BASE := 7.0     # rad/s : le grand tour tourne tout seul à cette vitesse
-const SWING_TURN := 14.0     # rad/s : vitesse de rotation max du grand tour (c'est le stick qui fait tourner)
+const SWING_BASE := 9.5     # rad/s : le grand tour tourne tout seul à cette vitesse (v0.217 : plus vif, 7 avant)
+const SWING_TURN := 15.0     # rad/s : vitesse de rotation max du grand tour (14 avant ; plus vite, les chevilles lâchent les mains)
 const SWING_DMG := 12.0
 const SLAM_LIFT := 0.22     # temps pour le soulever au-dessus de la tête (le reste jusqu'à "active" = l'abattre au sol)
 
@@ -342,7 +342,7 @@ func _physics_process(dt: float) -> void:
 			light_buf = 0.0
 		elif Input.is_action_just_pressed("heavy") and (form_capoeira or lc.bounced):
 			roll_atk = "heavy"
-	if roll >= (_dodge_time() if roll_kind == "sweep" else ROLL_EXIT) and (light_buf > 0 or (heavy_buf > 0 and roll_atk != "heavy") or grab_buf > 0 or jump_buf > 0 or (Input.is_action_just_pressed("heavy") and roll_atk != "heavy") or Input.is_action_just_pressed("grab") or Input.is_action_just_pressed("jump")):
+	if roll >= (_dodge_time() if roll_kind in ["sweep", "slide"] else ROLL_EXIT) and (light_buf > 0 or (heavy_buf > 0 and roll_atk != "heavy") or grab_buf > 0 or jump_buf > 0 or (Input.is_action_just_pressed("heavy") and roll_atk != "heavy") or Input.is_action_just_pressed("grab") or Input.is_action_just_pressed("jump")):
 		roll = -1.0
 		roll_atk = ""
 		since_roll = 0.0 if roll_kind in ["roll", "dash"] else 9.0
@@ -627,7 +627,7 @@ func _physics_process(dt: float) -> void:
 			attack = "prop_hold"   # il tient toujours l'objet
 			t = 0.15
 			prop_t = 0.2
-		elif t >= a.end and attack == "pin_punch" and pin_time < ATK.sj_pin.end - 0.25:
+		elif t >= a.end and attack == "pin_punch" and pin_time < ATK.sj_pin.end - 0.25 and pin_hits < PIN_MAX:
 			attack = "sj_pin"   # il reste sur lui
 			t = pin_time
 		elif t >= a.end and attack == "collar_punch":
@@ -1120,7 +1120,7 @@ func _prop_hold(dt: float, dir: Vector3) -> void:
 ## Rotation du grand tour (tourne tout seul, accélère avec des cercles au stick).
 func _swing_spin(dt: float, dir: Vector3) -> void:
 	swing_hold += dt
-	var target := SWING_BASE * smoothstep(0.0, 0.4, swing_hold)
+	var target := SWING_BASE * smoothstep(0.0, 0.22, swing_hold)
 	if dir.length() > 0.5:
 		var a := atan2(-dir.x, -dir.z)
 		if swing_stick_ok:
@@ -1133,7 +1133,7 @@ func _swing_spin(dt: float, dir: Vector3) -> void:
 		swing_stick_ok = true
 	else:
 		swing_stick_ok = false
-	swing_w = lerpf(swing_w, swing_sign * target, 1.0 - exp(-6.0 * dt))
+	swing_w = lerpf(swing_w, swing_sign * target, 1.0 - exp(-9.0 * dt))
 	rotation.y += swing_w * dt
 
 
@@ -1913,18 +1913,28 @@ func do_hit(a: Dictionary) -> void:
 	var fwd := -global_basis.z
 	velocity += fwd * a.lunge
 	var center: Vector3 = j[a.tip].global_position
+	# Coups de jambe lourds (Y : coups de pied, genou) : toute la jambe frappe, du genou jusqu'un peu devant le pied (v0.217,
+	# retour de Thibaud : ils passaient parfois à travers l'ennemi). Les autres coups : une sphère autour du poing / du pied.
+	var centers := [center]
+	if a.get("heavy", false) and String(a.tip).left(3) in ["foo", "kn_"]:
+		var s := String(a.tip).right(1)
+		var kn: Vector3 = j["kn_" + s].global_position
+		var ft: Vector3 = j["foot_" + s].global_position
+		centers = [ft, (kn + ft) * 0.5, kn, ft + (ft - kn).normalized() * 0.18]
 	var q := PhysicsShapeQueryParameters3D.new()
 	q.shape = SphereShape3D.new()
 	q.shape.radius = a.get("r", 0.5) * ups.radius_mult()   # augmentation d'impact
-	q.transform = Transform3D(Basis(), center)
 	q.collision_mask = 2 | 8
 	var part: RigidBody3D = null
 	var best := INF
-	for r in get_world_3d().direct_space_state.intersect_shape(q, 8):
-		var dd: float = r.collider.global_position.distance_to(center)
-		if dd < best:
-			best = dd
-			part = r.collider
+	for cc in centers:
+		q.transform = Transform3D(Basis(), cc)
+		for r in get_world_3d().direct_space_state.intersect_shape(q, 8):
+			var dd: float = r.collider.global_position.distance_to(cc)
+			if dd < best:
+				best = dd
+				part = r.collider
+				center = cc
 	if part == null:
 		return
 	var force: float = (heavy_force if a.get("heavy", false) else light_force) * a.get("mult", 1.0)
@@ -1955,6 +1965,9 @@ func do_hit(a: Dictionary) -> void:
 		return
 	connected = true
 	ups.on_hit(victim)   # Tazer
+	if attack == "run_kick":   # coup de pied en course : gros impact (v0.217)
+		_shock_ring(center)
+		_flash(Color(1, 0.75, 0.4), 0.06)
 	if attack in ["dive_kick", "wall_run", "wall_run_h"]:
 		if victim.state == "down" and victim.parts.pelvis.global_position.y < 0.6:
 			victim.toss(Vector3.UP * 9.0 + fwd * 2.0, 3.0)   # sbire couché : il rebondit en l'air sous le coup
@@ -2037,6 +2050,10 @@ func _grab_target() -> bool:
 		var hand := global_position + fwd * 0.6
 		var feet: Vector3 = (enemy.parts.shin_l.global_position + enemy.parts.shin_r.global_position) * 0.5
 		var close := ((feet - hand) * Vector3(1, 0, 1)).length() < 1.2 if is_on_floor() and feet.y < 0.6 else feet.distance_to(hand + Vector3.UP * 0.9) < 1.4
+		if not close and is_on_floor():   # v0.217 : seule chope sur un sbire couché : on l'attrape dès qu'une partie de son corps est tout près
+			for pn in ["pelvis", "chest", "shin_l", "shin_r"]:
+				if ((enemy.parts[pn].global_position - global_position) * Vector3(1, 0, 1)).length() < 1.3:
+					close = true
 		if close:
 			var to := (feet - global_position) * Vector3(1, 0, 1)
 			if to.length() > 0.05:
@@ -2053,7 +2070,7 @@ func _grab_target() -> bool:
 			get_parent().impact(0.05, 0.3)
 			return true
 		return false
-	if enemy.air_grabbable() and not throw_move in ["swing", "club"]:   # en l'air : on le rattrape au vol, puis mêmes choix qu'au sol
+	if false and enemy.air_grabbable() and not throw_move in ["swing", "club"]:   # v0.217 : plus de chope d'un sbire en l'air depuis le sol (Thibaud)
 		var reach := global_position + fwd * 0.7 + Vector3.UP * 1.2
 		var d3 := minf(enemy.parts.chest.global_position.distance_to(reach), enemy.parts.pelvis.global_position.distance_to(reach))
 		if d3 < 1.1:
@@ -2066,7 +2083,7 @@ func _grab_target() -> bool:
 			get_parent().impact(0.05, 0.3)
 			return true
 		return false
-	if enemy.collar_grabbable():   # au sol : par le col
+	if false and enemy.collar_grabbable():   # v0.217 : plus de chope d'un sbire couché, sauf le grand tour (Thibaud)
 		var hand := global_position + fwd * 0.7
 		var d := minf(((enemy.parts.chest.global_position - hand) * Vector3(1, 0, 1)).length(), ((enemy.parts.pelvis.global_position - hand) * Vector3(1, 0, 1)).length())
 		if d < 0.9:
@@ -2213,7 +2230,7 @@ func _club(dt: float) -> void:
 func _swing(dt: float, dir: Vector3) -> void:
 	# Il tourne tout seul (vitesse de base, prise en ~0,4 s) ; faire des cercles au stick accélère la rotation
 	# (jusqu'à SWING_TURN) ; des cercles dans l'autre sens inversent le tour.
-	var target := SWING_BASE * smoothstep(0.0, 0.4, swing_hold)
+	var target := SWING_BASE * smoothstep(0.0, 0.22, swing_hold)
 	if dir.length() > 0.5:
 		var a := atan2(-dir.x, -dir.z)
 		if swing_stick_ok:
@@ -2226,7 +2243,7 @@ func _swing(dt: float, dir: Vector3) -> void:
 		swing_stick_ok = true
 	else:
 		swing_stick_ok = false
-	swing_w = lerpf(swing_w, swing_sign * target, 1.0 - exp(-6.0 * dt))
+	swing_w = lerpf(swing_w, swing_sign * target, 1.0 - exp(-9.0 * dt))
 	rotation.y += swing_w * dt
 	swing_angle += absf(swing_w) * dt
 	swing_hold += dt
@@ -2239,7 +2256,8 @@ func _swing(dt: float, dir: Vector3) -> void:
 	if not Input.is_action_pressed("grab") or swing_hold >= SWING_HOLD:   # R1 relâché (ou tenu trop longtemps) : il part avec la vitesse du moment
 		var power := clampf(absf(swing_w) / SWING_TURN, 0.2, 1.0)
 		enemy.swing_release(global_position + Vector3.UP * 1.0, Vector3.UP * swing_w, SWING_DMG * (0.4 + power))
-		get_parent().impact(0.05 + 0.04 * power, 0.3 + 0.5 * power)
+		enemy.bowl(1.3)   # lancé plus fort, et lourd comme une boule de bowling : peu de courbe, retombe avec fracas sans glisser
+		get_parent().impact(0.07 + 0.05 * power, 0.4 + 0.6 * power)
 		start("swing_finish")
 		hit_done = true
 		connected = true
@@ -2294,6 +2312,8 @@ const XY_WINDOW := 0.1       # X et Y « en même temps »
 const SUPER_HOLD := 0.3      # A maintenu ce temps : super saut (v0.216 : à charger un peu plus, 0,2 avant ; il faut encore monter)
 const SUPER_JUMP := 9.6      # v0.216 : ~2,3 m au lieu de ~3,9 m (trop haut, trop safe : retour de Thibaud)
 const PIN_DMG := 6.0         # poing au sol pendant le plaquage du super saut
+const PIN_MAX := 4           # v0.217 : 4 poings au plus, puis le héros se libère (retour de Thibaud)
+const PIN_STUN := 2.0        # s : le sbire reste sonné au sol après le plaquage
 const TACKLE_WALL_REACH := 2.6   # plaquage : mur droit devant à moins de ça quand il emporte le sbire = il fonce l'y écraser
 const TACKLE_WALL_DMG := 34.0
 const TACKLE_SPEED := 9.0
@@ -2330,6 +2350,7 @@ var tackle_wall_p := Vector3.ZERO
 var pin_victim: Node3D = null       # super saut : sbire plaqué au sol, qu'on peut frapper (v0.216)
 var from_sj := false                # la chope plongeante en cours vient du super saut
 var pin_time := 0.0                 # temps passé sur le sbire plaqué
+var pin_hits := 0                   # poings donnés pendant le plaquage
 var wall_n := Vector3.ZERO
 var wall_p := Vector3.ZERO
 var wall_tan := Vector3.ZERO
@@ -2383,7 +2404,7 @@ func _atelier_inputs(grounded: bool, holding: bool) -> void:
 
 ## X (appui, au sol) dans une situation particulière. Renvoie true s'il a lancé un coup de l'atelier.
 func _atelier_light(grounded: bool) -> bool:
-	if attack == "sj_pin" or (attack == "pin_punch" and t >= ATK.pin_punch.cancel):
+	if (attack == "sj_pin" or (attack == "pin_punch" and t >= ATK.pin_punch.cancel)) and pin_hits < PIN_MAX:
 		start("pin_punch")   # plaqué sous lui : coup de poing au sol
 		return true
 	if attack == "pin_punch":
@@ -2504,6 +2525,7 @@ func _atelier_start(kind: String) -> void:
 			super_air = false
 		"sj_pin":
 			pin_time = 0.0
+			pin_hits = 0
 		"tackle_wall":
 			velocity = Vector3.ZERO
 		"wall_run":
@@ -2563,6 +2585,9 @@ func _atelier_tick(dt: float) -> void:
 			pin_time += dt * attack_speed
 			if pin_victim and is_instance_valid(pin_victim) and pin_victim.state in ["down", "dead"]:
 				pin_victim.timer = maxf(pin_victim.timer, 0.6)   # plaqué : il ne se relève pas tant qu'on est sur lui
+				if attack == "pin_punch" and pin_hits >= PIN_MAX and t >= ATK.pin_punch.end - 0.02:
+					pin_victim.timer = maxf(pin_victim.timer, PIN_STUN)   # 4e poing : on se relève, il reste sonné au sol 2 s
+					pin_victim = null
 		"tackle_slam":
 			if t < ATK.tackle_slam.active:
 				velocity.x = f.x * 4.0   # il plonge sur lui
@@ -2687,7 +2712,8 @@ func _atelier_hit() -> void:
 			var e := _downed_in_front()
 			if e:
 				e.hp = maxf(e.hp - 6.0, 0.0)
-				e.throw_body(f * 16.0 + Vector3.UP * 1.6, 12.0)   # boulet au ras du sol : il fauche tout sur sa ligne
+				e.throw_body(f * 9.0 + Vector3.UP * 5.0, 12.0)   # v0.217 : moins loin, il décolle un peu...
+				e.bowl(1.0, 3.0, 5.0)   # ... et retombe lourdement, avec fracas, sans glisser (boule de bowling)
 				connected = true
 				_gain(8.0)
 				get_parent().impact(0.1, 0.9)
@@ -2738,6 +2764,7 @@ func _atelier_hit() -> void:
 				connected = true
 				_gain(PIN_DMG * 0.6)
 				get_parent().impact(0.05, 0.45)
+			pin_hits += 1
 		"tackle_wall":
 			if tackle_victim and is_instance_valid(tackle_victim) and tackle_victim.state == "held":
 				tackle_victim.collar_hit(TACKLE_WALL_DMG)   # dos écrasé contre le mur

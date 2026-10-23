@@ -11,7 +11,7 @@ const BASE := [
 	["Coup lourd (Y, appui court)", "Chassé : jambe tendue devant, l'ennemi part en arrière."],
 	["Gros genou (Y en l'air)", "Gros coup de genou aérien qui garde l'élan du saut : l'ennemi monte, on enchaîne le combo aérien."],
 	["Coup de pied en piqué (Y maintenu en l'air)", "Il fond en diagonale vers le sol ; touche tout jusqu'au sol et fait rebondir en l'air les ennemis couchés."],
-	["Chope (R1)", "Par le col, debout ou au sol. X = droites (la 3e le renvoie en l'air), Y = coup de tête (lâché, il rebondit au sol), R1 = fracas au sol (son corps percute les autres ennemis là où il s'écrase). Chopé debout, il se libère au bout de 1,5 s ; chopé au sol, tu le gardes 4 s. Marche aussi sur les objets (table, chaise, banc, poubelle...) : soulevé au-dessus de la tête, rappui sur R1 = lancé droit devant toi."],
+	["Chope (R1)", "Par le col, debout ou au sol. X = droites (la 3e le renvoie en l'air), Y = coup de tête (lâché, il rebondit au sol), R1 = fracas au sol (son corps percute les autres ennemis là où il s'écrase). Chopé debout, il se libère au bout de 1,5 s (pas de chope sur un ennemi couché ou en l'air, sauf grand tour pour le couché). Marche aussi sur les objets (table, chaise, banc, poubelle...) : soulevé au-dessus de la tête, rappui sur R1 = lancé droit devant toi."],
 	["Garde (L1)", "Bloque tout ce qui vient de devant et des côtés."],
 	["Esquive (B)", "Roulade avant, invulnérable ; coupable très tôt par n'importe quelle action. En l'air : petit dash, une fois par saut."],
 	["Saut (A)", "Saut simple ; un coup qui touche peut être annulé par un saut pour partir jongler."],

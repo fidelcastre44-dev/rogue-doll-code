@@ -673,7 +673,7 @@ func _process(_dt: float) -> bool:
 			if k > 500 and e.state == "held":
 				v.h2 = v.get("h2", 0) + 1
 			if k == 1100:
-				_check(v.get("h2", 0) > 400, "chopé en ragdoll : on le garde bien plus longtemps (%.2f s)" % (v.get("h2", 0) / 120.0))
+				_check(v.get("h2", 0) == 0, "v0.217 : un sbire couché ne se chope plus par le col (%.2f s tenu)" % (v.get("h2", 0) / 120.0))
 				print("\nRESULTAT: ", "OK" if fails.is_empty() else "ECHEC " + str(fails))
 				quit(1 if fails.size() else 0)
 	return false

@@ -310,6 +310,8 @@ func _physics_process(dt: float) -> void:
 				toss(Vector3.UP, 0.0)   # sécurité : le joueur ne le tient plus
 		"down", "dead":
 			_terrain_fall()
+			if bowl_t >= 0.0:
+				_bowl_tick(dt)
 			if land_dmg > 0:
 				_land_hit(dt)
 			if land_bounce > 0:
@@ -944,6 +946,40 @@ func _dead_timer() -> float:
 ## Coup au ras du sol sur un sbire couché (balayage, capoeira ; v0.216, retour de Thibaud) : il prend les dégâts,
 ## décolle un peu et repart en roulant, pour qu'on voie bien que le coup a porté.
 var ground_kicks := 0   # (tests) coups au sol reçus
+var bowl_t := -1.0      # lancé « boule de bowling » (v0.217) : lourd, peu de courbe, retombe avec fracas sans glisser
+var bowl_lands := 0     # (tests) réceptions lourdes
+var bowl_air := false   # il a vraiment décollé depuis le lancer (sinon on ne compte pas la réception)
+var bowl_h0 := 0.0      # hauteur du bassin au moment du lancer
+
+
+## Lancé lourd (shoot de foot, grand tour) : vitesse horizontale × k, peu de montée, forte gravité ; à la réception il s'écrase
+## sur place (plus de glissade), avec une secousse.
+func bowl(k: float, grav := 4.5, max_up := 3.5) -> void:
+	bowl_t = 0.0
+	bowl_air = false
+	bowl_h0 = height_above(parts.pelvis.global_position)
+	for b in parts.values():
+		b.linear_velocity = Vector3(b.linear_velocity.x * k, minf(b.linear_velocity.y, max_up), b.linear_velocity.z * k)
+		b.gravity_scale = grav
+
+
+func _bowl_tick(dt: float) -> void:
+	bowl_t += dt
+	var pel: RigidBody3D = parts.pelvis
+	var h := height_above(pel.global_position)
+	if h > minf(bowl_h0, 0.4) + 0.2:
+		bowl_air = true
+	if (bowl_air and h < minf(bowl_h0, 0.4) + 0.12 and pel.linear_velocity.y <= 0.5) or bowl_t > 2.5:
+		bowl_t = -1.0
+		bowl_lands += 1
+		for b in parts.values():
+			b.linear_velocity = Vector3(b.linear_velocity.x * 0.12, minf(b.linear_velocity.y, 0.0), b.linear_velocity.z * 0.12)
+			b.angular_velocity *= 0.3
+			b.gravity_scale = 2.5
+		_flash()
+		if get_parent().has_method("impact"):
+			get_parent().impact(0.08, 0.9)
+
 
 func ground_kick(dir: Vector3, dmg: float) -> void:
 	if state in ["getup", "techroll", "rise", "held", "swung"]:
@@ -1123,6 +1159,7 @@ func _land_hit(dt: float) -> void:
 
 ## Grand tour : attrapé par les pieds. Tout le corps reste en ragdoll ; les tibias sont menés en vitesse jusqu'à nos mains.
 func feet_grab() -> void:
+	_hand_prev = {}
 	state = "swung"
 	held_t = 0.0
 	air_recover = false
@@ -1142,8 +1179,17 @@ func feet_grab() -> void:
 
 
 ## Place ses chevilles dans nos mains, tibias tendus vers l'extérieur (le premier instant : on les ramène depuis le sol).
+var _hand_prev := {}   # mains du grand tour à l'image d'avant (pour anticiper leur mouvement)
+
 func feet_hold(hand_l: Vector3, hand_r: Vector3, out: Vector3, dt: float, sweep := true) -> void:
 	held_t += dt
+	# v0.217 : le grand tour tourne plus vite ; on vise là où seront les mains à l'image suivante, sinon les chevilles traînent.
+	var pl: Vector3 = _hand_prev.get("l", hand_l)
+	var pr: Vector3 = _hand_prev.get("r", hand_r)
+	_hand_prev = {"l": hand_l, "r": hand_r}
+	if held_t > dt * 1.5 and pl.distance_to(hand_l) < 0.5 and pr.distance_to(hand_r) < 0.5:
+		hand_l += hand_l - pl
+		hand_r += hand_r - pr
 	var u := smoothstep(0.0, 1.0, minf(held_t / 0.25, 1.0))
 	var y := out.normalized()   # cheville -> genou : vers l'extérieur
 	var z := (Vector3.UP - y * y.dot(Vector3.UP)).normalized()
@@ -1155,7 +1201,7 @@ func feet_hold(hand_l: Vector3, hand_r: Vector3, out: Vector3, dt: float, sweep 
 			goal = getup_from[side[0]].interpolate_with(goal, u)
 		# Pas de téléportation (qui étire les articulations) : on donne au tibia la vitesse qui l'amène pile au but à la prochaine image.
 		# Vitesses bornées : si le corps retient le tibia (sol, articulation), on ne demande pas une vitesse folle qui ferait tout exploser.
-		shin.linear_velocity = ((goal.origin - shin.global_position) / dt).limit_length(14.0)
+		shin.linear_velocity = ((goal.origin - shin.global_position) / dt).limit_length(22.0)   # v0.217 : grand tour plus rapide
 		var dq := (goal.basis.orthonormalized() * shin.global_basis.orthonormalized().inverse()).get_rotation_quaternion()
 		shin.angular_velocity = (dq.get_axis() * dq.get_angle() / dt).limit_length(25.0) if dq.get_angle() > 0.0001 else Vector3.ZERO
 	_tighten(dt)
