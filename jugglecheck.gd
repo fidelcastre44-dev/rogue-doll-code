@@ -2,7 +2,7 @@ extends SceneTree
 ## Auto-test lanceur / jongle / relevé : godot --headless --path . -s jugglecheck.gd --fixed-fps 120
 ## 1. Uppercut seul : il s'envole et se rattrape sur ses pieds sans toucher le sol, accroupi un instant, puis garde.
 ## 2. Accroupi après réception : on peut le punir.
-## 3. Uppercut puis coup aérien : il ne se rattrape plus, s'écrase, puis se relève en roulade arrière (intouchable pendant).
+## 3. Uppercut puis coup aérien : il ne se rattrape plus, s'écrase, puis se relève (v0.218 : on peut le toucher pendant).
 ## 4. En l'air, le combo de X est celui du sol : jab, direct, puis le 3e coup s'il est débloqué (au plus 3 par saut).
 
 var main: Node3D
@@ -98,7 +98,7 @@ func _process(_dt: float) -> bool:
 				roll_from = e.roll_start
 				hp0 = e.hp
 				e.hit(e.parts.chest, Vector3(0, 0, -20), e.parts.chest.global_position, 10.0, 0.5)   # on tente de l'achever pendant son relevé
-				_check(e.hp == hp0, "intouchable pendant son relevé (vie %.0f)" % e.hp)
+				_check(e.hp < hp0, "v0.218 : plus intouchable pendant son relevé, le coup compte (vie %.0f)" % e.hp)
 			if e.state == "stand" and roll_from != Vector3.ZERO:
 				_check(absf(e.parts.head.global_position.y - 1.69) < 0.08, "il se relève et finit debout en garde (tête à %.2f m)" % e.parts.head.global_position.y)
 				phase = "air_limit"

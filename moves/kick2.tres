@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_ybcqj"]
+
+[resource]
+script = ExtResource("1_ybcqj")
+id = &"kick2"
+display_name = "Chassé de l'autre jambe (2e coup du combo Y)"
+notes = "v0.218 (Thibaud) : 2e coup du combo Y, le chassé joué de la jambe gauche (poses mk2_ = cmu_kick_ en miroir, tools/gen_v0218_moves.gd)."
+active = 0.189
+cancel = 0.403
+end = 0.6875
+tip = "foot_l"
+radius = 0.6
+damage = 18.0
+heavy = true
+drop = 0.15
+up = 0.35
+hitstop = 0.1
+shake = 0.8
+lunge = 3.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.0087, "mk2_0", "lin"], [0.0173, "mk2_1", "lin"], [0.026, "mk2_2", "lin"], [0.0346, "mk2_3", "lin"], [0.0433, "mk2_4", "lin"], [0.0519, "mk2_5", "lin"], [0.0606, "mk2_6", "lin"], [0.0692, "mk2_7", "lin"], [0.0779, "mk2_8", "lin"], [0.0865, "mk2_9", "lin"], [0.0952, "mk2_10", "lin"], [0.1038, "mk2_11", "lin"], [0.1125, "mk2_12", "lin"], [0.1212, "mk2_13", "lin"], [0.1298, "mk2_14", "lin"], [0.135, "mk2_15", "lin"], [0.1485, "mk2_16", "lin"], [0.162, "mk2_17", "lin"], [0.1755, "mk2_18", "lin"], [0.189, "mk2_19", "lin"], [0.2565, "mk2_20", "lin"], [0.2737, "mk2_21", "lin"], [0.2909, "mk2_22", "lin"], [0.3081, "mk2_23", "lin"], [0.3253, "mk2_24", "lin"], [0.3425, "mk2_25", "lin"], [0.3597, "mk2_26", "lin"], [0.3769, "mk2_27", "lin"], [0.3941, "mk2_28", "lin"], [0.4114, "mk2_29", "lin"], [0.4286, "mk2_30", "lin"], [0.4458, "mk2_31", "lin"], [0.463, "mk2_32", "lin"], [0.4802, "mk2_33", "lin"], [0.4974, "mk2_34", "lin"], [0.5146, "mk2_35", "lin"], [0.5318, "mk2_36", "lin"], [0.549, "mk2_37", "lin"], [0.5662, "mk2_38", "lin"], [0.5834, "mk2_39", "lin"], [0.6006, "mk2_40", "lin"], [0.6075, "mk2_41", "lin"], [0.6875, "guard", "inout"]]
+present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "heavy", "dmg", "drop", "stop", "shake", "up", "lunge", "keys")

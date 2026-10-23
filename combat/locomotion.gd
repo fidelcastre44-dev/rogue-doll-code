@@ -61,6 +61,11 @@ var mantle_dur := MANTLE_T    # durée du « se hisser » en cours (plus haut = 
 var climb_atk := false        # agrippé + X : il se hisse en repoussant ce qui est en haut
 var climb_hit := false
 var yank_t := -1.0            # agrippé + R1 : geste du bras qui attrape la cheville (pose)
+var yank_victim: Node3D = null  # v0.218 : le sbire attrapé (le bras va chercher sa cheville, tire, puis il se hisse)
+var yank_done := false
+const YANK_PULL := 0.16       # s : la main tient la cheville, il tire d'un coup
+const YANK_T := 0.42          # s : fin du geste ; s'il a fait tomber quelqu'un, il enchaîne en se hissant
+const CLIMB_PUSH := 0.3       # v0.218 (Thibaud) : X agrippé repousse seulement (était 0,6 × la force du coup lourd, il faisait tomber)
 
 
 func _init(player: CharacterBody3D) -> void:
@@ -444,9 +449,21 @@ func tick(dt: float) -> bool:
 			if d.dot(-wall_n) < 0.3:
 				hang_ready = true
 			yank_t = yank_t + dt if yank_t >= 0.0 else -1.0
-			if yank_t > 0.45:
+			if yank_t >= YANK_PULL and yank_victim and not yank_done:
+				_yank_pull()
+			if yank_t > YANK_T:
 				yank_t = -1.0
-			if Input.is_action_just_pressed("light"):
+				var pulled := yank_done
+				yank_victim = null
+				yank_done = false
+				if pulled:   # v0.218 (Thibaud) : il a fait tomber le sbire, il se hisse dans la foulée
+					_start("climb")
+					climb_atk = false
+					a1 = Vector3(a0.x, top + 0.02, a0.z) - wall_n * 0.8
+					_count("yank_climb")
+			if yank_t >= 0.0 or state != "hang":
+				pass   # pendant le geste (ou s'il se hisse déjà) : rien d'autre
+			elif Input.is_action_just_pressed("light"):
 				_start("climb")   # X : il se hisse en repoussant ce qui est en haut (v0.216, idée de Thibaud)
 				climb_atk = true
 				a1 = Vector3(a0.x, top + 0.02, a0.z) - wall_n * 0.8
@@ -612,7 +629,11 @@ func _climb_push() -> void:
 		var c: Vector3 = e.parts.chest.global_position
 		if c.y < top - 0.2 or ((c - at) * Vector3(1, 0, 1)).length() > 1.6:
 			continue
-		e.hit(e.parts.chest, (-wall_n + Vector3.UP * 0.4).normalized() * p.heavy_force * 0.6, c, 8.0, 1.0, true)
+		# v0.218 (Thibaud) : il le repousse seulement (recul debout, pas de chute) : peu de force, presque pas de déséquilibre
+		e.hit(e.parts.chest, (-wall_n + Vector3.UP * 0.1).normalized() * p.heavy_force * CLIMB_PUSH, c, 6.0, 0.25 if e.state == "stand" else 0.0, true)
+		if e.state == "stand":
+			e.poise = maxf(e.poise, 0.3)
+			e.slide += -wall_n * 2.2   # il recule de quelques pas
 		_count("climb_push")
 		p.get_parent().impact(0.06, 0.5)
 
@@ -633,10 +654,25 @@ func _yank() -> void:
 			bd = dd
 			best = e
 	if best == null:
-		return
-	best.toss(wall_n * 6.0 + Vector3.UP * 3.0, 3.0)   # tiré par la cheville : il passe par-dessus le bord, dans le vide
-	best.hp = maxf(best.hp - 4.0, 0.0)
+		return   # personne : le geste dans le vide, il reste agrippé
+	yank_victim = best   # v0.218 (Thibaud) : le bras va chercher la cheville (_yank_pull à YANK_PULL), puis il se hisse
+	yank_done = false
+	if best.state == "stand":
+		best.stun(0.5)   # surpris : il ne bouge plus le temps que la main l'attrape
 	_count("yank")
+
+
+## La main tient la cheville : il tire d'un coup, le sbire bascule par-dessus le bord et tombe dans le vide.
+func _yank_pull() -> void:
+	yank_done = true
+	var e := yank_victim
+	if not is_instance_valid(e) or e.parts.is_empty() or e.state in ["held", "swung"]:
+		yank_done = false
+		yank_victim = null
+		return
+	e.toss(wall_n * 6.0 + Vector3.UP * 3.0, 3.0)   # tiré par la cheville : il passe par-dessus le bord, dans le vide
+	e.thrown()
+	e.hp = maxf(e.hp - 4.0, 0.0)
 	p._flash(Color(1, 0.85, 0.4), 0.06)
 	p.get_parent().impact(0.08, 0.7)
 
@@ -685,9 +721,18 @@ func hand_targets() -> Dictionary:
 	var kr := k
 	if state == "climb" and climb_atk:
 		kr = k * (1.0 - smoothstep(0.35, 0.5, t / CLIMB_T))   # la main droite lâche le rebord pour frapper
+	var r := base + right * 0.22
 	if state == "hang" and yank_t >= 0.0:
-		kr = k * (1.0 - sin(PI * clampf(yank_t / 0.45, 0.0, 1.0)))   # la main droite va chercher la cheville
-	return {"l": base - right * 0.22, "r": base + right * 0.22, "w": k * w, "wr": kr * w, "out": wall_n}
+		var e := yank_victim
+		if e and is_instance_valid(e) and not e.parts.is_empty():   # v0.218 : la main droite va jusqu'à la cheville, la tient, tire
+			var ankle: Vector3 = e.parts.shin_r.global_transform * Vector3(0, -0.2, 0)
+			var reach := smoothstep(0.0, YANK_PULL, yank_t)
+			var back := smoothstep(YANK_PULL + 0.1, YANK_T, yank_t)
+			r = r.lerp(ankle, reach * (1.0 - back))
+			kr = k
+		else:
+			kr = k * (1.0 - sin(PI * clampf(yank_t / YANK_T, 0.0, 1.0)))   # personne : le bras part dans le vide
+	return {"l": base - right * 0.22, "r": r, "w": k * w, "wr": kr * w, "out": wall_n}
 
 
 ## Se hisser (rebord de 2 m : climb ; bloc de 1 m : mantle). Les mains restent sur le rebord (IK des bras, player.gd),
@@ -730,16 +775,21 @@ func pose() -> Dictionary:
 			return pz
 		"mantle", "climb":
 			var cp := _climb_pose(clampf(t / (mantle_dur if state == "mantle" else CLIMB_T), 0.0, 1.0), state == "mantle")
-			if state == "climb" and climb_atk:   # poing droit lancé vers le dessus du bloc
-				var k := sin(PI * clampf((t / CLIMB_T - 0.35) / 0.4, 0.0, 1.0))
-				cp.sh_r = cp.sh_r.lerp(Vector3(95, 0, -10), k)
-				cp.el_r = cp.el_r.lerp(Vector3(5, 0, 0), k)
+			if state == "climb" and climb_atk:   # v0.218 (Thibaud) : revers du bras qui balaie le dessus du bloc (« dégage ! »)
+				var uu := clampf((t / CLIMB_T - 0.33) / 0.42, 0.0, 1.0)
+				var k := sin(PI * uu)
+				var sw := smoothstep(0.15, 0.6, uu)   # le bras part replié sur la poitrine, puis balaie vers l'extérieur
+				cp.sh_r = cp.sh_r.lerp(Vector3(100, lerpf(40, -35, sw), lerpf(25, -70, sw)), k)
+				cp.el_r = cp.el_r.lerp(Vector3(lerpf(100, 15, sw), 0, 0), k)
+				cp.spine = cp.spine + Vector3(0, lerpf(18, -22, sw), 0) * k   # le buste accompagne le revers
+				cp.head = cp.head + Vector3(-10, lerpf(-15, 25, sw), 8) * k   # il regarde de travers celui qu'il dégage
 			return cp
 		"hang":
 			var sw := sin(t * 3.0) * 6.0
-			if yank_t >= 0.0:   # bras droit qui attrape la cheville et tire
-				var k2 := sin(PI * clampf(yank_t / 0.45, 0.0, 1.0))
-				return {"hips_pos": Vector3(0, 0, 0.04), "hips": Vector3(4, 0, 0), "spine": Vector3(6 - 12 * k2, -15 * k2, 0), "head": Vector3(-28 - 10 * k2, 0, 0),
+			if yank_t >= 0.0:   # bras droit qui attrape la cheville, puis il tire en se jetant en arrière (v0.218)
+				var k2 := sin(PI * clampf(yank_t / YANK_T, 0.0, 1.0))
+				var pull := smoothstep(YANK_PULL - 0.03, YANK_PULL + 0.08, yank_t) * (1.0 - smoothstep(YANK_PULL + 0.12, YANK_T, yank_t))
+				return {"hips_pos": Vector3(0, -0.04 * pull, 0.04 + 0.12 * pull), "hips": Vector3(4 + 14 * pull, 0, 0), "spine": Vector3(6 - 12 * k2 + 18 * pull, -15 * k2 - 20 * pull, 0), "head": Vector3(-28 - 10 * k2 + 20 * pull, 10 * pull, 0),
 					"sh_l": Vector3(176, 0, 8), "el_l": Vector3(4, 0, 0), "sh_r": Vector3(176 - 60 * k2, 0, -8 - 30 * k2), "el_r": Vector3(4 + 50 * k2, 0, 0),
 					"hip_l": Vector3(14, 0, 4), "kn_l": Vector3(-28, 0, 0), "hip_r": Vector3(4, 0, -4), "kn_r": Vector3(-42, 0, 0), "foot_l": N, "foot_r": N}
 			return {"hips_pos": Vector3(0, 0, 0.04), "hips": Vector3(4 + sw, 0, 0), "spine": Vector3(6, 0, 0), "head": Vector3(-28, 0, 0),

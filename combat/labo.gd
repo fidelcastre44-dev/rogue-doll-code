@@ -666,7 +666,8 @@ func _prop(at: Vector3) -> RigidBody3D:
 	mt.albedo_color = Color(0.62, 0.45, 0.28)
 	mi.material_override = mt
 	b.add_child(mi)
-	b.mass = 6.0
+	b.mass = 20.0   # v0.218 : plus lourde (6 kg avant)
+	preload("res://room.gd")._steady(b, "crate")
 	b.collision_layer = 1
 	b.collision_mask = 1 | 2 | 8
 	b.add_to_group("reactive")

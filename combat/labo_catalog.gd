@@ -141,8 +141,8 @@ const MOVES := [
 		"what": "Il fracasse l'objet sur ce qui est devant. Au 3e coup, l'objet vole en morceaux. X le lance droit devant ; R1 maintenu = bouclier."},
 	# ------------------------------------------------------------------ Y
 	{"id": "mseed05", "name": "Coup lourd", "button": "Y", "status": "existe", "scene": "stand",
-		"command": "Y (appui court)",
-		"what": "Chassé de base, ou une des formes débloquables. Choisis la variante.",
+		"command": "Y (appui court) ; Y, Y, Y = combo du chassé",
+		"what": "Chassé de base, ou une des formes débloquables. Choisis la variante. v0.218 (Thibaud) : le chassé est un combo de 3 coups : chassé, chassé de l'autre jambe, puis retourné puissant qui projette.",
 		"variants": ["heavy_move", [["kick", "Chassé"], ["hikick", "High kick"], ["spinkick", "Coup de pied retourné"], ["axe", "Axe kick en salto"], ["quake", "Frappe au sol"]]]},
 	{"id": "mseed06", "name": "Gros genou aérien (Y en l'air)", "button": "Y", "status": "existe", "scene": "air",
 		"command": "A (saut), puis Y ; enchaîne X en l'air derrière",

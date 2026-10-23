@@ -27,7 +27,7 @@ const EVADE_T := 1.2          # s : après un pas de côté réussi, le coup sui
 
 ## Bouton de chaque coup du héros (pour les améliorations de bouton).
 const BUTTON_OF := {
-	"jab": "X", "cross": "X", "jab2": "X", "pin_punch": "X", "run_kick": "Y", "air_bigknee": "Y", "tackle_wall": "R1", "upper": "X", "hook": "X", "knee": "X", "elbow": "X", "air": "X", "air_cross": "X", "air_upper": "X",
+	"jab": "X", "cross": "X", "jab2": "X", "kick2": "Y", "kick3": "Y", "pin_punch": "X", "run_kick": "Y", "air_bigknee": "Y", "tackle_wall": "R1", "upper": "X", "hook": "X", "knee": "X", "elbow": "X", "air": "X", "air_cross": "X", "air_upper": "X",
 	"air_hook": "X", "air_knee": "X", "hammer": "X", "spin_counter": "X", "spin_counter3": "X", "collar_punch": "X", "superman": "X",
 	"kick": "Y", "hikick": "Y", "spinkick": "Y", "axe": "Y", "quake": "Y", "charge": "Y", "charge_sho": "Y", "charge_hado": "Y",
 	"power": "Y", "shoryu": "Y", "hadoken": "Y", "air_kick": "Y", "bicycle": "Y", "dive_kick": "Y", "drop_kick": "Y", "capoeira": "Y",
@@ -456,6 +456,7 @@ func _tomoe_throw() -> void:
 		return
 	var f: Vector3 = p.hold_f
 	e.toss(-f * 7.0 + Vector3.UP * 5.0, 4.0)   # projeté par-dessus lui, derrière
+	e.thrown()
 	e.hp = maxf(e.hp - 16.0, 0.0)
 	e.land_dmg = 10.0
 	e.land_t = 0.0

@@ -67,6 +67,12 @@ const STEP_UP := 0.45     # m : il monte une marche, une rampe ; plus haut = obs
 const LEDGE_DROP := 0.7   # m : plus bas = le vide (il s'arrête au bord, sauf s'il est poussé)
 const FALL_HURT := 1.0    # m de dénivelé (sol de départ -> sol d'arrivée) au-delà duquel la chute fait mal
 const FALL_DMG := 7.0     # dégâts par mètre de chute (un rebond sur place ne compte pas : seul le sol perdu compte)
+# v0.218 (bilans de Thibaud)
+const RAG_GRAV := 3.0       # gravité des corps qui tombent (était 2,5) : plus lourds, moins flottants
+const RAG_ANG_DAMP := 1.2   # les corps en ragdoll tournoient moins longtemps
+const REACT_T := 0.28       # réaction au coup d'un sbire debout (tête et buste qui partent, bras qui lâchent)
+const IMPACT_SPEED := 6.0   # m/s : lancé par une chope, il se fait mal en percutant le décor, un objet ou un sbire au-delà de cette vitesse
+const IMPACT_DMG := 9.0     # dégâts de ce choc (et pour le sbire percuté)
 
 # Poses en degrés, par articulation (rotation par rapport au parent). L'ennemi regarde vers +Z :
 # bras/jambes, x négatif = vers l'avant ; buste/tête, x positif = penché en avant ; buste, y négatif = côté du bras qui frappe vers l'arrière.
@@ -197,6 +203,14 @@ var fall_g0 := INF         # sol le plus haut depuis le dernier contact (chute d
 var status := {}
 const ELEC_DPS := 6.0
 const ELEC_SPREAD := 3.0   # m : électrification de zone
+var knockdown := false       # v0.218 : le prochain envol ne se rattrape pas sur ses pieds (uppercut de fin de combo)
+var react_t := -1.0          # v0.218 : réaction au coup (debout), temps écoulé ; -1 = aucune
+var react_dir := Vector3.ZERO  # d'où vient le coup (repère monde)
+var react_side := 1.0
+var impact_t := 0.0          # v0.218 : lancé par une chope, il percute ce qu'il touche (temps restant)
+var impact_hits := {}        # ce qu'il a déjà percuté pendant ce vol
+var impact_count := 0        # (tests) chocs pris
+var last_good := Vector3.ZERO  # dernier point debout valable (secours si un corps coincé donne des positions infinies)
 var weapon: Node3D = null   # arme tenue (bâton) : la parade + X la lui arrache (désarmer)
 
 
@@ -239,6 +253,8 @@ func build() -> void:
 		var b := RigidBody3D.new()
 		b.mass = d[5]
 		b.can_sleep = false
+		b.continuous_cd = true   # v0.218 : un corps lancé vite ne traverse plus les murs ni les objets
+		b.angular_damp = RAG_ANG_DAMP   # v0.218 (Thibaud) : corps plus lourds, moins « volants »
 		b.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
 		b.freeze = true
 		b.collision_layer = 2
@@ -285,7 +301,11 @@ func build() -> void:
 
 
 func _physics_process(dt: float) -> void:
+	if not parts.is_empty() and (not root.origin.is_finite() or not parts.pelvis.global_position.is_finite()):
+		_rescue()   # v0.218 : sécurité, ne doit plus arriver
 	_sync_layer()
+	if impact_t > 0.0:
+		_impact_tick(dt)
 	if not status.is_empty():
 		_status_tick(dt)
 	match state:
@@ -391,6 +411,12 @@ func _physics_process(dt: float) -> void:
 				anim = E_POSES.guard.duplicate()
 		"stand":
 			fall_g0 = root.origin.y   # le sol sur lequel il se tient (s'il est poussé dans le vide, la chute part d'ici)
+			if root.origin.is_finite():
+				last_good = root.origin
+			if react_t >= 0.0:
+				react_t += dt
+				if react_t > REACT_T:
+					react_t = -1.0
 			timer -= dt
 			if timer <= 0:
 				poise = minf(poise + recovery * dt, 1.0)
@@ -399,7 +425,8 @@ func _physics_process(dt: float) -> void:
 			_sway_step(dt)
 		"launch":   # il joue la réaction au coup sans ressort de retour (il part), puis le ragdoll prend le relais
 			lean += lean_v * dt
-			root.origin += slide * dt
+			if ground_y(root.origin + slide * dt, STEP_UP) != INF:
+				root.origin += slide * dt   # v0.218 : jamais poussé dans un mur ou un bloc (il en ressortait en ragdoll coincé)
 			_pose()
 			timer -= dt
 			if timer <= 0:
@@ -829,9 +856,12 @@ func _fk(x: Transform3D) -> void:
 		var c := Vector3(0, 1.0, 0)
 		var b := Basis(Quaternion.from_euler(anim.get("pelvis", Vector3.ZERO) * (PI / 180)))
 		x = Transform3D(x.basis, x.origin + x.basis * anim.get("pelvis_off", Vector3.ZERO)) * Transform3D(b, c - b * c)
+	if not x.origin.is_finite():
+		return   # v0.218 : sécurité (corps coincé dans le décor) : on ne place jamais un membre à l'infini
 	var xf := {}
+	var rx := _react_offsets(x)
 	for d in BODY:
-		var q := Quaternion.from_euler(anim.get(d[0], Vector3.ZERO) * (PI / 180))
+		var q := Quaternion.from_euler((anim.get(d[0], Vector3.ZERO) + rx.get(d[0], Vector3.ZERO)) * (PI / 180))
 		if d[0] == "chest" and lean.length() > 0.0001:
 			q = Quaternion((x.basis.inverse() * lean).normalized(), lean.length() * 0.8) * q
 		var rest := Transform3D(Basis(), d[3])
@@ -843,22 +873,66 @@ func _fk(x: Transform3D) -> void:
 		parts[d[0]].global_transform = xf[d[0]]
 
 
+## Réaction au coup d'un sbire debout (v0.218, Thibaud) : la tête claque en arrière, le buste part dans le sens du coup et tourne,
+## les bras lâchent la garde ; ça monte d'un coup puis revient en douceur (degrés ajoutés à la pose).
+func _react_offsets(x: Transform3D) -> Dictionary:
+	if react_t < 0.0 or state != "stand":
+		return {}
+	var u := react_t / REACT_T
+	var w := minf(u / 0.12, 1.0) * pow(1.0 - u, 2.0)
+	var ld := x.basis.inverse() * react_dir
+	var back := clampf(-ld.z, -0.4, 1.0)
+	var side := clampf(ld.x, -1.0, 1.0)
+	var s := react_side
+	return {"chest": Vector3(-24.0 * back, 16.0 * s, -14.0 * side) * w, "head": Vector3(-34.0 * back, -22.0 * s, -10.0 * side) * w,
+		"arm_l": Vector3(38, 0, 12) * w, "fore_l": Vector3(45, 0, 0) * w, "arm_r": Vector3(30, 0, -12) * w, "fore_r": Vector3(40, 0, 0) * w,
+		"thigh_l": Vector3(-8, 0, 0) * w, "shin_l": Vector3(14, 0, 0) * w}
+
+
+## Avancement du relevé (0 -> 1).
+func _rise_progress() -> float:
+	if not up_clip.is_empty() and rise_from == Transform3D():
+		return timer / ((CycleData.GETUP_FRONT_PERIOD if up_clip == E_UP_FRONT else CycleData.GETUP_BACK_PERIOD) / UP_SPEED)
+	return timer / RISE
+
+
+## Touché presque relevé : il finit de se relever tout de suite (puis encaisse debout).
+func _finish_rise() -> void:
+	up_clip = []
+	if rise_from != Transform3D():
+		root = Transform3D(root.basis, _roll_origin(-360.0))
+	state = "stand"
+	ai = "circle"
+	cooldown = _pause()
+	anim = E_POSES.guard.duplicate()
+	_pose()
+
+
+## Touché pendant qu'il se relève (ou se rattrape) : il redevient un ragdoll, là où il est, sans vitesse.
+func _to_ragdoll() -> void:
+	for b in parts.values():
+		b.freeze = false
+		b.gravity_scale = RAG_GRAV
+		b.linear_velocity = Vector3.ZERO
+		b.angular_velocity = Vector3.ZERO
+	up_clip = []
+	state = "down"
+	timer = DOWN_TIME
+	air_recover = false
+
+
 ## Renvoie true si le coup a été paré.
 func hit(part: RigidBody3D, impulse: Vector3, point: Vector3, dmg: float, drop: float, unblockable := false) -> bool:
 	if state == "crisp":
 		_release_crisp()   # retouché pendant sa crispation : il repart, et ce coup-ci le recrispe
-	if state == "getup" and blend_kind == "land" and height_above(parts.pelvis.global_position) > 0.5:
-		# Touché pendant qu'il se rattrape en l'air : pas de garde ni d'immunité en l'air, il redevient un ragdoll et le coup compte.
-		for b in parts.values():
-			b.freeze = false
-			b.gravity_scale = 2.5
-			b.linear_velocity = Vector3.ZERO
-			b.angular_velocity = Vector3.ZERO
-		state = "down"
-		timer = DOWN_TIME
-		air_recover = false
-	if state in ["getup", "techroll", "rise", "held", "swung"]:
-		return false   # il se relève : intouchable un instant, sinon on pourrait l'achever au sol en boucle
+	# v0.218 (Thibaud) : plus d'immunité pendant qu'il se relève. Presque debout, il finit de se relever d'un coup et encaisse
+	# debout ; sinon il redevient un ragdoll (là où il est) et le coup compte comme sur un sbire au sol / en l'air.
+	if state == "rise" and _rise_progress() > 0.6:
+		_finish_rise()
+	elif state in ["getup", "techroll", "rise"]:
+		_to_ragdoll()
+	if state in ["held", "swung"]:
+		return false
 	var flat := Vector3(impulse.x, 0, impulse.z)
 	if state == "stand" and ai == "block" and not unblockable and flat.normalized().dot(root.basis.z) < -0.3:
 		_block(flat)   # garde : seulement de face
@@ -918,6 +992,10 @@ func hit(part: RigidBody3D, impulse: Vector3, point: Vector3, dmg: float, drop: 
 	root.origin += dir * push * 0.004
 	slide += dir * push * 0.03
 	quake = 0.1
+	if state == "stand":   # v0.218 : petite réaction au coup (tête et buste qui partent, bras qui lâchent la garde)
+		react_t = 0.0
+		react_dir = dir if dir.length() > 0.1 else -root.basis.z
+		react_side = -react_side
 	_pose()
 	if state == "launch" and _lift() > 0.5:
 		_launch()   # coup montant : il décolle dès l'impact, sinon on voit le coup puis le décollage
@@ -975,7 +1053,7 @@ func _bowl_tick(dt: float) -> void:
 		for b in parts.values():
 			b.linear_velocity = Vector3(b.linear_velocity.x * 0.12, minf(b.linear_velocity.y, 0.0), b.linear_velocity.z * 0.12)
 			b.angular_velocity *= 0.3
-			b.gravity_scale = 2.5
+			b.gravity_scale = RAG_GRAV
 		_flash()
 		if get_parent().has_method("impact"):
 			get_parent().impact(0.08, 0.9)
@@ -1022,7 +1100,7 @@ func trip(dir: Vector3, dmg: float, up := 2.6) -> void:
 	var w := dir.cross(Vector3.UP).normalized() * trip_spin * (1.0 + randf_range(-0.15, 0.15) * chaos) + Vector3.UP * randf_range(-1.5, 1.5) * chaos
 	for b in parts.values():
 		b.freeze = false
-		b.gravity_scale = 2.5
+		b.gravity_scale = RAG_GRAV
 		b.linear_velocity = dir * 1.2 + Vector3.UP * up + w.cross(b.global_position - c)
 		b.angular_velocity = w
 
@@ -1115,6 +1193,7 @@ func collar_hit(dmg: float) -> void:
 
 ## Lâché à la fin du grand tour : chaque membre garde la vitesse de la rotation (les pieds, plus loin, partent plus vite).
 func swing_release(pivot: Vector3, w: Vector3, dmg: float) -> void:
+	thrown()
 	land_dmg = dmg   # le coup, il le prendra en s'écrasant au sol
 	land_t = 0.0
 	state = "dead" if hp <= 0 else "down"
@@ -1124,16 +1203,83 @@ func swing_release(pivot: Vector3, w: Vector3, dmg: float) -> void:
 	for n in parts:
 		var b: RigidBody3D = parts[n]
 		b.collision_layer = 2
-		b.gravity_scale = 2.5
+		b.gravity_scale = RAG_GRAV
 		b.freeze = false
 		b.linear_velocity = (b.linear_velocity + Vector3.UP * 2.5).limit_length(18.0)
 	for d in BODY:
 		parts[d[0]].mass = d[5]   # masses d'origine
 
 
+## Projeté par une chope (v0.218, Thibaud) : pendant le vol, ce qu'il percute fait mal (mur, décor, objet, autre sbire).
+func thrown(t := 1.6) -> void:
+	impact_t = t
+	impact_hits.clear()
+
+
+## Chocs du vol : rayons dans le sens du mouvement depuis le buste, le bassin et la tête ; chaque chose n'est percutée qu'une fois.
+func _impact_tick(dt: float) -> void:
+	impact_t -= dt
+	if not state in ["down", "dead"] or parts.is_empty():
+		impact_t = 0.0
+		return
+	var v: Vector3 = parts.pelvis.linear_velocity
+	var sp := v.length()
+	if sp < IMPACT_SPEED:
+		return
+	var own := []
+	for b in parts.values():
+		own.append(b.get_rid())
+	var space := get_world_3d().direct_space_state
+	for n in ["chest", "pelvis", "head"]:
+		var from_p: Vector3 = parts[n].global_position
+		var q := PhysicsRayQueryParameters3D.create(from_p, from_p + v.normalized() * (sp * dt * 1.5 + 0.35), 1 | 2 | RAGDOLL_LAYER)
+		q.exclude = own
+		var r := space.intersect_ray(q)
+		if r.is_empty() or impact_hits.has(r.collider):
+			continue
+		var c = r.collider
+		var other = c.get_parent()
+		if other != self and other.has_method("hit"):   # un autre sbire
+			if projectile_t > 0.0 or impact_hits.has(other):
+				continue   # déjà percuté par le lancer visé (_swing_sweep)
+			impact_hits[other] = true
+			impact_hits[c] = true
+			other.hit(c, (v.normalized() + Vector3.UP * 0.3).normalized() * 120.0, r.position, IMPACT_DMG, 1.0, true)
+		elif c is StaticBody3D:
+			if r.normal.y > 0.6:
+				continue   # le sol : c'est la réception (land_dmg), pas un choc
+			impact_hits[c] = true
+		elif c is RigidBody3D:   # objet du décor : il le bouscule, une table se brise
+			impact_hits[c] = true
+			if not TestMap.shatter(c, v * 0.5):
+				c.apply_central_impulse(v * 18.0)
+		else:
+			continue
+		var k := clampf(sp / 10.0, 0.6, 1.6)
+		hp = maxf(hp - IMPACT_DMG * k, 0.0)
+		impact_count += 1
+		_flash()
+		if get_parent().has_method("impact"):
+			get_parent().impact(0.06, 0.6)
+		if hp <= 0 and state != "dead":
+			state = "dead"
+			timer = _dead_timer()
+		return
+
+
+## Sécurité (v0.218) : positions devenues infinies (corps coincé dans le décor) : il est remis debout à son dernier point valable.
+func _rescue() -> void:
+	var keep_hp := hp
+	global_position = _free_spot(last_good if last_good.is_finite() else Vector3.ZERO)
+	global_basis = Basis()
+	build()
+	hp = keep_hp
+
+
 ## Lancer visé : ragdoll projeté (il tournoie), qui percute les autres sbires en vol et prend le coup en touchant le sol.
 func throw_body(v: Vector3, dmg: float) -> void:
 	toss(v, 3.0)
+	thrown()
 	land_dmg = dmg
 	land_t = 0.0
 	projectile_t = 1.2
@@ -1257,7 +1403,7 @@ func toss(v: Vector3, spin_amount: float) -> void:
 	for b in parts.values():
 		b.collision_layer = 2
 		b.freeze = false
-		b.gravity_scale = 2.5
+		b.gravity_scale = RAG_GRAV
 		b.linear_velocity = v + w.cross(b.global_position - c)
 		b.angular_velocity = w
 
@@ -1276,7 +1422,7 @@ func headbutt(fwd: Vector3, dmg: float) -> void:
 	for b in parts.values():
 		b.collision_layer = 2
 		b.freeze = false
-		b.gravity_scale = 2.5
+		b.gravity_scale = RAG_GRAV
 		b.linear_velocity = fwd * 2.5 + Vector3.DOWN * 3.0 + w.cross(b.global_position - c)
 		b.angular_velocity = w
 	var head: RigidBody3D = parts.head
@@ -1523,7 +1669,7 @@ func slam(fwd: Vector3, dmg: float, bounce_k := 1.0) -> void:
 			b.global_position.y -= low   # jamais sous le sol, sinon la physique le recrache
 		b.collision_layer = 2
 		b.freeze = false
-		b.gravity_scale = 2.5
+		b.gravity_scale = RAG_GRAV
 		b.linear_velocity = Vector3.UP * bounce * bounce_k * (1.0 + randf_range(-0.05, 0.05) * chaos) - fwd * 1.5 * bounce_k + spin.cross(b.global_position - c) * bounce_k
 		b.angular_velocity = spin
 
@@ -1535,7 +1681,8 @@ func _launch() -> void:
 	timer = _dead_timer() if hp <= 0 else DOWN_TIME
 	var s := eject * clampf(launch_strength / 80.0, 0.5, 1.5) * (1.0 + randf_range(-0.12, 0.12) * chaos)
 	var lift := _lift()
-	air_recover = lift > 0.5 and hp > 0   # lanceur : il se rattrapera sur ses pieds (sauf jongle ou KO)
+	air_recover = lift > 0.5 and hp > 0 and not knockdown   # lanceur : il se rattrapera sur ses pieds (sauf jongle, KO, ou uppercut de fin de combo)
+	knockdown = false
 	juggles = 0
 	# Chaque chute est différente : direction un peu déviée, force et hauteur qui varient, vrille autour d'un axe au hasard.
 	var dir := launch_dir.rotated(Vector3.UP, randf_range(-0.3, 0.3) * chaos)
@@ -1556,7 +1703,7 @@ func _launch() -> void:
 		b.freeze = false
 		# Coup montant : même trajectoire, parcourue plus vite (vitesses x k, gravité x k²), pour qu'il ne flotte pas.
 		var k := lerpf(1.0, lift_speed, lift)
-		b.gravity_scale = lerpf(2.5, 1.3 * k * k, lift)
+		b.gravity_scale = lerpf(RAG_GRAV, 1.3 * k * k, lift)
 		b.linear_velocity = (slide + lean_v.cross(p - root.origin) + ((lean_v * 0.8).cross(p - waist) if up else Vector3.ZERO) + add) * k
 		b.angular_velocity = (lean_v * (1.8 if up else 1.0) * (1.0 - lift * 0.5) + w) * k   # vol long = moins de rotation, sinon il fait un salto complet
 	if air_recover:   # lanceur : il monte presque à la verticale, pour qu'on puisse le suivre d'un saut
@@ -1704,6 +1851,7 @@ func _start_getup() -> void:
 	var p: Vector3 = parts.pelvis.global_position
 	if height_above(p) > 0.45 or _on_prop(p):
 		p = _off_props(p)   # tombé sur un objet du décor : il se relève à côté, pas dedans
+	p = _free_spot(p)   # v0.218 : coincé dans un mur, un bloc, un objet : il se relève juste à côté (avant : positions infinies -> plantage)
 	_face_from(p)
 	roll_start = Vector3(p.x, ground_y(p, 0.3), p.z)
 	_start_mocap_up(p)
@@ -1724,10 +1872,43 @@ func _start_mocap_up(p: Vector3) -> void:
 	var b := Basis(Vector3.UP, yaw)
 	var off: Vector3 = b * (first.pelvis_off + Vector3(0, 1.0, 0))   # centre du bassin depuis le point debout final
 	var g := ground_y(p, 0.3)
-	root = Transform3D(b, Vector3(p.x - off.x, g, p.z - off.z))
+	root = Transform3D(b, Vector3(p.x - off.x, g if g != INF else p.y, p.z - off.z))
 	if _on_prop(root.origin):
 		root.origin = _off_props(root.origin)
+	root.origin = _free_spot(root.origin)
 	_start_blend("mup")
+
+
+## Point au sol le plus proche où il peut se tenir debout (v0.218) : si p est dans un mur, un bloc ou un objet (le rayon part de
+## l'intérieur : sol introuvable), on cherche autour, de plus en plus loin ; le y rendu est celui du sol trouvé.
+func _free_spot(p: Vector3) -> Vector3:
+	var g := ground_y(p, 0.3)
+	if g != INF and _clear(Vector3(p.x, g, p.z)):
+		return Vector3(p.x, g, p.z)
+	for r in [0.5, 0.8, 1.1, 1.5, 2.0, 2.6, 3.4, 4.5]:
+		for k in 16:
+			var a := TAU * k / 16.0
+			var q: Vector3 = p + Vector3(cos(a), 0, sin(a)) * r
+			var gq := ground_y(q, 0.3)
+			if gq != INF and gq <= p.y + 0.5 and _clear(Vector3(q.x, gq, q.z)):
+				return Vector3(q.x, gq, q.z)
+	return last_good if last_good.is_finite() else Vector3(p.x, 0.0, p.z)
+
+
+## Place pour un corps debout (rien du décor dans son buste).
+func _clear(at: Vector3) -> bool:
+	if not is_inside_tree():
+		return true
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = CapsuleShape3D.new()
+	q.shape.radius = 0.28
+	q.shape.height = 1.2
+	q.transform = Transform3D(Basis(), at + Vector3.UP * 1.0)
+	q.collision_mask = 1
+	for r in get_world_3d().direct_space_state.intersect_shape(q, 4):
+		if r.collider is StaticBody3D:
+			return false
+	return true
 
 
 ## Point au sol libre le plus proche, hors des objets du décor sous (ou autour de) ce point.
@@ -1757,8 +1938,8 @@ func _start_blend(kind: String) -> void:
 	if kind == "land":
 		var pel: RigidBody3D = parts.pelvis
 		var p := pel.global_position + pel.linear_velocity * Vector3(1, 0, 1) * LAND_BLEND * 0.6
+		p = _free_spot(p)
 		_face_from(p)
-		root.origin = Vector3(p.x, ground_y(p, 0.3), p.z)
 		blend_len = LAND_BLEND
 		blend_x = Transform3D(root.basis, root.origin - Vector3.UP * LAND_DROP)
 		blend_anim = E_POSES.land
@@ -1783,7 +1964,8 @@ func _face_from(p: Vector3) -> void:
 	if target:
 		var to := target.global_position - p
 		yaw = atan2(to.x, to.z)
-	root = Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, ground_y(p, 0.3), p.z))
+	var g := ground_y(p, 0.3)
+	root = Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, g if g != INF else p.y, p.z))
 
 
 ## Repère du corps pendant la roulade arrière, pour un angle de bascule donné (-90 = sur le dos, -360 = redressé).

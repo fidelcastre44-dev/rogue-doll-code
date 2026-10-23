@@ -114,19 +114,19 @@ func _make(kind: String) -> Node3D:
 			for lx in [-0.7, 0.7]:
 				for lz in [-0.35, 0.35]:
 					_box(b, Vector3(0.08, 0.72, 0.08), Vector3(lx, 0.36, lz), wood.darkened(0.2))
-			b.mass = 25.0
+			b.mass = 90.0   # v0.218 (Thibaud) : objets bien plus lourds et stables (25 kg avant)
 		"trash":
 			var c := Color(0.25, 0.42, 0.3) if rng.randf() < 0.5 else Color(0.35, 0.36, 0.38)
 			_cyl(b, 0.3, 0.8, Vector3(0, 0.4, 0), c)
 			_cyl(b, 0.33, 0.06, Vector3(0, 0.83, 0), c.lightened(0.15))
-			b.mass = 8.0
+			b.mass = 25.0
 		"crate":
 			var s := rng.randf_range(0.6, 0.9)
 			_box(b, Vector3(s, s, s), Vector3(0, s * 0.5, 0), Color(0.62, 0.48, 0.28))
-			b.mass = 15.0
+			b.mass = 45.0
 		"barrel":
 			_cyl(b, 0.35, 1.0, Vector3(0, 0.5, 0), Color(0.6, 0.18, 0.12) if rng.randf() < 0.5 else Color(0.2, 0.3, 0.55))
-			b.mass = 20.0
+			b.mass = 70.0
 		"chair":
 			var c2 := Color(0.5, 0.33, 0.2)
 			_box(b, Vector3(0.45, 0.06, 0.45), Vector3(0, 0.46, 0), c2)
@@ -134,14 +134,30 @@ func _make(kind: String) -> Node3D:
 			for lx in [-0.18, 0.18]:
 				for lz in [-0.18, 0.18]:
 					_box(b, Vector3(0.05, 0.44, 0.05), Vector3(lx, 0.22, lz), c2.darkened(0.2))
-			b.mass = 5.0
+			b.mass = 18.0
 		"bench":
 			var c3 := Color(0.45, 0.3, 0.18)
 			_box(b, Vector3(1.8, 0.08, 0.4), Vector3(0, 0.45, 0), c3)
 			for lx in [-0.75, 0.75]:
 				_box(b, Vector3(0.08, 0.42, 0.36), Vector3(lx, 0.21, 0), c3.darkened(0.2))
-			b.mass = 18.0
+			b.mass = 60.0
+	_steady(b, kind)
 	return b
+
+
+## v0.218 (Thibaud) : objets lourds et stables : centre de gravité bas (ils ne basculent plus au moindre contact), frottement fort,
+## mouvements amortis (ils glissent et tournent moins).
+const COM_Y := {"table": 0.12, "chair": 0.1, "bench": 0.1, "barrel": 0.25, "trash": 0.2, "crate": 0.2}
+
+static func _steady(b: RigidBody3D, kind: String) -> void:
+	b.center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
+	b.center_of_mass = Vector3(0, COM_Y.get(kind, 0.2), 0)
+	b.angular_damp = 2.0
+	b.linear_damp = 0.4
+	var pm := PhysicsMaterial.new()
+	pm.friction = 1.0
+	pm.bounce = 0.0
+	b.physics_material_override = pm
 
 
 func _box(parent: Node3D, s: Vector3, at: Vector3, col: Color) -> void:

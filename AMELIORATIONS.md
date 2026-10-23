@@ -271,6 +271,20 @@ se hisser sur un rebord, glissade, atterrissages, coups aériens.
   X ou Y quand le sbire ramené arrive = le fil est lâché et l'attaque part, tir en l'air en diagonale vers le bas.
 - **Labo** : coups rangés et colorés par bouton (X bleu, Y jaune, B rouge, A vert).
 
+## Version 0.218 (bilans de Thibaud du 23/10, nuit)
+
+- **Plantage corrigé** : un sbire coincé dans un mur, un bloc ou un objet se relevait à une hauteur infinie (sol introuvable sous lui) ;
+  il se relève maintenant juste à côté (`enemy._free_spot`), corps en détection continue (ne traversent plus le décor), sécurité `_rescue`.
+- Uppercut de fin de combo X : il fait tomber (plus de réception sur les pieds). Récupération de fin de combo 0,22 -> 0,17 s.
+- Plus d'immunité pendant le relevé : presque debout, il finit de se relever et encaisse ; sinon il redevient un ragdoll.
+- Combo Y de base : chassé, chassé de l'autre jambe (`kick2`, poses `mk2_` en miroir), retourné puissant qui projette (`kick3`) ;
+  les coups 2 et 3 avancent pour rattraper le sbire. Outil : `tools/gen_v0218_moves.gd`.
+- Sbire lancé par une chope : il se fait mal en percutant un mur, un objet (une table se brise) ou un autre sbire (`enemy.thrown()`).
+- Agrippé au rebord : R1 = la main va chercher la cheville, tire le sbire dans le vide, puis il se hisse dans la foulée.
+  X agrippé : revers qui repousse seulement (le sbire reste debout).
+- Objets bien plus lourds et stables (table 90 kg, centre de gravité bas, frottement, amortis). Ragdolls plus lourds (gravité ×3, rotations amorties).
+- Petite réaction au coup des sbires debout (tête, buste, bras). Gros genou aérien : zone étendue vers le haut et en diagonale, moins d'élan.
+
 ## Version 0.217 (bilans de Thibaud du 23/10 au soir)
 
 - Plaqué du super saut : 4 poings au plus (`PIN_MAX`), puis le héros se relève, le sbire reste sonné 2 s au sol.

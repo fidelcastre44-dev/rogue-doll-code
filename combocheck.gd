@@ -1,6 +1,6 @@
 extends SceneTree
 ## Auto-test du combo : godot --headless --path . -s combocheck.gd --fixed-fps 120
-## 4 appuis rapides = jab, direct, jab, uppercut qui touchent tous (v0.216) ; l'uppercut fait décoller l'ennemi puis il se rattrape sur ses pieds ;
+## 4 appuis rapides = jab, direct, jab, uppercut qui touchent tous (v0.216) ; l'uppercut fait décoller l'ennemi puis il retombe au sol (v0.218) ;
 ## après une pause, on repart du jab ; un uppercut seul lance aussi un ennemi frais.
 
 var main: Node3D
@@ -43,7 +43,7 @@ func _process(_dt: float) -> bool:
 		_check(e.hp == e.MAX_HP - 8 - 10 - 8 - 14, "les 4 coups touchent (hp %.0f)" % e.hp)
 		_check(peak > 1.6, "l'uppercut le fait décoller (bassin monté à %.2f m, 1.0 debout)" % peak)
 	if f == 380:
-		_check(e.state == "stand", "puis il se rattrape sur ses pieds (%s)" % e.state)
+		_check(e.state in ["down", "getup", "rise"] and not e.air_recover, "puis il retombe au sol, sans se rattraper sur ses pieds (v0.218, %s)" % e.state)
 	if f == 610:
 		_check(p.attack == "jab", "après une pause, le combo repart du jab (%s)" % p.attack)
 	if f == 700:
@@ -54,7 +54,7 @@ func _process(_dt: float) -> bool:
 		p.rotation.y = 0
 		p.start("upper")
 	if f == 750:
-		_check(e.state == "down" and e.parts.pelvis.global_position.y > 1.2, "un uppercut seul sur un ennemi frais le lance aussi (%s, bassin à %.2f m)" % [e.state, e.parts.pelvis.global_position.y])
+		_check(e.state == "down" and e.parts.pelvis.global_position.y > 1.2, "un uppercut seul sur un ennemi frais le lance aussi (%s, bassin à %.2f m) ; seul, il reste un lanceur" % [e.state, e.parts.pelvis.global_position.y])
 	if f == 810:
 		print("\nRESULTAT: ", "OK" if fails.is_empty() else "ECHEC " + str(fails))
 		quit(1 if fails.size() else 0)

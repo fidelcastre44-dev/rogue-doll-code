@@ -38,7 +38,7 @@ const CONFIG := {
 const CARD_MOVES := {
 	"mseed00": ["jab", "cross", "jab2"], "mseed01": ["upper", "hook", "knee"], "mseed02": ["air", "air_cross", "air_upper", "air_hook", "air_knee"],
 	"mseed04": ["flop_prep", "flop", "flop_land"], "mseed16": ["spin_counter", "spin_counter3"], "mseed19": ["prop_bash"],
-	"mseed05": ["kick", "hikick", "spinkick", "axe", "quake"], "mseed06": ["air_bigknee", "air_kick", "dive_kick"],
+	"mseed05": ["kick", "kick2", "kick3", "hikick", "spinkick", "axe", "quake"], "mseed06": ["air_bigknee", "air_kick", "dive_kick"],
 	"mseed07": ["charge", "charge_sho", "charge_hado", "shoryu", "hadoken"], "mseed26": ["bicycle"], "mseed25": ["capoeira"],
 	"mseed29": ["soccer_kick"], "mseed27": ["wall_run", "wall_run_h"], "mseed28": ["prop_kick"],
 	"mseed24": ["run_kick"], "mseed08": ["grab", "collar", "collar_punch", "headbutt", "slam", "collar_finish"],

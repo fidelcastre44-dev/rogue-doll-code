@@ -43,7 +43,7 @@ const AIR_HIT_BOUNCE := 4.2   # m/s : rebond vers le haut quand un coup aérien 
 const JAB_MAGNET_RANGE := 1.5  # m : aimantation du jab, seulement sur un sbire tout proche…
 const JAB_MAGNET_ANGLE := 28.0 # … et presque droit devant (degrés)
 const COMBO := ["jab", "cross", "jab2", "upper"]   # combo de X (v0.216 : 3 jabs + uppercut, retour de Thibaud)
-const FINISH_RECOVER := 0.22   # s : petit temps de récupération après le dernier coup du combo avant de pouvoir relancer une attaque
+const FINISH_RECOVER := 0.17   # v0.218 : un peu plus court (Thibaud, était 0,22)  # s : petit temps de récupération après le dernier coup du combo avant de pouvoir relancer une attaque
 const COLOR := Color(0.25, 0.45, 0.85)
 const HURT_TIME := 0.35
 const GRAVITY := 20.0
@@ -64,7 +64,7 @@ const PROP_DMG := 15.0      # objet du décor : fracassé, lancé ou en grand to
 const MOMENTUM := 4.0       # m/s : petite avancée donnée à chaque coup quand tu te déplaces (sans aimantation)
 const LOCK_RANGE := 2.2     # verrouillage : au-delà, on ne se tourne pas vers l'ennemi
 const LOCK_ANGLE := 60.0    # degrés de part et d'autre de là où tu regardes
-const IDEAL := {"jab": 0.85, "cross": 0.85, "jab2": 0.85, "run_kick": 1.1, "air_bigknee": 0.65, "upper": 0.8, "air": 0.7, "hammer": 0.7, "kick": 1.1, "hikick": 0.8, "spinkick": 0.8, "air_kick": 0.95, "grab": GRAB_REACH, "axe": 1.0, "knee": 0.6, "shoryu": 0.5, "hook": 0.75, "elbow": 0.55}   # distance au buste où chaque coup touche le mieux
+const IDEAL := {"jab": 0.85, "cross": 0.85, "jab2": 0.85, "run_kick": 1.1, "air_bigknee": 0.65, "upper": 0.8, "air": 0.7, "hammer": 0.7, "kick": 1.1, "kick2": 1.1, "kick3": 0.8, "hikick": 0.8, "spinkick": 0.8, "air_kick": 0.95, "grab": GRAB_REACH, "axe": 1.0, "knee": 0.6, "shoryu": 0.5, "hook": 0.75, "elbow": 0.55}   # distance au buste où chaque coup touche le mieux
 const DASH_SPEED := 9.0     # m/s : un ennemi verrouillé trop loin, on fonce sur lui avant le coup
 const APPROACH_MAX := 11.0  # m/s, vitesse max de l'approche verrouillée
 const ROLL_AFTER_HIT := 0.05   # roulade possible ce temps-là après l'impact d'un coup (le reste du coup reste punissable)
@@ -195,6 +195,7 @@ var charge_flashed := false
 var hit_mult := 1.0     # bonus du prochain coup (charge, riposte)
 var hit_crit := false
 var light_buf := 0.0
+var combo_fin := false   # v0.218 : le coup en cours est le dernier du combo de X (enchaîné)
 var recover_t := 0.0     # récupération après le dernier coup du combo (v0.216) : pas de nouvelle attaque tant que > 0
 var queued2_t := -9.0    # 2e appui de X gardé en mémoire (martelage : jab, direct, jab, uppercut s'enchaînent quand on martèle)
 var roll_atk := ""       # X / Y pressé pendant la roulade : l'attack roll part à la fin de la roulade, sans la couper (v0.216)
@@ -515,7 +516,9 @@ func _physics_process(dt: float) -> void:
 		queued = false
 		var combo := _combo()
 		var i := combo.find(attack if attack != "" else last)
-		start(combo[i + 1] if i >= 0 and i < combo.size() - 1 and (attack != "" or combo_left > 0) else "jab")
+		var chained := i >= 0 and i < combo.size() - 1 and (attack != "" or combo_left > 0)
+		start(combo[i + 1] if chained else "jab")
+		combo_fin = chained and i == combo.size() - 2   # v0.218 : dernier coup du combo (l'uppercut y fait tomber)
 		if clock - queued2_t < 0.45:
 			queued = true   # le 2e appui martelé enchaînera le coup d'après
 		queued2_t = -9.0
@@ -639,7 +642,7 @@ func _physics_process(dt: float) -> void:
 		elif t >= a.end:
 			last = attack
 			combo_left = COMBO_WINDOW
-			if attack == _combo().back() and not a.get("air", false):
+			if (attack == _combo().back() or attack == "kick3") and not a.get("air", false):
 				recover_t = FINISH_RECOVER   # fin du combo : petit temps de récupération avant de réattaquer
 			attack = ""
 	move_and_slide()
@@ -751,7 +754,7 @@ func _air_chain() -> bool:
 
 
 func _can_cancel() -> bool:
-	if recover_t > 0.0 or (attack != "" and attack == _combo().back() and attack in COMBO + ["hook"]):
+	if recover_t > 0.0 or (attack != "" and ((attack == _combo().back() and attack in COMBO + ["hook"]) or attack == "kick3")):
 		return false   # dernier coup du combo : il va jusqu'au bout, puis un petit temps de récupération (v0.216)
 	return attack == "" or (not attack in ["grab", "prop_hold", "prop_wind", "prop_swing", "prop_slam", "prop_toss", "air", "hammer", "air_kick", "knee", "axe", "shoryu", "air_slam", "dive_kick", "flop", "flip_jump", "dive_land", "dive", "charge", "charge_sho", "charge_hado", "headbutt", "collar", "collar_punch", "club_hold", "club_swing", "swing"] and t >= ATK[attack].cancel)
 
@@ -1247,7 +1250,7 @@ func _charge(dt: float) -> void:
 	charge_power = k
 	match charge_move:
 		"power":
-			_start_heavy()   # le coup lourd en place (chassé, high kick, retourné, axe kick...), version chargée
+			_start_heavy(false)   # le coup lourd en place (chassé, high kick, retourné, axe kick...), version chargée
 			hit_mult = 1.0 + k   # jusqu'à 2× ; chargé au max, il passe la garde et met au sol
 			hit_crit = k >= 0.99
 		"shoryu":
@@ -1264,14 +1267,42 @@ func _air_kick() -> void:
 	if air_heavy == "knee":
 		start("air_bigknee")   # gros genou : il garde l'élan du saut (pas de rebond), on enchaîne derrière (v0.216)
 		velocity.y = maxf(velocity.y, 1.0)
+		velocity.x *= 0.8   # v0.218 (Thibaud) : il emporte un peu moins loin en l'air
+		velocity.z *= 0.8
 		return
 	start("bicycle" if air_heavy == "bicycle" else "air_kick")
 	velocity.y = maxf(velocity.y, 3.5)   # petit rebond pour la vrille
 
 
 ## Lancement du Y normal (coup lourd au sol).
-func _start_heavy() -> void:
+## v0.218 (Thibaud) : le chassé de base est un combo de 3 : chassé, chassé de l'autre jambe, puis retourné puissant qui projette.
+const HEAVY_COMBO := ["kick", "kick2", "kick3"]
+var heavy_chain := ""   # dernier coup du combo Y lancé normalement (un chassé chargé ne lance pas le combo)
+
+func _start_heavy(combo := true) -> void:
+	var prev := attack if attack != "" else (last if combo_left > 0 else "")
+	var i := HEAVY_COMBO.find(prev)
+	if combo and heavy_move == "kick" and prev == heavy_chain and i >= 0 and i < HEAVY_COMBO.size() - 1:
+		var kind: String = HEAVY_COMBO[i + 1]
+		start(kind)
+		heavy_chain = kind
+		# les chassés le font reculer : le coup suivant avance pour le rattraper (sbire devant, à moins de 3,5 m)
+		var look := stick_dir.normalized() if stick_dir.length() > 0.3 else -global_basis.z
+		for e in enemies:
+			if e.parts.is_empty() or e.state in ["held", "swung", "dead"]:
+				continue
+			var to: Vector3 = (e.parts.chest.global_position - global_position) * Vector3(1, 0, 1)
+			if to.length() < 3.5 and look.angle_to(to) < deg_to_rad(50.0):
+				rotation.y = atan2(-to.x, -to.z)
+				var gap: float = to.length() - IDEAL[kind]
+				velocity.x = 0.0
+				velocity.z = 0.0
+				var tt: float = maxf(ATK[kind].active / attack_speed, 0.05)
+				velocity += -global_basis.z * clampf((gap + 20.0 * tt * tt) / tt, 0.0, 12.0) * float(gap > 0.0)   # freinage au sol : 40 m/s²
+				break
+		return
 	start(heavy_move)
+	heavy_chain = heavy_move if combo else ""
 	if heavy_move == "axe":
 		velocity.y = FLIP_JUMP   # salto avant : il décolle
 
@@ -1731,6 +1762,7 @@ func start(kind: String) -> void:
 	if orb and kind != "charge_hado":
 		_hado_orb(-1.0)
 	attack = kind
+	combo_fin = false
 	approach = false
 	attack_id += 1
 	if kind == "collar":
@@ -1782,7 +1814,7 @@ func start(kind: String) -> void:
 			velocity.z *= 0.2
 			push = _jab_magnet(kind)
 		elif not lock_on and (IDEAL.has(kind) or kind in ["quake", "hadoken"]) and kind != "grab" and stick_dir.length() > 0.3:
-			push += MOMENTUM   # élan : chaque coup avance dans la direction où tu te déplaces
+			push += MOMENTUM * (0.5 if kind == "air_bigknee" else 1.0)   # élan : chaque coup avance dans la direction où tu te déplaces
 		velocity += -global_basis.z * push
 	_atelier_start(kind)
 
@@ -1921,6 +1953,8 @@ func do_hit(a: Dictionary) -> void:
 		var kn: Vector3 = j["kn_" + s].global_position
 		var ft: Vector3 = j["foot_" + s].global_position
 		centers = [ft, (kn + ft) * 0.5, kn, ft + (ft - kn).normalized() * 0.18]
+		if attack == "air_bigknee":   # v0.218 (Thibaud) : zone étendue vers le haut et en diagonale vers le haut (il touche plus facilement)
+			centers.append_array([kn + Vector3.UP * 0.4, kn + (Vector3.UP + fwd).normalized() * 0.45, kn + (Vector3.UP * 0.8 + fwd).normalized() * 0.8])
 	var q := PhysicsShapeQueryParameters3D.new()
 	q.shape = SphereShape3D.new()
 	q.shape.radius = a.get("r", 0.5) * ups.radius_mult()   # augmentation d'impact
@@ -1965,6 +1999,9 @@ func do_hit(a: Dictionary) -> void:
 		return
 	connected = true
 	ups.on_hit(victim)   # Tazer
+	if attack == "upper" and combo_fin and victim.state in ["down", "launch"]:
+		victim.air_recover = false   # v0.218 (Thibaud) : l'uppercut de fin de combo le fait tomber (il ne retombe plus sur ses pieds)
+		victim.knockdown = victim.state == "launch"
 	if attack == "run_kick":   # coup de pied en course : gros impact (v0.217)
 		_shock_ring(center)
 		_flash(Color(1, 0.75, 0.4), 0.06)
@@ -2219,6 +2256,7 @@ func _club(dt: float) -> void:
 	if attack == "club_hold" and club_hits >= CLUB_HITS:   # 3 coups : il est lâché tout seul, projeté devant
 		enemy.swing_release(global_position + Vector3.UP, Vector3.ZERO, 0.0)
 		enemy.toss(f * 5.0 + Vector3.UP * 3.0, 2.0)
+		enemy.thrown()
 		attack = ""
 		return
 	if not Input.is_action_pressed("grab") or swing_hold >= CLUB_HOLD:   # R1 relâché : on le lâche
@@ -2271,6 +2309,7 @@ func _collar_punch() -> void:
 	if collar_hits >= 3 or enemy.hp <= 0:
 		var f := -global_basis.z
 		enemy.toss(Vector3.UP * 8.0 + f * 1.2, 4.0)
+		enemy.thrown()
 		start("collar_finish")
 		hit_done = true
 		connected = true
@@ -2995,6 +3034,7 @@ func _grater_tick(dt: float) -> void:
 	if t >= GRATER_TIME * attack_speed:
 		enemy.collar_hit(8.0)   # finisher : dernière frotte
 		enemy.toss(wall_n * 7.0 + Vector3.UP * 3.5, 3.5)   # lâché, projeté loin du mur
+		enemy.thrown()
 		get_parent().impact(0.1, 0.9)
 		start("collar_finish")
 		hit_done = true
