@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_v216"]
+
+[resource]
+script = ExtResource("1_v216")
+id = &"tackle_wall"
+display_name = "Plaquage contre le mur"
+notes = "v0.216 : il plaque le sbire debout, dos violemment contre le mur (retour de Thibaud)."
+active = 0.07
+cancel = 0.5
+end = 0.62
+roll_ok = 0.42
+hitstop = 0.16
+shake = 1.4
+flags = PackedStringArray("atelier")
+keys = [[0.0, "from"], [0.07, "tk_run", "in"], [0.4, "tk_run"], [0.62, "guard", "inout"]]
+present = PackedStringArray()

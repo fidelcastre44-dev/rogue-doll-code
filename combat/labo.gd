@@ -109,10 +109,15 @@ func _build_ui() -> void:
 
 	col.add_child(_lbl("LABO DES COUPS", 20, Color(0.55, 0.72, 1.0)))
 	col.add_child(_lbl("Choisis un coup, puis « Tester ce coup ». Start : fermer le menu et jouer (le jeu est en pause tant qu'il est ouvert). Menu fermé : croix ▲ ou Select remet la situation.", 12, Color(1, 1, 1, 0.7), true))
-	for m in LaboCatalog.MOVES:
-		pick.add_item("[%s]  %s%s" % [m.button, m.name, "   • nouveau" if m.status == "tester" else ""])
+	# Coups rangés et colorés par bouton (v0.216, idée de Thibaud) : X bleu, Y jaune, B rouge, A vert, puis les autres.
+	for i in _sorted_moves():
+		var m: Dictionary = LaboCatalog.MOVES[i]
+		pick.add_item("[%s]  %s%s" % [m.button, m.name, "   • nouveau" if m.status == "tester" else ""], i)
+		var col_b := btn_color(m.button)
+		if col_b.a > 0.0:
+			pick.set_item_icon(pick.item_count - 1, _dot(col_b))
 	pick.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	pick.item_selected.connect(func(i): select(i))
+	pick.item_selected.connect(func(k): select(pick.get_item_id(k)))
 	col.add_child(pick)
 	var_box.add_child(_lbl("Variante", 13, Color(1, 1, 1, 0.75)))
 	var_opt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -309,15 +314,58 @@ const SCENE_TEXT := {
 }
 
 
+## Couleur d'un bouton (premier bouton de la commande) : X bleu, Y jaune, B rouge, A vert ; transparent pour les autres.
+const BTN_COLORS := {"X": Color(0.35, 0.6, 1.0), "Y": Color(1.0, 0.85, 0.25), "B": Color(1.0, 0.35, 0.3), "A": Color(0.35, 0.9, 0.45)}
+const BTN_ORDER := ["X", "Y", "B", "A"]
+
+
+static func first_button(b: String) -> String:
+	for w in b.replace("/", " ").replace("+", " ").split(" ", false):
+		return w
+	return ""
+
+
+static func btn_color(b: String) -> Color:
+	return BTN_COLORS.get(first_button(b), Color(0, 0, 0, 0))
+
+
+## Ordre d'affichage : pantin et salles des builds d'abord, puis X, Y, B, A, puis les autres boutons (ordre du catalogue dans chaque groupe).
+static func _sorted_moves() -> Array:
+	var idx := []
+	for i in LaboCatalog.MOVES.size():
+		idx.append(i)
+	var rank := func(i: int) -> int:
+		var b: String = first_button(LaboCatalog.MOVES[i].button)
+		if b == "—":
+			return 0
+		var k := BTN_ORDER.find(b)
+		return 1 + (k if k >= 0 else BTN_ORDER.size())
+	idx.sort_custom(func(a, c): return rank.call(a) < rank.call(c) or (rank.call(a) == rank.call(c) and a < c))
+	return idx
+
+
+## Petite pastille de couleur (icône de la liste).
+static func _dot(c: Color) -> ImageTexture:
+	var img := Image.create(14, 14, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	for y in 14:
+		for x in 14:
+			if Vector2(x - 6.5, y - 6.5).length() <= 6.0:
+				img.set_pixel(x, y, c)
+	return ImageTexture.create_from_image(img)
+
+
 func entry() -> Dictionary:
 	return LaboCatalog.MOVES[cur]
 
 
 func select(i: int) -> void:
 	cur = wrapi(i, 0, LaboCatalog.MOVES.size())
-	pick.select(cur)
+	pick.select(pick.get_item_index(cur))
 	var m := entry()
 	name_lbl.text = m.name
+	var bc := btn_color(m.button)
+	button_lbl.add_theme_color_override("font_color", bc if bc.a > 0.0 else Color(1, 0.85, 0.35))
 	status_lbl.text = "NOUVEAU" if m.status == "tester" else "EXISTANT"
 	status_lbl.add_theme_color_override("font_color", Color(1, 0.6, 0.3) if m.status == "tester" else Color(0.5, 0.9, 0.6))
 	button_lbl.text = m.button
@@ -428,6 +476,13 @@ func setup() -> void:
 	player.hurt = 0.0
 	player.sprinting = false
 	player.velocity = Vector3.ZERO
+	# Appuis gardés en mémoire : on les oublie (un coup pressé avant la remise ne part pas dans la nouvelle situation).
+	for k in ["light_buf", "heavy_buf", "grab_buf", "jump_buf", "roll_buf", "air_buf", "recover_t"]:
+		player.set(k, 0.0)
+	player.queued = false
+	player.queued2_t = -9.0
+	player.roll_atk = ""
+	player.y_hold = -1.0
 	# « Devant » = vers le haut du stick (la caméra regarde en diagonale) : pousser le stick vers le haut mène au sbire.
 	var f := Vector3(1, 0, -1).normalized()
 	var rt := f.cross(Vector3.UP)

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_v216"]
+
+[resource]
+script = ExtResource("1_v216")
+id = &"sj_pin"
+display_name = "Super saut (plaqué au sol)"
+notes = "v0.216 : après la chope plongeante du super saut, il reste sur le sbire plaqué ; X = coups de poing au sol (retour de Thibaud)."
+active = 99.0
+cancel = 99.0
+end = 1.6
+roll_ok = 0.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.05, "pound", "in"], [1.4, "pound"], [1.6, "guard", "inout"]]
+present = PackedStringArray()

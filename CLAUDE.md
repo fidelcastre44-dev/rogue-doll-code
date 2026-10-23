@@ -25,6 +25,11 @@ Godot 4.7 + Jolt. Équipe : Paul (code avec Claude, son), Thibaud (visuels, game
   `combat/projectile.gd` (`Projectile`) : tirs des sbires tireurs du labo (parade, renvoi, défense). États des sbires : `enemy.status`
   (`electrify()`, « elec », « elec_chain »). Armes : `enemy.give_weapon()` / `drop_weapon()`.
 - `tools/gen_v0212_moves.gd` : poses et fiches des coups v0.212 (relançable).
+- **v0.216** : attack roll (`player.roll_atk` : X / Y pendant la roulade part à sa fin), combo `jab, cross, jab2, upper` + `recover_t`,
+  `run_kick` (Y en sprint), `air_bigknee` (Y en l'air de base, `air_heavy = "knee"`), `sj_pin` / `pin_punch` (plaqué après le super
+  saut), `tackle_wall` (plaquage contre un mur), `enemy.ground_kick` (balayage sur un sbire couché), `Locomotion.prop_probe`
+  (enjamber les objets), `HANG_MIN` (s'agripper seulement à partir de 3 m), `_climb_push` / `_yank` (agrippé + X / R1),
+  toile élastique (`HeroUps.WEB_K`, `_web_follow`), couleurs du labo (`Labo.btn_color`, `_sorted_moves`). Test : `v0216check.gd`.
 - `main.tscn` / `main.gd` : arène, caméra, hitstop (`impact()`, `base_time_scale`), barres, menu pause, sbires.
 - `player.gd` : le héros (squelette en blocs animé par poses clés, IK des pieds, tous les états de combat).
 - `enemy.gd` : sbire ragdoll (debout animé ↔ ragdoll physique), IA, garde, chopes, rebonds. `ai_on = false` = sac de frappe.
@@ -95,7 +100,7 @@ Décisions à respecter : pas de différence arrêt / marche (« basique ») ; p
 
 ## Tests (obligatoires avant de livrer)
 Depuis `/home/claude/godot/ragdoll_proto` : `../godot --headless --path . -s <x>check.gd --fixed-fps 120`.
-27 suites (`*check.gd`), chacune finit par `RESULTAT: OK` (`correctcheck.gd` = correctifs 0.11, `editorcheck.gd` = éditeur d'animation, `v021check.gd` = version 0.21, `hubcheck.gd` = salon, `mapcheck.gd` = carte et déplacements, `v0212check.gd` = formes, améliorations, états, coups v0.212). `varietycheck` et `runcheck` sont
+28 suites (`*check.gd`), chacune finit par `RESULTAT: OK` (`correctcheck.gd` = correctifs 0.11, `editorcheck.gd` = éditeur d'animation, `v021check.gd` = version 0.21, `hubcheck.gd` = salon, `mapcheck.gd` = carte et déplacements, `v0212check.gd` = formes, améliorations, états, coups v0.212, `v0216check.gd` = retours du 23/10). `varietycheck` et `runcheck` sont
 un peu aléatoires : un échec isolé se relance. Lancer les suites 2 par 2 au plus (machine à 2 cœurs). `labcheck.gd` vérifie l'ancienne salle de test, `labocheck.gd` le labo (chaque coup part dans sa situation).
 Rendu d'images : xvfb-run + `--rendering-driver opengl3 --rendering-method gl_compatibility`.
 

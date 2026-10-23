@@ -22,7 +22,7 @@ func _process(_dt: float) -> bool:
 	var p = main.player
 	if f == 5:
 		_check(p.dodge_move == "roll" and p.heavy_move == "kick" and p.air_move == "jab" and p.throw_move == "slam" and p.light_move == "base", "par défaut : les coups de base (%s, %s, %s, %s, %s)" % [p.dodge_move, p.heavy_move, p.air_move, p.throw_move, p.light_move])
-		_check(p._combo() == ["jab", "cross", "upper"], "combo de base : jab + direct + uppercut (%s)" % str(p._combo()))
+		_check(p._combo() == ["jab", "cross", "jab2", "upper"], "combo de base : jab, direct, jab, uppercut (%s)" % str(p._combo()))
 		var obs := []
 		for c in main.panel.get_children():
 			if c is OptionButton:
@@ -32,7 +32,7 @@ func _process(_dt: float) -> bool:
 			ob.select(ob.item_count - 1)
 			ob.item_selected.emit(ob.item_count - 1)
 		_check(p.dodge_move == "dash" and p.heavy_move == "quake" and p.charge_move == "hadoken" and p.air_move == "jab" and p.light_move == "knee" and p.sprint_attack == "flop" and p.throw_move == "throw", "choisir dans le menu change le coup en jeu (%s, %s, %s, %s, %s)" % [p.dodge_move, p.heavy_move, p.air_move, p.light_move, p.throw_move])
-		_check(p._combo() == ["jab", "cross", "knee"], "l'amélioration ajoute un 3e coup au combo (%s)" % str(p._combo()))
+		_check(p._combo() == ["jab", "cross", "jab2", "knee"], "l'amélioration change le dernier coup du combo (%s)" % str(p._combo()))
 		_check(main.enemies.size() == 5, "nombre d'ennemis : 5 (%d)" % main.enemies.size())
 		var cbs := []
 		for c in main.panel.get_children():

@@ -19,7 +19,7 @@ func ok(c: bool, msg: String) -> void:
 	if not c:
 		fails += 1
 
-const NEW := ["superman", "drop_kick", "drop_land", "tackle", "tackle_slam", "suplex", "piledriver", "pd_land", "hip_throw", "cheese_grater", "cheese_grater_r", "prop_shield", "spin_counter", "spin_counter3", "capoeira", "soccer_kick", "prop_kick", "prop_bash", "wall_run", "bicycle", "tramp", "super_jump", "sm_land", "air_cross", "air_upper", "air_hook", "air_knee", "wall_run_h", "sj_grab"]
+const NEW := ["superman", "drop_kick", "drop_land", "tackle", "tackle_slam", "suplex", "piledriver", "pd_land", "hip_throw", "cheese_grater", "cheese_grater_r", "prop_shield", "spin_counter", "spin_counter3", "capoeira", "soccer_kick", "prop_kick", "prop_bash", "wall_run", "bicycle", "tramp", "super_jump", "sm_land", "air_cross", "air_upper", "air_hook", "air_knee", "wall_run_h", "sj_grab", "air_bigknee", "sj_pin", "pin_punch", "tackle_wall"]
 
 func _process(_d):
 	f += 1

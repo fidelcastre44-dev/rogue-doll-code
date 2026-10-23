@@ -152,9 +152,18 @@ func _run() -> void:
 	await wait(70)
 	ok(p.lc.stats.get("mantle", 0) >= 1 and absf(p.global_position.y - 1.0) < 0.15, "bloc de 1 m : A = il se hisse dessus (%.2f m)" % p.global_position.y)
 
-	print("Rebord (bloc de 2 m)")
-	await go("mv_hang")
+	print("Se hisser sur 2 m (directement, v0.216)")
+	await go("mv_mantle2")
 	hold(["up"])
+	await wait(40)
+	hold([])
+	await tap("jump")
+	await wait(90)
+	ok(p.lc.stats.get("mantle", 0) >= 1 and p.lc.stats.get("hang", 0) == 0 and absf(p.global_position.y - 2.0) < 0.15, "bloc de 2 m : il se hisse directement, sans s'agripper (%.2f m)" % p.global_position.y)
+
+	print("Rebord (bloc de 3 m)")
+	await go("mv_hang")
+	hold(["up", "left"])
 	await wait(26)
 	await tap("jump")
 	m = {"hang": false}
@@ -169,7 +178,7 @@ func _run() -> void:
 	ok(p.lc.state == "hang", "il reste suspendu")
 	await tap("jump")
 	await wait(90)
-	ok(p.lc.state == "" and absf(p.global_position.y - 2.0) < 0.15, "A : il se hisse sur le bloc (%.2f m)" % p.global_position.y)
+	ok(p.lc.state == "" and absf(p.global_position.y - 3.0) < 0.15, "A : il se hisse sur le bloc (%.2f m)" % p.global_position.y)
 
 	print("Glisser sous la barrière")
 	await go("mv_skid")
@@ -196,7 +205,7 @@ func _run() -> void:
 	await wait(20)
 	await tap("jump")
 	m = {"rolled": false}
-	for i in 120:
+	for i in 220:   # v0.216 : du bloc de 3 m (chute plus longue)
 		await physics_frame
 		if p.velocity.y < -6.0 and not m.get("b", false):
 			var g: float = lab.map.ground_y(p.global_position)
@@ -213,7 +222,7 @@ func _run() -> void:
 	await wait(20)
 	await tap("jump")
 	m = {"heavy": false}
-	await watch(120, func():
+	await watch(220, func():
 		if p.lc.state == "heavy_land":
 			m.heavy = true)
 	hold([])

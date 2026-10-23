@@ -74,7 +74,7 @@ func _run() -> void:
 
 	print("Vanilla et formes")
 	await go("build_vanilla")
-	ok(not p.form_dropkick and not p.form_counter and not p.double_jump and not p.dive and p.air_heavy == "dropkick", "Vanilla : aucune forme, ni double saut ni plongeon")
+	ok(not p.form_dropkick and not p.form_counter and not p.double_jump and not p.dive and p.air_heavy == "knee", "Vanilla : aucune forme, ni double saut ni plongeon")
 	ok(p.terrain and p.sidestep, "les déplacements de la carte et le pas de côté sont là")
 	lab.main.enemies[0].global_position = Vector3(30, 0, 30)
 	lab.main.enemies[0].build()

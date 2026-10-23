@@ -13,7 +13,12 @@ const IMPACT_DMG := 1.3       # dégâts ×
 const ELEC_T := 2.4           # s : électrifié
 const DEFENSE_HITS := 3       # coups encaissés par le bouclier (ennemi ou objet tenu) avant qu'il casse
 const WEB_RANGE := 10.0
-const WEB_K := 9.0            # raideur de l'élastique
+const WEB_K := 55.0           # raideur de l'élastique (v0.216 : vrai ressort, il rebondit un peu en arrivant)
+const WEB_DAMP := 6.0         # amortissement du ressort (faible = plus élastique)
+const WEB_MAX := 22.0         # m/s : vitesse max de ce qui est ramené
+const WEB_SHOT := 0.06        # s : le fil jaillit de la main jusqu'à la cible
+const WEB_FOLLOW := 3.0       # m : ennemi ramené à moins de ça = X ou Y enchaîne une attaque (le fil est lâché)
+const WEB_AIR_DOWN := 0.45    # en l'air : le fil part en légère diagonale vers le bas
 const WAVE_R := 6.5
 const WAVE_STUN := 2.2
 const RAIN_R := 14.0
@@ -22,7 +27,7 @@ const EVADE_T := 1.2          # s : après un pas de côté réussi, le coup sui
 
 ## Bouton de chaque coup du héros (pour les améliorations de bouton).
 const BUTTON_OF := {
-	"jab": "X", "cross": "X", "upper": "X", "hook": "X", "knee": "X", "elbow": "X", "air": "X", "air_cross": "X", "air_upper": "X",
+	"jab": "X", "cross": "X", "jab2": "X", "pin_punch": "X", "run_kick": "Y", "air_bigknee": "Y", "tackle_wall": "R1", "upper": "X", "hook": "X", "knee": "X", "elbow": "X", "air": "X", "air_cross": "X", "air_upper": "X",
 	"air_hook": "X", "air_knee": "X", "hammer": "X", "spin_counter": "X", "spin_counter3": "X", "collar_punch": "X", "superman": "X",
 	"kick": "Y", "hikick": "Y", "spinkick": "Y", "axe": "Y", "quake": "Y", "charge": "Y", "charge_sho": "Y", "charge_hado": "Y",
 	"power": "Y", "shoryu": "Y", "hadoken": "Y", "air_kick": "Y", "bicycle": "Y", "dive_kick": "Y", "drop_kick": "Y", "capoeira": "Y",
@@ -40,6 +45,7 @@ var web_kind := ""            # enemy / prop / wall
 var web_point := Vector3.ZERO
 var web_line: MeshInstance3D
 var web_hit := false
+var web_shot := 0.0           # temps depuis que le fil est parti (il jaillit, puis se tend)
 var tomoe_victim: Node3D = null
 var stats := {}               # compteurs (tests)
 
@@ -263,6 +269,7 @@ func _hand() -> Vector3:
 func _web_fire() -> void:
 	var f := -p.global_basis.z
 	var from := p.global_position + Vector3.UP * 1.25
+	var aim := f if p.is_on_floor() else (f + Vector3.DOWN * WEB_AIR_DOWN).normalized()   # en l'air : visée en diagonale vers le bas
 	var space := p.get_world_3d().direct_space_state
 	var best: Dictionary = {}
 	# Sbires d'abord (cône étroit), sinon le premier objet / mur sur la ligne.
@@ -276,7 +283,7 @@ func _web_fire() -> void:
 			bd = d.length()
 			best = {"kind": "enemy", "obj": e, "at": c}
 	if best.is_empty():
-		var q := PhysicsRayQueryParameters3D.create(from, from + f * WEB_RANGE, 1)
+		var q := PhysicsRayQueryParameters3D.create(from, from + aim * WEB_RANGE, 1)
 		q.exclude = [p.get_rid()]
 		var r := space.intersect_ray(q)
 		if not r.is_empty():
@@ -288,6 +295,7 @@ func _web_fire() -> void:
 	web_target = best.obj
 	web_point = best.at
 	web_hit = true
+	web_shot = 0.0
 	_count("web_" + web_kind)
 	if web_kind == "enemy":
 		var e = web_target
@@ -307,7 +315,14 @@ func web_tick(dt: float) -> void:
 			p.attack = ""
 		return
 	var held := Input.is_action_pressed("grab")
+	web_shot += dt
 	var goal := p.global_position - p.global_basis.z * 1.6 + Vector3.UP * 1.1
+	# Enchaînement (v0.216, retour de Thibaud) : l'ennemi ramené arrive sur nous, X ou Y lâche le fil et lance l'attaque.
+	if web_kind in ["enemy", "prop"] and is_instance_valid(web_target) and (Input.is_action_just_pressed("light") or Input.is_action_just_pressed("heavy")):
+		var tp: Vector3 = web_target.parts.chest.global_position if web_kind == "enemy" else web_target.global_position
+		if tp.distance_to(p.global_position + Vector3.UP) < WEB_FOLLOW:
+			_web_follow(Input.is_action_just_pressed("heavy"))
+			return
 	match web_kind:
 		"enemy":
 			var e = web_target
@@ -317,19 +332,26 @@ func web_tick(dt: float) -> void:
 			e.timer = maxf(e.timer, 1.0)
 			var c: Vector3 = e.parts.pelvis.global_position
 			web_point = e.parts.chest.global_position
-			var v := (goal - c) * WEB_K
-			v = v.limit_length(16.0)
+			# Ressort amorti (élastique) : il est tiré vers nous, dépasse un peu et rebondit au bout du fil.
+			var mean := Vector3.ZERO
+			var m := 0.0
+			for b in e.parts.values():
+				mean += b.linear_velocity * b.mass
+				m += b.mass
+			mean /= maxf(m, 0.001)
+			var acc := (goal - c) * WEB_K - mean * WEB_DAMP
+			var nv := (mean + acc * dt).limit_length(WEB_MAX)
 			for b in e.parts.values():
 				if not b.freeze:
-					b.linear_velocity = b.linear_velocity.lerp(v, minf(dt * 10.0, 1.0))
+					b.linear_velocity += nv - mean
 		"prop":
 			var b: RigidBody3D = web_target
 			if not is_instance_valid(b):
 				web_release()
 				return
 			web_point = b.global_position
-			var v2 := ((goal - b.global_position) * WEB_K).limit_length(16.0)
-			b.linear_velocity = b.linear_velocity.lerp(v2, minf(dt * 10.0, 1.0))
+			var acc2 := (goal - b.global_position) * WEB_K - b.linear_velocity * WEB_DAMP
+			b.linear_velocity = (b.linear_velocity + acc2 * dt).limit_length(WEB_MAX)
 		"wall":
 			var to := web_point - (p.global_position + Vector3.UP * 1.0)
 			if to.length() > 1.2:
@@ -337,9 +359,30 @@ func web_tick(dt: float) -> void:
 			else:
 				p.velocity = Vector3.ZERO
 				held = false
-	_web_line(_hand(), web_point)
-	if not held and p.t > 0.12:
+	var hand := _hand()
+	_web_line(hand, hand.lerp(web_point, clampf(web_shot / WEB_SHOT, 0.0, 1.0)))   # le fil jaillit, puis reste tendu
+	if not held and p.t > 0.1:
 		web_release()
+
+
+## X ou Y quand l'ennemi (ou l'objet) ramené arrive sur nous : le fil est lâché sans le projeter, il reste devant nous
+## (presque arrêté) et l'attaque part tout de suite (au sol : le combo / le coup lourd ; en l'air : le combo aérien / le Y aérien).
+func _web_follow(heavy: bool) -> void:
+	if web_kind == "enemy" and is_instance_valid(web_target):
+		for b in web_target.parts.values():
+			b.linear_velocity *= 0.2
+		web_target.timer = maxf(web_target.timer, 1.0)
+	elif web_kind == "prop" and is_instance_valid(web_target):
+		web_target.linear_velocity *= 0.2
+	web_target = null
+	web_hit = false
+	_web_line_off()
+	p.attack = ""
+	if heavy:
+		p.heavy_buf = 0.15
+	else:
+		p.light_buf = 0.15
+	_count("web_follow")
 
 
 ## R1 relâché : il lâche ; l'ennemi ou l'objet garde sa vitesse (on peut le projeter en tournant).
@@ -373,7 +416,8 @@ func _web_line(a: Vector3, b: Vector3) -> void:
 		return
 	var y := d.normalized()
 	var x := y.cross(Vector3.UP if absf(y.y) < 0.95 else Vector3.RIGHT).normalized()
-	web_line.global_transform = Transform3D(Basis(x, y * d.length(), x.cross(y)), (a + b) * 0.5)
+	var thin := clampf(sqrt(2.0 / maxf(d.length(), 0.5)), 0.45, 1.4)   # élastique : plus il est tendu (long), plus il est fin
+	web_line.global_transform = Transform3D(Basis(x * thin, y * d.length(), x.cross(y) * thin), (a + b) * 0.5)
 
 
 func _web_line_off() -> void:

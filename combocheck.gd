@@ -1,6 +1,6 @@
 extends SceneTree
 ## Auto-test du combo : godot --headless --path . -s combocheck.gd --fixed-fps 120
-## 3 appuis rapides = jab, direct, uppercut qui touchent tous ; l'uppercut fait décoller l'ennemi puis il se rattrape sur ses pieds ;
+## 4 appuis rapides = jab, direct, jab, uppercut qui touchent tous (v0.216) ; l'uppercut fait décoller l'ennemi puis il se rattrape sur ses pieds ;
 ## après une pause, on repart du jab ; un uppercut seul lance aussi un ennemi frais.
 
 var main: Node3D
@@ -27,9 +27,9 @@ func _process(_dt: float) -> bool:
 		var pel: Vector3 = e.parts.pelvis.global_position
 		p.global_position = Vector3(pel.x, 0, pel.z + 0.9)
 		p.rotation.y = 0
-	if f in [100, 112, 124, 600]:   # appuis à ~100 ms d'intervalle (martelage), puis un appui isolé bien plus tard
+	if f in [100, 112, 124, 136, 600]:   # appuis à ~100 ms d'intervalle (martelage), puis un appui isolé bien plus tard
 		Input.action_press("light")
-	if f in [101, 113, 125, 601]:
+	if f in [101, 113, 125, 137, 601]:
 		Input.action_release("light")
 	if p.attack != "" and (p.attack != prev or p.t < prev_t):   # un nouveau coup a démarré
 		seen.append(p.attack)
@@ -37,12 +37,12 @@ func _process(_dt: float) -> bool:
 	prev_t = p.t
 	if e.state in ["launch", "down"] and not e.parts.is_empty():
 		peak = maxf(peak, e.parts.pelvis.global_position.y)
-	if f == 250:
+	if f == 280:
 		var names := seen
-		_check(names == ["jab", "cross", "upper"], "enchaînement jab > direct > uppercut (%s)" % str(names))
-		_check(e.hp == e.MAX_HP - 8 - 10 - 14, "les 3 coups touchent (hp %.0f)" % e.hp)
+		_check(names == ["jab", "cross", "jab2", "upper"], "enchaînement jab > direct > jab > uppercut (%s)" % str(names))
+		_check(e.hp == e.MAX_HP - 8 - 10 - 8 - 14, "les 4 coups touchent (hp %.0f)" % e.hp)
 		_check(peak > 1.6, "l'uppercut le fait décoller (bassin monté à %.2f m, 1.0 debout)" % peak)
-	if f == 330:
+	if f == 380:
 		_check(e.state == "stand", "puis il se rattrape sur ses pieds (%s)" % e.state)
 	if f == 610:
 		_check(p.attack == "jab", "après une pause, le combo repart du jab (%s)" % p.attack)

@@ -36,16 +36,16 @@ const CONFIG := {
 ## Coups du labo -> animations (fiches) qui les composent. Les coups dont le mouvement est calculé par le code
 ## (roulade, balayage, tacle glissé, strafe) n'ont pas d'animation à clés : ils ne sont pas encore modifiables ici.
 const CARD_MOVES := {
-	"mseed00": ["jab", "cross"], "mseed01": ["upper", "hook", "knee"], "mseed02": ["air", "air_cross", "air_upper", "air_hook", "air_knee"],
+	"mseed00": ["jab", "cross", "jab2"], "mseed01": ["upper", "hook", "knee"], "mseed02": ["air", "air_cross", "air_upper", "air_hook", "air_knee"],
 	"mseed04": ["flop_prep", "flop", "flop_land"], "mseed16": ["spin_counter", "spin_counter3"], "mseed19": ["prop_bash"],
-	"mseed05": ["kick", "hikick", "spinkick", "axe", "quake"], "mseed06": ["air_kick", "dive_kick"],
+	"mseed05": ["kick", "hikick", "spinkick", "axe", "quake"], "mseed06": ["air_bigknee", "air_kick", "dive_kick"],
 	"mseed07": ["charge", "charge_sho", "charge_hado", "shoryu", "hadoken"], "mseed26": ["bicycle"], "mseed25": ["capoeira"],
 	"mseed29": ["soccer_kick"], "mseed27": ["wall_run", "wall_run_h"], "mseed28": ["prop_kick"],
-	"mseed24": ["drop_kick", "drop_land"], "mseed08": ["grab", "collar", "collar_punch", "headbutt", "slam", "collar_finish"],
+	"mseed24": ["run_kick"], "mseed08": ["grab", "collar", "collar_punch", "headbutt", "slam", "collar_finish"],
 	"mseed09": ["swing", "swing_finish"], "mseed10": ["air_slam", "airslam_land"], "mseed53": ["piledriver", "pd_land"],
-	"mseed39": ["hip_throw"], "mseed36": ["cheese_grater", "cheese_grater_r"], "mseed32": ["tackle", "tackle_slam"],
+	"mseed39": ["hip_throw"], "mseed36": ["cheese_grater", "cheese_grater_r"], "mseed32": ["tackle", "tackle_slam", "tackle_wall"],
 	"mseed33": ["suplex"], "mseed13": ["flip_jump", "dive", "dive_land"], "mseed50": ["tramp"],
-	"mseed52": ["super_jump", "sj_grab"], "mseed58": ["superman", "sm_land"],
+	"mseed52": ["super_jump", "sj_grab", "sj_pin", "pin_punch"], "mseed58": ["superman", "sm_land"],
 	"m_mvkqgf3gh3hrj": ["wave"], "m_mvkqkuvl0el5d": ["web", "web_throw"], "mseed49": ["tomoe"], "mseed45": ["disarm"], "mseed56": ["rain"],
 }
 

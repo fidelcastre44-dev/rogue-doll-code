@@ -257,18 +257,18 @@ func _process(_dt: float) -> bool:
 				p.light_move = "knee"
 				_place(e, Vector3(0, 0, -1.2), Vector3(0, 0, 0))
 				_reset_p(p, Vector3(0, 0, 0), Vector3(0, 0, -5))
-			if k in [30, 42, 54]:
-				_tap("light")   # jab, direct, genou volant
+			if k in [30, 50, 70, 90]:
+				_tap("light")   # jab, direct, jab, genou volant (v0.216)
 			if p.attack == "knee":
 				v.kn = true
 			if k > 30:
 				v.py = maxf(v.get("py", 0.0), p.global_position.y)
 				v.ey = maxf(v.get("ey", 0.0), e.parts.pelvis.global_position.y)
-			if p.attack == "" and k > 60 and k < 140 and not p.is_on_floor() and not v.has("air"):
+			if p.attack == "" and k > 100 and k < 180 and not p.is_on_floor() and not v.has("air"):
 				v.air = true
 				_tap("light")
-			if k == 160:
-				_check(v.has("kn"), "genou volant en 3e coup du combo de poings")
+			if k == 200:
+				_check(v.has("kn"), "genou volant en dernier coup du combo de poings")
 				_check(v.py > 0.5, "genou volant : il décolle (%.2f m)" % v.py)
 				p.light_move = "base"
 				_check(v.ey > 1.3, "et l'ennemi part en l'air avec lui (bassin à %.2f m)" % v.ey)
@@ -369,10 +369,11 @@ func _process(_dt: float) -> bool:
 				_tap("light")
 			if p.attack != "" and not v.has("at"):
 				v.at = k
-			if k == 90:
+				v.kind = p.attack
+			if k == 150:   # v0.216 : X pendant la roulade = attack roll, qui part à la FIN de la roulade (il ne la coupe plus)
 				Input.action_release("down")
-				_check(v.has("at") and v.at - 20 < 30, "roulade coupée tôt par un coup (%.2f s après le départ)" % ((v.get("at", 999) - 20) / 120.0))
-				_check(e.hp < e.MAX_HP, "le coup part derrière, là où pousse le stick, et touche (vie %.0f)" % e.hp)
+				_check(v.has("at") and v.at - 20 >= 70, "l'attack roll attend la fin de la roulade (%.2f s après le départ)" % ((v.get("at", 999) - 20) / 120.0))
+				_check(v.get("kind", "") == "spin_counter", "c'est bien l'attack roll (contre tournant) qui part (%s)" % v.get("kind", ""))
 				_go("parry")
 		"parry":
 			if k == 1:
@@ -638,15 +639,15 @@ func _process(_dt: float) -> bool:
 				e.block_chance = 1.0
 				e.ai_on = true
 				e.cooldown = 99.0
-			if k in [10, 22, 34]:
+			if k in [10, 30, 50, 70]:
 				_tap("light")
 			if k == 16:
 				v.blk = e.ai == "block"
-			if k == 28:
+			if k == 72:
 				v.hp1 = e.hp
-			if k == 100:
-				_check(v.get("blk", false) and v.hp1 == e.MAX_HP, "jab et direct : bloqués par sa garde")
-				_check(e.hp < e.MAX_HP and e.state != "stand", "le crochet (3e coup) brise la garde (%s, vie %.0f)" % [e.state, e.hp])
+			if k == 160:
+				_check(v.get("blk", false) and v.hp1 == e.MAX_HP, "jab, direct, jab : bloqués par sa garde")
+				_check(e.hp < e.MAX_HP and e.state != "stand", "le crochet (dernier coup) brise la garde (%s, vie %.0f)" % [e.state, e.hp])
 				e.block_chance = 0.0
 				e.ai_on = false
 				p.light_move = "base"

@@ -181,7 +181,7 @@ func _run() -> void:
 	await tap("light")
 	await wait(30)
 	ok(e.state == "stand" and e.parts.chest.global_position.distance_to(e0) < 0.6, "jab, direct : le sbire reste sur place (%s, %.2f m)" % [e.state, e.parts.chest.global_position.distance_to(e0)])
-	ok(p._combo() == ["jab", "cross", "upper"], "uppercut en 3e coup de base")
+	ok(p._combo() == ["jab", "cross", "jab2", "upper"], "uppercut en dernier coup de base (3 jabs + uppercut, v0.216)")
 
 	# Aimantation du jab : sbire proche droit devant -> il se tourne ; sur le côté (45°) -> rien.
 	await go("pantin")

@@ -941,6 +941,29 @@ func _dead_timer() -> float:
 	return t0
 
 
+## Coup au ras du sol sur un sbire couché (balayage, capoeira ; v0.216, retour de Thibaud) : il prend les dégâts,
+## décolle un peu et repart en roulant, pour qu'on voie bien que le coup a porté.
+var ground_kicks := 0   # (tests) coups au sol reçus
+
+func ground_kick(dir: Vector3, dmg: float) -> void:
+	if state in ["getup", "techroll", "rise", "held", "swung"]:
+		return
+	ground_kicks += 1
+	if state == "crisp":
+		_release_crisp()
+	hp = maxf(hp - dmg, 0.0)
+	_flash()
+	if state != "dead":
+		state = "dead" if hp <= 0 else "down"
+		timer = _dead_timer() if hp <= 0 else DOWN_TIME
+	air_recover = false
+	var w := dir.cross(Vector3.UP).normalized() * -5.0
+	for b in parts.values():
+		b.freeze = false
+		b.linear_velocity += dir * 3.0 + Vector3.UP * 4.0
+		b.angular_velocity += w
+
+
 ## Fauché : ses pieds partent dans le sens du balayage, le buste bascule à l'opposé, il décolle un peu et tombe à plat.
 func trip(dir: Vector3, dmg: float, up := 2.6) -> void:
 	hp = maxf(hp - dmg, 0.0)

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_2e5jh"]
+
+[resource]
+script = ExtResource("1_2e5jh")
+id = &"jab2"
+display_name = "Jab (3e coup du combo)"
+notes = "v0.216 : 3e coup du combo (3 jabs + uppercut, retour de Thibaud). Animation reprise de la capture CMU 144_14 (tools/cmu)."
+active = 0.108
+cancel = 0.23500000000000001
+end = 0.4715
+tip = "fist_l"
+radius = 0.46
+damage = 8.0
+force_mult = 0.22
+hitstop = 0.06
+shake = 0.4
+lunge = 0.4
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.0098, "cmu_jab_0", "lin"], [0.0196, "cmu_jab_1", "lin"], [0.0293, "cmu_jab_2", "lin"], [0.0391, "cmu_jab_3", "lin"], [0.0489, "cmu_jab_4", "lin"], [0.0587, "cmu_jab_5", "lin"], [0.0675, "cmu_jab_6", "lin"], [0.0776, "cmu_jab_7", "lin"], [0.0878, "cmu_jab_8", "lin"], [0.0979, "cmu_jab_9", "lin"], [0.108, "cmu_jab_10", "lin"], [0.1755, "cmu_jab_11", "lin"], [0.2055, "cmu_jab_12", "lin"], [0.2355, "cmu_jab_13", "lin"], [0.2655, "cmu_jab_14", "lin"], [0.2955, "cmu_jab_15", "lin"], [0.3255, "cmu_jab_16", "lin"], [0.3555, "cmu_jab_17", "lin"], [0.3855, "cmu_jab_18", "lin"], [0.3915, "cmu_jab_19", "lin"], [0.4715, "guard", "inout"]]
+present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "dmg", "drop", "stop", "shake", "up", "lunge", "keys", "step")

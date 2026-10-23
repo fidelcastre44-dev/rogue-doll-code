@@ -4,11 +4,12 @@ extends RefCounted
 
 ## Coups de base (toujours là) — affichés dans la liste des coups.
 const BASE := [
-	["Poing (X)", "Jab, direct, uppercut. Les jabs bloquent l'ennemi sur place ; l'uppercut le lance en l'air. Un appui pendant un coup est gardé en mémoire : le suivant part dès que le précédent a touché."],
+	["Poing (X)", "Jab, direct, jab, uppercut. Les jabs bloquent l'ennemi sur place ; l'uppercut le lance en l'air, puis petit temps de récupération. Un appui pendant un coup est gardé en mémoire : le suivant part dès que le précédent a touché."],
+	["Tacle glissé (X en sprint)", "En sprint, X : coup de pied glissé au ras du sol qui fait tomber tous ceux qu'il touche."],
 	["Poing en l'air (X en l'air)", "Le combo du sol, en l'air : jab, direct, uppercut (ou le 3e coup débloqué) ; chaque coup qui touche te fait rebondir vers le haut avec l'ennemi (jongle)."],
 	["Balayage retourné (X maintenu)", "Accroupi, jambe tendue au ras du sol, il tourne sur lui-même et fauche de côté, même en garde. Invulnérable pendant la rotation."],
 	["Coup lourd (Y, appui court)", "Chassé : jambe tendue devant, l'ennemi part en arrière."],
-	["Chassé sauté (Y en l'air)", "En boule, il vrille puis se détend pieds joints devant."],
+	["Gros genou (Y en l'air)", "Gros coup de genou aérien qui garde l'élan du saut : l'ennemi monte, on enchaîne le combo aérien."],
 	["Coup de pied en piqué (Y maintenu en l'air)", "Il fond en diagonale vers le sol ; touche tout jusqu'au sol et fait rebondir en l'air les ennemis couchés."],
 	["Chope (R1)", "Par le col, debout ou au sol. X = droites (la 3e le renvoie en l'air), Y = coup de tête (lâché, il rebondit au sol), R1 = fracas au sol (son corps percute les autres ennemis là où il s'écrase). Chopé debout, il se libère au bout de 1,5 s ; chopé au sol, tu le gardes 4 s. Marche aussi sur les objets (table, chaise, banc, poubelle...) : soulevé au-dessus de la tête, rappui sur R1 = lancé droit devant toi."],
 	["Garde (L1)", "Bloque tout ce qui vient de devant et des côtés."],
@@ -32,17 +33,16 @@ const LIST := [
 	["swing", "throw_move", "swing", "Grand tour", "Chope (R1)", "Sur un ennemi au sol ou en l'air : attrapé par les chevilles, il tourne autour de toi (accélère avec des cercles au stick) et percute les autres. Relâche R1 pour le lancer. Marche aussi avec les objets du décor."],
 	["throw", "throw_move", "throw", "Lancer visé", "Chope (R1)", "R1 maintenu : élan, il passe au-dessus de ton épaule ; vise au stick, relâche : il part en boulet et percute les autres. Marche aussi avec les objets du décor."],
 	["dash", "dodge_move", "dash", "Strafe éclair", "Esquive (B)", "Déplacement ultra rapide dans la direction du stick, sans se retourner ; utilisable une fois en l'air."],
-	["slide", "sprint_attack", "slide", "Tacle glissé", "Attaque en sprint (X)", "En sprint, X : glissade de foot en ligne droite qui fauche tout le monde sur ta route."],
 	["flop", "sprint_attack", "flop", "Plongeon pantin", "Attaque en sprint (X)", "En sprint, X : il plie les jambes et s'envoie loin en vrai ragdoll, en fauchant tout ce qu'il percute."],
 	["double_jump", "double_jump", true, "Double saut", "Saut (A) — s'ajoute", "Un 2e saut en l'air, en salto avant."],
 	["dive", "dive", true, "Plongeon", "Saut (A) — s'ajoute", "A en l'air : il arme en arc, pique vers le sol et abat les deux poings : onde de choc autour."],
 	["air_slam", "air_slam", true, "Chope plongeante", "Chope en l'air (R1) — s'ajoute", "R1 en l'air : il attrape l'ennemi en vol, l'emporte en piqué et le plaque au sol."],
 	# Formes débloquables (v0.212) : déjà en place au début de la run classique (inchangée) ; coupées en Vanilla (salle des paliers).
-	["dropkick", "form_dropkick", true, "Drop kick", "Y en plein sprint — se débloque", "En sprint, Y : saut pieds joints dans l'ennemi ; on retombe sur le dos (gros risque, gros dégâts)."],
+	["dropkick", "form_dropkick", true, "Coup de pied en course", "Y en plein sprint — se débloque", "En sprint, Y : gros coup de pied sans saut, brise-garde, qui envoie l'ennemi au loin (remplace le drop kick, v0.216)."],
 	["capoeira", "form_capoeira", true, "Retourné capoeira", "Y en sortie de roulade — se débloque", "Juste après une roulade : mains au sol, coup de pied tournant bas qui fauche autour."],
 	["counter", "form_counter", true, "Contre tournant", "X en sortie de roulade — se débloque", "Juste après une roulade : revers tournant à 360° qui touche tout autour."],
 	["superjump", "form_superjump", true, "Super saut", "A maintenu — se débloque", "A maintenu : saut très haut, retombée en onde de choc."],
-	["bicycle", "air_heavy", "bicycle", "Bicyclette", "Y en l'air (remplace le chassé sauté)", "En l'air, retourné acrobatique qui renvoie l'ennemi vers le sol en diagonale."],
+	["bicycle", "air_heavy", "bicycle", "Bicyclette", "Y en l'air (remplace le gros genou)", "En l'air, retourné acrobatique qui renvoie l'ennemi vers le sol en diagonale."],
 	["web", "web", true, "Toile d'araignée", "R1 sans personne à portée — se débloque", "Un fil s'accroche au premier sbire, objet ou mur touché et le ramène (élastique) ; relâche R1 pour le projeter. Marche en l'air."],
 	["wave", "wave", true, "La vague", "L1 + X — se débloque", "Il fait la vague avec ses bras : tous les sbires autour sont étourdis."],
 	# Améliorations de bouton (v0.212) : la liste donne les boutons possibles ; chaque loot n'en améliore qu'un (tiré au hasard).
@@ -66,14 +66,14 @@ const FUN := [
 ]
 
 ## Valeurs de base (début de partie).
-const DEFAULTS := {"light_move": "base", "heavy_move": "kick", "charge_move": "none", "throw_move": "slam", "dodge_move": "roll", "sprint_attack": "none",
+const DEFAULTS := {"light_move": "base", "heavy_move": "kick", "charge_move": "none", "throw_move": "slam", "dodge_move": "roll", "sprint_attack": "slide",
 	"double_jump": false, "dive": false, "air_slam": false, "sweep_triple": false, "parry": false, "riposte": false, "guard_gauge": false,
 	"counter_triple": false, "air_dodges": 1, "tackle_up": false,
-	"form_dropkick": true, "form_capoeira": true, "form_counter": true, "form_superjump": true, "air_heavy": "dropkick",
+	"form_dropkick": true, "form_capoeira": true, "form_counter": true, "form_superjump": true, "air_heavy": "knee",
 	"web": false, "wave": false, "btn_ups": {}}
 
 ## Nom du coup actuellement en place sur un emplacement (pour « remplace : … »).
-const BASE_NAMES := {"light_move": "Uppercut (3e coup)", "heavy_move": "Chassé", "charge_move": "", "throw_move": "Fracas", "dodge_move": "Roulade", "sprint_attack": "", "air_heavy": "Chassé sauté"}
+const BASE_NAMES := {"light_move": "Uppercut (3e coup)", "heavy_move": "Chassé", "charge_move": "", "throw_move": "Fracas", "dodge_move": "Roulade", "sprint_attack": "Tacle glissé", "air_heavy": "Gros genou"}
 
 
 ## Remet le héros aux coups de départ de la run (les dictionnaires sont copiés).

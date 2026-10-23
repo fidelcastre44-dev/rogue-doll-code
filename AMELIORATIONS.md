@@ -32,8 +32,8 @@ Appui court sur Y = le coup lourd normal (inchangé). **Y maintenu** = l'attaque
 
 | Valeur | Coup | Statut |
 |---|---|---|
-| `none` | Rien de spécial (X = combo normal). | base |
-| `slide` | **Tacle glissé** (tacle de foot) : il glisse loin en ligne droite, couché sur la hanche, jambe tendue au ras du sol ; fauche **tous** les sbires sur sa ligne, même en garde. Invulnérable au départ. | amélioration |
+| `slide` | **Tacle glissé** (tacle de foot) : il glisse loin en ligne droite, couché sur la hanche, jambe tendue au ras du sol ; fauche **tous** les sbires sur sa ligne, même en garde. Invulnérable au départ. | **base depuis la v0.216** |
+| `none` | Rien de spécial (X = combo normal). | retiré en v0.216 (Thibaud : « X pendant un sprint devrait faire un coup de pied glissé ») |
 | `flop` | **Plongeon pantin** : temps d'arrêt, il plie les jambes, puis se jette en avant ; son corps devient un **vrai ragdoll** (rotation au hasard à chaque fois) qui fauche tous les sbires qu'il percute ; il se relève là où il est tombé. | amélioration |
 
 ## Coup lourd au sol (Y / Triangle) — `heavy_move`
@@ -248,6 +248,29 @@ se hisser sur un rebord, glissade, atterrissages, coups aériens.
   la tête suit) ; les 42 coups (frappes, prises, lancers, aériens) ont leurs poses amplifiées × 1,8 et le figé de 0,05 s
   (outil `tools/anime_moves.gd`, relançable ; clés d'origine dans `tools/anime/source.json`).
 
+## Version 0.216 (bilans de Thibaud et retour de Paul du 23/10)
+
+- **Attack roll** (nom décidé par Thibaud : l'attaque X ou Y qui suit une roulade) : X / Y pendant la roulade ne la coupe plus, le coup
+  part à la fin de la roulade (`player.roll_atk`). Aussi après un **rebond mural**.
+- **Balayage** et **capoeira** sur un sbire couché : ils le touchent (dégâts, il décolle et roule, `enemy.ground_kick`).
+- **Grande chute** : le figé à l'atterrissage ne vient qu'à partir de **3 m de dénivelé** non réceptionné (1,8 m avant ; la hauteur du saut ne compte plus).
+- **Se hisser** : blocs de 1 et 2 m = il monte directement ; il ne **s'agrippe** qu'à partir de 3 m. Agrippé : **X** = se hisser en
+  repoussant ce qui est en haut ; **R1** = attraper la cheville d'un sbire au bord et le jeter dans le vide (idées de Thibaud).
+- **Enjamber les objets** du décor (tables, chaises, caisses, tonneaux…), en sprint ou avec A.
+- **Combo de X** : jab, direct, **jab**, uppercut (`jab2`), puis petite récupération (0,22 s) avant de réattaquer.
+- **X en sprint** : le tacle glissé devient le coup de base (il fait tomber) ; le plongeon pantin reste une forme.
+- **Y en sprint** : **coup de pied en course** (`run_kick`, gros coup de pied sans saut, brise-garde) remplace le **drop kick**
+  (il figeait le héros 2 s au sol).
+- **Y en l'air** : **gros genou** (`air_bigknee`, idée de Thibaud, réf. coup de genou façon jeu de baston) remplace le **chassé sauté** :
+  il garde l'élan, on enchaîne le combo aérien. Le chassé sauté reste en variante dans le labo.
+- **Super saut** : moins haut (≈2,3 m au lieu de ≈3,9 m) et à charger un peu (A maintenu 0,3 s) ; la chope plongeante du super saut
+  le laisse **sur le sbire plaqué** 1,6 s, **X = coups de poing au sol** (`sj_pin`, `pin_punch`), B pour partir.
+- **Plaquage contre un mur** : il fonce jusqu'au mur et plaque le sbire **debout, dos violemment contre le mur** (`tackle_wall`).
+- **Râpe à fromage** : finisher **chope + Y près d'un mur** (plus R1), deux fois plus courte. Ailleurs, Y reste le coup de tête.
+- **Toile d'araignée** (retours de Paul et Thibaud) : tir plus vif, vrai fil élastique (ressort : le sbire rebondit au bout),
+  X ou Y quand le sbire ramené arrive = le fil est lâché et l'attaque part, tir en l'air en diagonale vers le bas.
+- **Labo** : coups rangés et colorés par bouton (X bleu, Y jaune, B rouge, A vert).
+
 ## Problèmes notés (à régler plus tard)
 
 - **Chope plongeante** : en pratique on n'a presque jamais d'ennemi en l'air à attraper, sauf après un shoryuken ou un lanceur ; souvent on l'a débloquée sans rien pour faire décoller les ennemis. Pistes : la proposer seulement si on a un lanceur, la rendre possible sur un ennemi debout (saut + R1 = il l'emporte), ou donner un petit lanceur de base.
@@ -259,6 +282,11 @@ se hisser sur un rebord, glissade, atterrissages, coups aériens.
 - **Boss sniper** : posté en hauteur, il tire sur le joueur ; on doit **renvoyer ses balles en les frappant** pour l'atteindre.
 
 ## Essayées puis abandonnées
+
+- **Drop kick** (Y en sprint, retombée sur le dos 2 s) : remplacé en v0.216 par le coup de pied en course (Thibaud : il figeait le joueur au sol). Fiches gardées.
+- **Chassé sauté** comme Y aérien de base : remplacé en v0.216 par le gros genou (il cassait l'élan des combos). Gardé en variante (`air_heavy = "dropkick"`).
+- **Râpe à fromage sur R1** : passée sur Y (finisher) en v0.216.
+- **S'agripper au bloc de 2 m** : depuis la v0.216 il s'y hisse directement ; on s'agrippe à partir de 3 m.
 
 - **Objet-bouclier** (R1 maintenu avec un objet) : passé en Rejeté sur le site, retiré en v0.212 ; remplacé par l'amélioration Défense (R1).
 - **Balayage triple** et **contre tournant triple** : remplacés en v0.212 par l'amélioration de bouton Triple Tour (sur X).

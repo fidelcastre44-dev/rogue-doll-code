@@ -9,21 +9,21 @@ extends RefCounted
 ## Vanilla (v0.212, décision de Paul) : seulement les coups de base ; les formes débloquables sont des loots, plongeon et double saut aussi.
 ## « id » = une amélioration de upgrades.gd ; « id:BOUTON » = une amélioration de bouton sur ce bouton (ex. « impact:X »).
 const VANILLA := {"form_dropkick": false, "form_capoeira": false, "form_counter": false, "form_superjump": false,
-	"air_heavy": "dropkick", "web": false, "wave": false, "double_jump": false, "dive": false, "tackle_up": false, "btn_ups": {}}
+	"air_heavy": "knee", "web": false, "wave": false, "double_jump": false, "dive": false, "tackle_up": false, "btn_ups": {}}
 
 ## Coups « À tester » de base de la v0.212 (pas des loots) : présents dans tous les paliers pour les essayer en situation.
 const TRY := {"terrain": true, "sidestep": true, "trampoline": true}   # + les coups « fun », toujours gratuits
 
 const TIERS := [
 	{"id": "vanilla", "name": "Vanilla",
-		"desc": "Le personnage de départ : jab, direct, uppercut, chassé, chassé sauté, chope, roulade, saut, sprint, garde. Aucune forme.",
+		"desc": "Le personnage de départ : jab ×3 + uppercut, chassé, gros genou aérien, tacle glissé en sprint, chope, roulade, saut, sprint, garde. Aucune forme.",
 		"ups": []},
 	{"id": "t1", "name": "Palier 1",
 		"desc": "Premiers loots : un 3e coup, deux formes de sortie de roulade / sprint, le double saut, la parade.",
 		"ups": ["knee", "dropkick", "counter", "double_jump", "parry", "impact:X"]},
 	{"id": "t2", "name": "Palier 2",
-		"desc": "Milieu de partie : attaque en sprint, capoeira, super saut, grand tour, chope plongeante, Tazer, Triple Tour.",
-		"ups": ["slide", "capoeira", "superjump", "swing", "air_slam", "riposte", "tazer:X", "triple:X", "air_dodge2"]},
+		"desc": "Milieu de partie : capoeira, super saut, grand tour, chope plongeante, Tazer, Triple Tour.",
+		"ups": ["capoeira", "superjump", "swing", "air_slam", "riposte", "tazer:X", "triple:X", "air_dodge2"]},
 	{"id": "t3", "name": "Palier 3",
 		"desc": "Fin de partie : plaquage, bicyclette, toile d'araignée, la vague, plongeon, renvoi, défense, électrification de zone.",
 		"ups": ["tackle", "bicycle", "web", "wave", "dive", "renvoi:L1", "defense:R1", "zone", "air_dodge3", "guard_gauge", "shoryu", "axe"]},

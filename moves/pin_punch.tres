@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_v216"]
+
+[resource]
+script = ExtResource("1_v216")
+id = &"pin_punch"
+display_name = "Poing au sol (plaqué)"
+notes = "v0.216 : X pendant le plaquage du super saut."
+active = 0.08
+cancel = 0.18
+end = 0.24
+roll_ok = 0.0
+hitstop = 0.05
+shake = 0.4
+flags = PackedStringArray("atelier")
+keys = [[0.0, "from"], [0.08, "ax_hammer_fist_2", "in"], [0.24, "pound"]]
+present = PackedStringArray()

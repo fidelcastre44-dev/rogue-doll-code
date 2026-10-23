@@ -191,6 +191,7 @@ func _process(_dt: float) -> bool:
 				_go("dk")
 		"dk":
 			if k == 20:
+				p.air_heavy = "dropkick"   # v0.216 : le gros genou est le Y aérien de base ; le chassé sauté reste en variante
 				_place(p, e, 2.0)
 				hp0 = e.hp
 				_tap("jump")
@@ -307,7 +308,7 @@ func _process(_dt: float) -> bool:
 				_tap("roll")
 			if k > 262 and p.roll >= 0.38 and p.roll < 0.45 and not Input.is_action_pressed("light"):
 				Input.action_press("light")
-			if k > 262 and Input.is_action_pressed("light") and p.roll < 0:
+			if k > 262 and Input.is_action_pressed("light") and p.roll < 0 and p.attack != "":   # v0.216 : l'attack roll part à la fin de la roulade
 				Input.action_release("light")
 				_check(p.attack in ["jab", "spin_counter"], "fin de roulade coupée par un coup (%s : X à la sortie = contre tournant)" % p.attack)
 				_fresh(e)

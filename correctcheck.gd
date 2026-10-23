@@ -108,13 +108,13 @@ func _run() -> void:
 	for id in ["mseed17", "mseed20", "mseed31"]:
 		ok(LaboCatalog.find(id).is_empty(), "%s n'est plus dans le labo" % id)
 
-	print("Drop kick : il reste au sol, rien ne l'annule")
+	print("Drop kick (retiré du sprint en v0.216, fiche gardée) : il reste au sol, rien ne l'annule")
 	await go("mseed24")
 	Input.action_press("up")
 	await wait(2)
 	p.sprinting = true
 	await wait(10)
-	await tap("heavy")
+	p.start("drop_kick")   # v0.216 : Y en sprint = coup de pied en course ; on vérifie toujours la punition du drop kick
 	await wait(28)
 	Input.action_release("up")
 	var landed := -1

@@ -138,8 +138,8 @@ func _ready() -> void:
 		["Esquive (B / Rond)", "dodge_move", [["roll", "Roulade (base)"], ["dash", "Strafe éclair"]]],
 		["Coup lourd (Y / Triangle)", "heavy_move", [["kick", "Chassé (base)"], ["hikick", "High kick latéral"], ["spinkick", "Coup de pied retourné"], ["axe", "Axe kick (salto)"], ["quake", "Frappe au sol (zone)"]]],
 		["Attaque chargée (Y maintenu)", "charge_move", [["none", "Aucune (base)"], ["power", "Coup lourd chargé"], ["shoryu", "Shoryuken"], ["hadoken", "Boule d'énergie"]]],
-		["Attaque en sprint (X)", "sprint_attack", [["none", "Aucune (base)"], ["slide", "Tacle glissé"], ["flop", "Plongeon pantin"]]],
-		["Combo (X)", "light_move", [["base", "Jab + direct + uppercut (base)"], ["hook", "Jab + direct + crochet"], ["knee", "Jab + direct + genou volant"]]],
+		["Attaque en sprint (X)", "sprint_attack", [["slide", "Tacle glissé (base)"], ["flop", "Plongeon pantin"]]],
+		["Combo (X)", "light_move", [["base", "Jab ×3 + uppercut (base)"], ["hook", "Jab ×3 + crochet"], ["knee", "Jab ×3 + genou volant"]]],
 		["Chope (R1)", "throw_move", [["slam", "Fracas (base)"], ["swing", "Grand tour"], ["throw", "Lancer visé"]]],
 	]:
 		var lbl := Label.new()

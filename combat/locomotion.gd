@@ -3,11 +3,13 @@ extends RefCounted
 ## Déplacements du héros avec le décor (v0.212, « Terrain d'essai ») :
 ##   - marche automatique sur une petite marche (≤ 0,4 m) ;
 ##   - enjamber un muret / une rambarde (automatique en sprint, ou A tout près) ;
-##   - se hisser sur un bloc de 1 m (A tout près, ou en sautant contre) ;
-##   - s'agripper au rebord d'un bloc haut (2 m) en sautant contre, puis A / stick vers le mur = se hisser, B / stick à l'opposé = lâcher ;
+##   - se hisser sur un bloc de 1 ou 2 m (A tout près, ou en sautant contre) : il monte directement (v0.216, retour de Thibaud) ;
+##   - s'agripper au rebord d'un bloc haut (3 m et plus) en sautant contre, puis A / stick vers le mur = se hisser, B / stick à l'opposé
+##     = lâcher ; X = se hisser en repoussant ce qui est en haut ; R1 = attraper la cheville d'un sbire au bord et le jeter dans le vide ;
+##   - enjamber aussi les objets du décor (tables, chaises, caisses…) en sprint ou avec A (v0.216) ;
 ##   - glissade dans l'escalier ou sur la pente : B maintenu en descendant (sprint + B = glissade prolongée), fauche les sbires ;
 ##   - glisser sous un obstacle bas : sprint + B devant une barrière haute ;
-##   - grande chute : B juste avant de toucher le sol = réception roulée, sinon atterrissage lourd (petit temps mort) ;
+##   - grande chute (3 m et plus, v0.216) : B juste avant de toucher le sol = réception roulée, sinon atterrissage lourd (petit temps mort) ;
 ##   - rebond mural : esquive contre un mur = il rebondit dessus et repart dans l'autre sens ;
 ##   - bonus de chute : plus il tombe de haut, plus son coup aérien (ou sa chope plongeante) frappe fort.
 ## Les états « en main » (enjambée, hissé, suspendu…) prennent le contrôle du héros : `tick()` renvoie vrai et le reste
@@ -15,12 +17,15 @@ extends RefCounted
 
 const STEP := 0.42            # m : marche franchie sans sauter
 const VAULT_T := 0.53         # s : enjambée (capture CMU 127_27 jouée 1,5× plus vite)
-const MANTLE_T := 0.4         # s : se hisser sur un bloc bas
+const MANTLE_T := 0.4         # s : se hisser sur un bloc de 1 m (plus long pour 2 m, voir mantle_dur)
 const CLIMB_T := 0.6          # s : se hisser depuis le rebord
 const HEAVY_T := 0.5          # s : atterrissage lourd (temps mort ; capture CMU 82_02 à sa vitesse)
 const HEAVY_AMP := 2.0        # amorti de l'atterrissage lourd : 2× celui de la capture (chute de 2 m contre 0,7 m)
 const VAULT_CLEAR := 0.67     # m : hauteur que la capture d'enjambée franchit d'elle-même (pieds à 0,79 m)
-const BIG_FALL := 1.8         # m : au-delà, réception roulée ou atterrissage lourd (la plateforme fait 2 m)
+const BIG_FALL := 3.0         # m : au-delà, réception roulée ou atterrissage lourd (v0.216 : 3 m, avant 1,8 ; la plateforme de 2 m ne fige plus)
+const HANG_MIN := 2.4         # m : un bloc plus haut que ça (3 m) = il s'agrippe au rebord ; en dessous (1 m, 2 m), il se hisse directement
+const MANTLE_MAX := 2.3       # m : hauteur au-dessus des pieds jusqu'à laquelle il se hisse directement
+const YANK_REACH := 1.5       # m : sbire au bord (au-dessus du héros agrippé) qu'il peut attraper par la cheville
 const ROLL_WINDOW := 0.3      # s : B pressé avant de toucher le sol = réception roulée
 const HANG_REACH := 2.05      # m : des pieds aux mains, bras tendus
 const GLIDE_MAX := 15.0       # m/s
@@ -52,6 +57,10 @@ var last_fall := 0.0          # hauteur de la dernière chute (tests, affichage)
 var stats := {}               # compteurs (tests) : vault, mantle, hang, climb, glide, skid, heavy_land, land_roll, wall_bounce, step
 var cs: CollisionShape3D
 var cap_h := 1.6
+var mantle_dur := MANTLE_T    # durée du « se hisser » en cours (plus haut = un peu plus long)
+var climb_atk := false        # agrippé + X : il se hisse en repoussant ce qui est en haut
+var climb_hit := false
+var yank_t := -1.0            # agrippé + R1 : geste du bras qui attrape la cheville (pose)
 
 
 func _init(player: CharacterBody3D) -> void:
@@ -151,6 +160,52 @@ func probe(d: Vector3, reach := 0.9) -> Dictionary:
 	return {"pos": hit.position, "n": n, "top": tp, "rel": tp - o.y, "thick": thick, "dist": dist}
 
 
+## Objet du décor (table, chaise, caisse…) devant, au même format que probe() (pos, n, top, rel, thick, dist), ou {}.
+## Les objets sont des corps mobiles : probe() les ignore, on les cherche à part pour pouvoir les enjamber.
+func prop_probe(d: Vector3, reach := 0.9) -> Dictionary:
+	d = _flat(d)
+	if d == Vector3.ZERO:
+		return {}
+	var o := p.global_position
+	var best := {}
+	var bd := reach + 0.6
+	for b in p.get_tree().get_nodes_in_group("reactive"):
+		if not b is RigidBody3D or not is_instance_valid(b) or b == p.held_prop or b.get_meta("broken", false):
+			continue
+		var bb := _aabb(b)
+		if bb.size == Vector3.ZERO:
+			continue
+		var c := bb.get_center()
+		var to := (c - o) * Vector3(1, 0, 1)
+		if to.length() > bd + 0.8 or to.normalized().dot(d) < 0.6:
+			continue
+		# demi-épaisseur de l'objet dans la direction d, et distance jusqu'à sa face avant
+		var half := absf(d.x) * bb.size.x * 0.5 + absf(d.z) * bb.size.z * 0.5
+		var near := to.dot(d) - half
+		if near > reach or near < -0.25:
+			continue
+		var top := bb.end.y
+		if top - o.y < 0.3:
+			continue   # trop bas : on marche dessus / à côté
+		bd = near
+		var pos := o + d * maxf(near, 0.0)
+		pos.y = o.y + 0.5
+		best = {"pos": pos, "n": -d, "top": top, "rel": top - o.y, "thick": half * 2.0, "dist": maxf(near, 0.0), "prop": b}
+	return best
+
+
+## Boîte englobante (monde) des rendus d'un objet.
+func _aabb(n: Node3D) -> AABB:
+	var out := AABB()
+	var first := true
+	for c in n.get_children():
+		if c is MeshInstance3D and c.mesh:
+			var a: AABB = c.global_transform * c.mesh.get_aabb()
+			out = a if first else out.merge(a)
+			first = false
+	return out
+
+
 ## Sol sous un point (INF si rien en dessous).
 func ground_at(at: Vector3, up := 0.5) -> float:
 	var r := _ray(at + Vector3.UP * up, at + Vector3.DOWN * 6.0, true)
@@ -201,13 +256,17 @@ func try_jump() -> bool:
 		return false
 	var d: Vector3 = p.stick_dir if p.stick_dir.length() > 0.3 else -p.global_basis.z
 	var pr := probe(d, 1.15)
+	var pp := prop_probe(d, 1.0)
+	if not pp.is_empty() and pp.rel <= 1.35 and (pr.is_empty() or pp.dist < pr.dist):
+		_start_vault(pp)   # table, chaise, caisse… : il l'enjambe (v0.216)
+		return true
 	if pr.is_empty() or pr.top == INF:
 		return false
-	if pr.rel >= 0.45 and pr.rel <= 1.35:
-		if pr.thick < 0.9:
-			_start_vault(pr)
-		else:
-			_start_mantle(pr)
+	if pr.rel >= 0.45 and pr.rel <= 1.35 and pr.thick < 0.9:
+		_start_vault(pr)
+		return true
+	if pr.rel >= 0.45 and pr.rel <= MANTLE_MAX and pr.thick >= 0.3:
+		_start_mantle(pr)   # bloc de 1 ou 2 m : il se hisse directement (v0.216)
 		return true
 	return false
 
@@ -232,11 +291,11 @@ func try_dodge(d: Vector3) -> bool:
 func try_air_dodge() -> bool:
 	if not p.terrain:
 		return false
-	if p.velocity.y > -3.0 or air_peak - p.global_position.y < BIG_FALL - 0.6:
+	if p.velocity.y > -3.0:
 		return false
 	var g := ground_at(p.global_position, 0.1)
-	if g == INF or p.global_position.y - g > 2.2 or takeoff_g - g < 0.8:
-		return false
+	if g == INF or p.global_position.y - g > 2.2 or takeoff_g - g < BIG_FALL - 0.1:
+		return false   # seulement au-dessus d'un vrai grand dénivelé (3 m et plus, v0.216)
 	land_roll_t = ROLL_WINDOW
 	return true
 
@@ -263,6 +322,9 @@ func land_bonus() -> float:
 func _start(s: String) -> void:
 	state = s
 	t = 0.0
+	if s != "climb":
+		climb_atk = false
+	climb_hit = false
 	_count(s)
 	p.attack = ""
 	p.roll = -1.0
@@ -283,6 +345,7 @@ func _start_vault(pr: Dictionary) -> void:
 
 func _start_mantle(pr: Dictionary) -> void:
 	_start("mantle")
+	mantle_dur = MANTLE_T * lerpf(1.0, 1.45, clampf(pr.rel - 1.0, 0.0, 1.0))   # bloc de 2 m : un peu plus long
 	wall_n = pr.n
 	top = pr.top
 	a0 = p.global_position
@@ -302,6 +365,7 @@ func _start_hang(pr: Dictionary) -> void:
 	p.rotation.y = atan2(wall_n.x, wall_n.z)
 	hang_push = 0.0
 	hang_ready = false
+	yank_t = -1.0
 	p.get_parent().impact(0.03, 0.25)
 
 
@@ -361,7 +425,7 @@ func tick(dt: float) -> bool:
 				p.velocity = -wall_n * (p.speed * (p.SPRINT_MULT if p.sprinting else 1.0))
 				_end()
 		"mantle":
-			var u := clampf(t / MANTLE_T, 0.0, 1.0)
+			var u := clampf(t / mantle_dur, 0.0, 1.0)
 			var up := smoothstep(0.0, 0.6, u)
 			var fw := smoothstep(0.45, 1.0, u)
 			p.global_position = Vector3(lerpf(a0.x, a1.x, fw), lerpf(a0.y, a1.y + 0.15, up) - 0.15 * fw, lerpf(a0.z, a1.z, fw))
@@ -379,7 +443,17 @@ func tick(dt: float) -> bool:
 				hang_push = 0.0
 			if d.dot(-wall_n) < 0.3:
 				hang_ready = true
-			if Input.is_action_just_pressed("jump") or hang_push > 0.18:
+			yank_t = yank_t + dt if yank_t >= 0.0 else -1.0
+			if yank_t > 0.45:
+				yank_t = -1.0
+			if Input.is_action_just_pressed("light"):
+				_start("climb")   # X : il se hisse en repoussant ce qui est en haut (v0.216, idée de Thibaud)
+				climb_atk = true
+				a1 = Vector3(a0.x, top + 0.02, a0.z) - wall_n * 0.8
+				_count("climb_attack")
+			elif Input.is_action_just_pressed("grab") and yank_t < 0.0:
+				_yank()   # R1 : attrape la cheville d'un sbire au bord et le jette dans le vide
+			elif Input.is_action_just_pressed("jump") or hang_push > 0.18:
 				_start("climb")
 				a1 = Vector3(a0.x, top + 0.02, a0.z) - wall_n * 0.8
 			elif Input.is_action_just_pressed("roll") or d.dot(wall_n) > 0.6:
@@ -395,6 +469,9 @@ func tick(dt: float) -> bool:
 			pos = pos.lerp(a1, fw)
 			p.global_position = pos
 			p.velocity = Vector3.ZERO
+			if climb_atk and not climb_hit and u >= 0.5:
+				climb_hit = true
+				_climb_push()
 			if u >= 1.0:
 				p.global_position = a1
 				_end()
@@ -460,7 +537,7 @@ func after_move(dt: float) -> void:
 	if on_floor:
 		if was_air:
 			last_fall = air_peak - pos.y if takeoff_g - pos.y > 0.8 else 0.0   # dénivelé réel : rebord, plateforme, bloc
-			_landed(last_fall)
+			_landed(takeoff_g - pos.y)   # v0.216 : le figé dépend du dénivelé (sol quitté -> sol touché), pas de la hauteur du saut
 		air_peak = pos.y
 		takeoff_g = pos.y
 	else:
@@ -508,15 +585,60 @@ func after_move(dt: float) -> void:
 			var pr2 := probe(d, 0.75)
 			if not pr2.is_empty() and pr2.top != INF and pr2.rel >= 0.45 and pr2.rel <= 1.35 and pr2.thick < 0.9:
 				_start_vault(pr2)
+				return
+			var pp := prop_probe(d, 0.7)
+			if not pp.is_empty() and pp.rel <= 1.35:
+				_start_vault(pp)   # table, chaise, caisse… (v0.216)
 	elif regrab_t <= 0.0:
 		# En l'air contre un bloc : il se hisse (bas) ou s'agrippe au rebord (haut).
 		var pr3 := probe(d, 0.55)
 		if pr3.is_empty() or pr3.top == INF:
 			return
-		if pr3.rel >= 0.25 and pr3.rel <= 1.05 and pr3.thick >= 0.3:
-			_start_mantle(pr3)
-		elif pr3.rel > 1.05 and pr3.rel <= HANG_REACH + 0.25 and p.velocity.y < 2.5:
-			_start_hang(pr3)
+		var g0 := ground_at(pos, 0.1)
+		var block_h: float = pr3.top - (g0 if g0 != INF else pos.y)   # hauteur du bloc depuis le sol (pas depuis les pieds en l'air)
+		if block_h <= HANG_MIN:
+			if pr3.rel >= 0.25 and pr3.rel <= MANTLE_MAX and pr3.thick >= 0.3:
+				_start_mantle(pr3)   # 1 m, 2 m : il se hisse directement (v0.216)
+		elif pr3.rel > 1.0 and pr3.rel <= HANG_REACH + 0.25 and p.velocity.y < 2.5:
+			_start_hang(pr3)   # 3 m : il s'agrippe au rebord
+
+
+## Agrippé + X : à mi-hauteur, il lance une petite attaque qui repousse les sbires en haut, près du rebord.
+func _climb_push() -> void:
+	var at := edge - wall_n * 0.9
+	for e in p.enemies:
+		if not is_instance_valid(e) or e.parts.is_empty() or e.state in ["held", "swung"]:
+			continue
+		var c: Vector3 = e.parts.chest.global_position
+		if c.y < top - 0.2 or ((c - at) * Vector3(1, 0, 1)).length() > 1.6:
+			continue
+		e.hit(e.parts.chest, (-wall_n + Vector3.UP * 0.4).normalized() * p.heavy_force * 0.6, c, 8.0, 1.0, true)
+		_count("climb_push")
+		p.get_parent().impact(0.06, 0.5)
+
+
+## Agrippé + R1 : un sbire au bord, au-dessus de lui : il l'attrape par la cheville et le tire dans le vide, derrière lui.
+func _yank() -> void:
+	yank_t = 0.0
+	var best: Node3D = null
+	var bd := YANK_REACH
+	for e in p.enemies:
+		if not is_instance_valid(e) or e.parts.is_empty() or not e.state in ["stand", "down"]:
+			continue
+		var f: Vector3 = e.parts.pelvis.global_position
+		if f.y < top - 0.3:
+			continue   # pas sur le dessus du bloc
+		var dd := ((f - edge) * Vector3(1, 0, 1)).length()
+		if dd < bd:
+			bd = dd
+			best = e
+	if best == null:
+		return
+	best.toss(wall_n * 6.0 + Vector3.UP * 3.0, 3.0)   # tiré par la cheville : il passe par-dessus le bord, dans le vide
+	best.hp = maxf(best.hp - 4.0, 0.0)
+	_count("yank")
+	p._flash(Color(1, 0.85, 0.4), 0.06)
+	p.get_parent().impact(0.08, 0.7)
 
 
 ## Normale du mur du décor touché à cette image (pas un sbire, pas un objet mobile), ou zéro.
@@ -529,7 +651,7 @@ func _decor_wall() -> Vector3:
 
 
 func _landed(fall: float) -> void:
-	if fall < BIG_FALL or state != "" or p.attack != "":
+	if fall < BIG_FALL - 0.1 or state != "" or p.attack != "":
 		return
 	if land_roll_t > 0.0:
 		land_roll_t = -1.0
@@ -554,13 +676,18 @@ func hand_targets() -> Dictionary:
 		"climb":
 			k = 1.0 - smoothstep(0.68, 0.85, t / CLIMB_T)
 		"mantle":
-			k = 1.0 - smoothstep(0.55, 0.75, t / MANTLE_T)
+			k = 1.0 - smoothstep(0.55, 0.75, t / mantle_dur)
 	if k <= 0.0:
 		return {}
 	var f := -wall_n
 	var right := f.cross(Vector3.UP)
 	var base := edge + f * 0.06 + Vector3.UP * 0.05   # poings posés sur le dessus, juste derrière l'arête
-	return {"l": base - right * 0.22, "r": base + right * 0.22, "w": k * w, "out": wall_n}
+	var kr := k
+	if state == "climb" and climb_atk:
+		kr = k * (1.0 - smoothstep(0.35, 0.5, t / CLIMB_T))   # la main droite lâche le rebord pour frapper
+	if state == "hang" and yank_t >= 0.0:
+		kr = k * (1.0 - sin(PI * clampf(yank_t / 0.45, 0.0, 1.0)))   # la main droite va chercher la cheville
+	return {"l": base - right * 0.22, "r": base + right * 0.22, "w": k * w, "wr": kr * w, "out": wall_n}
 
 
 ## Se hisser (rebord de 2 m : climb ; bloc de 1 m : mantle). Les mains restent sur le rebord (IK des bras, player.gd),
@@ -602,9 +729,19 @@ func pose() -> Dictionary:
 			pz.foot_r = N
 			return pz
 		"mantle", "climb":
-			return _climb_pose(clampf(t / (MANTLE_T if state == "mantle" else CLIMB_T), 0.0, 1.0), state == "mantle")
+			var cp := _climb_pose(clampf(t / (mantle_dur if state == "mantle" else CLIMB_T), 0.0, 1.0), state == "mantle")
+			if state == "climb" and climb_atk:   # poing droit lancé vers le dessus du bloc
+				var k := sin(PI * clampf((t / CLIMB_T - 0.35) / 0.4, 0.0, 1.0))
+				cp.sh_r = cp.sh_r.lerp(Vector3(95, 0, -10), k)
+				cp.el_r = cp.el_r.lerp(Vector3(5, 0, 0), k)
+			return cp
 		"hang":
 			var sw := sin(t * 3.0) * 6.0
+			if yank_t >= 0.0:   # bras droit qui attrape la cheville et tire
+				var k2 := sin(PI * clampf(yank_t / 0.45, 0.0, 1.0))
+				return {"hips_pos": Vector3(0, 0, 0.04), "hips": Vector3(4, 0, 0), "spine": Vector3(6 - 12 * k2, -15 * k2, 0), "head": Vector3(-28 - 10 * k2, 0, 0),
+					"sh_l": Vector3(176, 0, 8), "el_l": Vector3(4, 0, 0), "sh_r": Vector3(176 - 60 * k2, 0, -8 - 30 * k2), "el_r": Vector3(4 + 50 * k2, 0, 0),
+					"hip_l": Vector3(14, 0, 4), "kn_l": Vector3(-28, 0, 0), "hip_r": Vector3(4, 0, -4), "kn_r": Vector3(-42, 0, 0), "foot_l": N, "foot_r": N}
 			return {"hips_pos": Vector3(0, 0, 0.04), "hips": Vector3(4 + sw, 0, 0), "spine": Vector3(6, 0, 0), "head": Vector3(-28, 0, 0),
 				"sh_l": Vector3(176, 0, 8), "el_l": Vector3(4, 0, 0), "sh_r": Vector3(176, 0, -8), "el_r": Vector3(4, 0, 0),
 				"hip_l": Vector3(14 - sw, 0, 4), "kn_l": Vector3(-28, 0, 0), "hip_r": Vector3(4 + sw, 0, -4), "kn_r": Vector3(-42, 0, 0), "foot_l": N, "foot_r": N}

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_30sgw"]
+
+[resource]
+script = ExtResource("1_30sgw")
+id = &"run_kick"
+display_name = "Coup de pied en course"
+notes = "v0.216 : remplace le drop kick (Y en sprint). Gros coup de pied sans saut, brise-garde (retour de Thibaud). Animation du chassé (capture CMU 144_05)."
+active = 0.189
+cancel = 0.403
+end = 0.6875
+tip = "foot_r"
+radius = 0.45
+damage = 24.0
+force_mult = 1.35
+heavy = true
+drop = 1.0
+up = 0.35
+hitstop = 0.12
+shake = 1.0
+lunge = 4.0
+step = 3.0
+guard_break = true
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.0087, "cmu_kick_0", "lin"], [0.0173, "cmu_kick_1", "lin"], [0.026, "cmu_kick_2", "lin"], [0.0346, "cmu_kick_3", "lin"], [0.0433, "cmu_kick_4", "lin"], [0.0519, "cmu_kick_5", "lin"], [0.0606, "cmu_kick_6", "lin"], [0.0692, "cmu_kick_7", "lin"], [0.0779, "cmu_kick_8", "lin"], [0.0865, "cmu_kick_9", "lin"], [0.0952, "cmu_kick_10", "lin"], [0.1038, "cmu_kick_11", "lin"], [0.1125, "cmu_kick_12", "lin"], [0.1212, "cmu_kick_13", "lin"], [0.1298, "cmu_kick_14", "lin"], [0.135, "cmu_kick_15", "lin"], [0.1485, "cmu_kick_16", "lin"], [0.162, "cmu_kick_17", "lin"], [0.1755, "cmu_kick_18", "lin"], [0.189, "cmu_kick_19", "lin"], [0.2565, "cmu_kick_20", "lin"], [0.2737, "cmu_kick_21", "lin"], [0.2909, "cmu_kick_22", "lin"], [0.3081, "cmu_kick_23", "lin"], [0.3253, "cmu_kick_24", "lin"], [0.3425, "cmu_kick_25", "lin"], [0.3597, "cmu_kick_26", "lin"], [0.3769, "cmu_kick_27", "lin"], [0.3941, "cmu_kick_28", "lin"], [0.4114, "cmu_kick_29", "lin"], [0.4286, "cmu_kick_30", "lin"], [0.4458, "cmu_kick_31", "lin"], [0.463, "cmu_kick_32", "lin"], [0.4802, "cmu_kick_33", "lin"], [0.4974, "cmu_kick_34", "lin"], [0.5146, "cmu_kick_35", "lin"], [0.5318, "cmu_kick_36", "lin"], [0.549, "cmu_kick_37", "lin"], [0.5662, "cmu_kick_38", "lin"], [0.5834, "cmu_kick_39", "lin"], [0.6006, "cmu_kick_40", "lin"], [0.6075, "cmu_kick_41", "lin"], [0.6875, "guard", "inout"]]
+present = PackedStringArray("guard_break", "step", "active", "cancel", "end", "tip", "r", "mult", "heavy", "dmg", "drop", "stop", "shake", "up", "lunge", "keys")

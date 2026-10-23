@@ -24,7 +24,7 @@ func _lk(weak: float, mid: float, strong: float) -> float:
 	return lerpf(mid, strong, (lock_power - 0.5) / 0.5)
 # Coups au choix (les anciens restent disponibles comme améliorations, voir AMELIORATIONS.md).
 @export_enum("roll", "dash") var dodge_move := "roll"   # B / Rond : roulade, strafe éclair
-@export_enum("none", "slide", "flop") var sprint_attack := "none"   # X pendant le sprint : rien, tacle glissé, ou plongeon pantin
+@export_enum("none", "slide", "flop") var sprint_attack := "slide"   # X pendant le sprint : tacle glissé (de base depuis la v0.216, il fait tomber), ou plongeon pantin
 @export_enum("kick", "hikick", "spinkick", "axe", "quake") var heavy_move := "kick"   # Y / Triangle au sol
 @export_enum("jab") var air_move := "jab"                         # X / Carré en l'air
 @export_enum("slam", "swing", "throw") var throw_move := "slam"   # chope (R1) : fracas, grand tour, lancer visé, massue humaine
@@ -42,7 +42,8 @@ func _lk(weak: float, mid: float, strong: float) -> float:
 const AIR_HIT_BOUNCE := 4.2   # m/s : rebond vers le haut quand un coup aérien touche
 const JAB_MAGNET_RANGE := 1.5  # m : aimantation du jab, seulement sur un sbire tout proche…
 const JAB_MAGNET_ANGLE := 28.0 # … et presque droit devant (degrés)
-const COMBO := ["jab", "cross", "upper"]   # tous les coups du combo (l'uppercut n'y est qu'avec l'amélioration)
+const COMBO := ["jab", "cross", "jab2", "upper"]   # combo de X (v0.216 : 3 jabs + uppercut, retour de Thibaud)
+const FINISH_RECOVER := 0.22   # s : petit temps de récupération après le dernier coup du combo avant de pouvoir relancer une attaque
 const COLOR := Color(0.25, 0.45, 0.85)
 const HURT_TIME := 0.35
 const GRAVITY := 20.0
@@ -63,7 +64,7 @@ const PROP_DMG := 15.0      # objet du décor : fracassé, lancé ou en grand to
 const MOMENTUM := 4.0       # m/s : petite avancée donnée à chaque coup quand tu te déplaces (sans aimantation)
 const LOCK_RANGE := 2.2     # verrouillage : au-delà, on ne se tourne pas vers l'ennemi
 const LOCK_ANGLE := 60.0    # degrés de part et d'autre de là où tu regardes
-const IDEAL := {"jab": 0.85, "cross": 0.85, "upper": 0.8, "air": 0.7, "hammer": 0.7, "kick": 1.1, "hikick": 0.8, "spinkick": 0.8, "air_kick": 0.95, "grab": GRAB_REACH, "axe": 1.0, "knee": 0.6, "shoryu": 0.5, "hook": 0.75, "elbow": 0.55}   # distance au buste où chaque coup touche le mieux
+const IDEAL := {"jab": 0.85, "cross": 0.85, "jab2": 0.85, "run_kick": 1.1, "air_bigknee": 0.65, "upper": 0.8, "air": 0.7, "hammer": 0.7, "kick": 1.1, "hikick": 0.8, "spinkick": 0.8, "air_kick": 0.95, "grab": GRAB_REACH, "axe": 1.0, "knee": 0.6, "shoryu": 0.5, "hook": 0.75, "elbow": 0.55}   # distance au buste où chaque coup touche le mieux
 const DASH_SPEED := 9.0     # m/s : un ennemi verrouillé trop loin, on fonce sur lui avant le coup
 const APPROACH_MAX := 11.0  # m/s, vitesse max de l'approche verrouillée
 const ROLL_AFTER_HIT := 0.05   # roulade possible ce temps-là après l'impact d'un coup (le reste du coup reste punissable)
@@ -194,6 +195,9 @@ var charge_flashed := false
 var hit_mult := 1.0     # bonus du prochain coup (charge, riposte)
 var hit_crit := false
 var light_buf := 0.0
+var recover_t := 0.0     # récupération après le dernier coup du combo (v0.216) : pas de nouvelle attaque tant que > 0
+var queued2_t := -9.0    # 2e appui de X gardé en mémoire (martelage : jab, direct, jab, uppercut s'enchaînent quand on martèle)
+var roll_atk := ""       # X / Y pressé pendant la roulade : l'attack roll part à la fin de la roulade, sans la couper (v0.216)
 var roll_kind := "roll"   # esquive en cours (roulade, balayage, strafe, ou tacle glissé lancé du sprint)
 var sprinting := false
 var ragdoll_t := -1.0      # plongeon pantin : temps passé en ragdoll (-1 = pas en ragdoll)
@@ -330,8 +334,17 @@ func _physics_process(dt: float) -> void:
 		x_fired = false
 	if Input.is_action_just_pressed("light"):
 		light_buf = 0.15   # gardé en mémoire : un coup pressé pendant la roulade part dès qu'elle peut être coupée
-	if roll >= (_dodge_time() if roll_kind == "sweep" else ROLL_EXIT) and (light_buf > 0 or heavy_buf > 0 or grab_buf > 0 or jump_buf > 0 or Input.is_action_just_pressed("heavy") or Input.is_action_just_pressed("grab") or Input.is_action_just_pressed("jump")):
+	recover_t -= dt
+	# Attack roll (v0.216, retour de Thibaud) : X / Y pendant une roulade ne la coupe plus ; le coup part à la fin de la roulade.
+	if roll >= 0.0 and (roll_kind == "roll" or (lc and lc.bounced)):
+		if Input.is_action_just_pressed("light") and (form_counter or lc.bounced):
+			roll_atk = "light"
+			light_buf = 0.0
+		elif Input.is_action_just_pressed("heavy") and (form_capoeira or lc.bounced):
+			roll_atk = "heavy"
+	if roll >= (_dodge_time() if roll_kind == "sweep" else ROLL_EXIT) and (light_buf > 0 or (heavy_buf > 0 and roll_atk != "heavy") or grab_buf > 0 or jump_buf > 0 or (Input.is_action_just_pressed("heavy") and roll_atk != "heavy") or Input.is_action_just_pressed("grab") or Input.is_action_just_pressed("jump")):
 		roll = -1.0
+		roll_atk = ""
 		since_roll = 0.0 if roll_kind in ["roll", "dash"] else 9.0
 	var free := roll < 0 and jump_wait < 0 and hurt <= 0
 	combo_left -= dt
@@ -341,7 +354,7 @@ func _physics_process(dt: float) -> void:
 	if Input.is_action_just_pressed("grab"):
 		grab_buf = 0.15
 	if Input.is_action_just_pressed("heavy"):
-		heavy_buf = 0.15
+		heavy_buf = 0.15 if roll_atk != "heavy" else 0.0
 	if Input.is_action_just_pressed("jump"):
 		jump_buf = 0.15   # appui gardé en mémoire : appuyer un peu trop tôt compte quand même
 	var holding := (attack.begins_with("collar") and attack != "collar_finish") or attack in ["swing", "club_hold", "club_swing", "air_slam", "prop_hold", "prop_wind", "prop_swing", "web"] or (attack in ATELIER_HOLDS and not (attack in ["suplex", "hip_throw", "tomoe"] and hit_done))
@@ -441,6 +454,8 @@ func _physics_process(dt: float) -> void:
 		elif _atelier_light(grounded):
 			pass   # sortie de roulade, ennemi couché devant...
 		elif grounded:
+			if queued:
+				queued2_t = clock   # déjà un appui en attente : on garde aussi celui-ci (combo à 4 coups martelé)
 			queued = true
 		else:
 			air_buf = 0.2   # gardé en mémoire : le marteau suivant part dès que le précédent le permet
@@ -501,6 +516,9 @@ func _physics_process(dt: float) -> void:
 		var combo := _combo()
 		var i := combo.find(attack if attack != "" else last)
 		start(combo[i + 1] if i >= 0 and i < combo.size() - 1 and (attack != "" or combo_left > 0) else "jab")
+		if clock - queued2_t < 0.45:
+			queued = true   # le 2e appui martelé enchaînera le coup d'après
+		queued2_t = -9.0
 	if roll >= 0:
 		roll += dt
 		var sweep := roll_kind == "sweep"
@@ -525,6 +543,11 @@ func _physics_process(dt: float) -> void:
 		if roll >= _dodge_time():
 			roll = -1.0
 			since_roll = 0.0 if roll_kind in ["roll", "dash"] else 9.0
+			if roll_atk == "light":
+				light_buf = 0.15   # l'attack roll part maintenant, roulade finie
+			elif roll_atk == "heavy":
+				heavy_buf = 0.15
+			roll_atk = ""
 	else:
 		# Garde : maintenue au sol, hors attaque ; on avance lentement, tourné vers l'ennemi. Un coup ou une esquive la coupe.
 		guarding = Input.is_action_pressed("guard") and grounded and attack == "" and jump_wait < 0 and hurt <= 0
@@ -604,6 +627,9 @@ func _physics_process(dt: float) -> void:
 			attack = "prop_hold"   # il tient toujours l'objet
 			t = 0.15
 			prop_t = 0.2
+		elif t >= a.end and attack == "pin_punch" and pin_time < ATK.sj_pin.end - 0.25:
+			attack = "sj_pin"   # il reste sur lui
+			t = pin_time
 		elif t >= a.end and attack == "collar_punch":
 			attack = "collar"   # on le tient toujours
 			t = 0.12
@@ -613,6 +639,8 @@ func _physics_process(dt: float) -> void:
 		elif t >= a.end:
 			last = attack
 			combo_left = COMBO_WINDOW
+			if attack == _combo().back() and not a.get("air", false):
+				recover_t = FINISH_RECOVER   # fin du combo : petit temps de récupération avant de réattaquer
 			attack = ""
 	move_and_slide()
 	lc.after_move(dt)
@@ -625,8 +653,13 @@ func _physics_process(dt: float) -> void:
 		air_dash_used = false
 		air_dash_n = 0
 		if attack == "air_slam" and enemy and enemy.state == "held":
-			enemy.slam(-global_basis.z, AIR_SLAM_DMG * lc.land_bonus())   # plaqué au sol : il rebondit (plus fort de plus haut)
-			start("airslam_land")
+			enemy.slam(-global_basis.z, AIR_SLAM_DMG * lc.land_bonus(), 0.15 if from_sj else 1.0)   # plaqué au sol : il rebondit (plus fort de plus haut)
+			if from_sj:
+				pin_victim = enemy   # du super saut : il reste sur lui, plaqué au sol, et peut le frapper (X)
+				start("sj_pin")
+			else:
+				start("airslam_land")
+			from_sj = false
 			land = 0.0
 			connected = true
 			_gain(AIR_SLAM_DMG * 0.6)
@@ -646,6 +679,8 @@ func _physics_process(dt: float) -> void:
 				_dive_shock()
 	# Sécurité : un coup sans fin prévue (piqué, drop kick…) qui reste bloqué (contre un sbire en garde, un mur, un objet)
 	# ou qui dure anormalement se termine : le héros n'est jamais figé.
+	if attack != "air_slam":
+		from_sj = false if attack != "sj_grab" else from_sj
 	if attack != "" and ATK.get(attack, {}).get("end", 0.0) >= 10.0 and not attack in ["charge", "charge_sho", "charge_hado", "tackle", "prop_hold", "prop_wind", "prop_shield", "collar", "swing", "club_hold", "air_slam", "cheese_grater", "cheese_grater_r", "prop_swing", "flop", "flop_prep", "web"]:
 		var stuck: bool = attack == "dive_kick" and (sho_blocked or is_on_wall())
 		if stuck or t > 3.0 * attack_speed:
@@ -671,7 +706,7 @@ func _physics_process(dt: float) -> void:
 func _combo() -> Array:
 	if light_move == "two":
 		return ["jab", "cross"]   # (tests) combo à 2 coups
-	return ["jab", "cross", "upper" if light_move in ["base", "upper"] else light_move]   # 3e coup : uppercut de base ; crochet ou genou volant en amélioration
+	return ["jab", "cross", "jab2", "upper" if light_move in ["base", "upper"] else light_move]   # 3 jabs, puis l'uppercut de base ; crochet ou genou volant en amélioration
 
 
 ## Combo de X en l'air : le même que celui du sol (jab, direct, puis uppercut / crochet / genou si débloqué).
@@ -712,10 +747,12 @@ func _light_air() -> bool:
 
 ## Coups aériens qu'on peut enchaîner : poings en l'air, et le genou volant.
 func _air_chain() -> bool:
-	return _light_air() or attack in ["knee", "flip_jump", "shoryu", "super_jump", "tramp"]
+	return _light_air() or attack in ["knee", "flip_jump", "shoryu", "super_jump", "tramp", "air_bigknee"]
 
 
 func _can_cancel() -> bool:
+	if recover_t > 0.0 or (attack != "" and attack == _combo().back() and attack in COMBO + ["hook"]):
+		return false   # dernier coup du combo : il va jusqu'au bout, puis un petit temps de récupération (v0.216)
 	return attack == "" or (not attack in ["grab", "prop_hold", "prop_wind", "prop_swing", "prop_slam", "prop_toss", "air", "hammer", "air_kick", "knee", "axe", "shoryu", "air_slam", "dive_kick", "flop", "flip_jump", "dive_land", "dive", "charge", "charge_sho", "charge_hado", "headbutt", "collar", "collar_punch", "club_hold", "club_swing", "swing"] and t >= ATK[attack].cancel)
 
 
@@ -731,6 +768,7 @@ func start_roll(dir: Vector3, kind := "") -> void:
 	attack = ""
 	queued = false
 	roll = 0.0
+	roll_atk = ""
 	sweep_hit = false
 	sweep_hits.clear()
 	roll_kind = kind if kind != "" else dodge_move
@@ -768,6 +806,8 @@ func _sweep_hit() -> void:
 			ups.on_hit(victim, "")
 		if victim.state == "stand":
 			victim.trip(side, SWEEP_DMG)
+		elif victim.state in ["down", "dead", "crisp"] and victim.parts.pelvis.global_position.y < 0.7:
+			victim.ground_kick(side, SWEEP_DMG)   # couché : il prend le coup, décolle un peu et roule (v0.216, retour de Thibaud)
 		else:
 			victim.hit(part, (side + Vector3.UP * 0.6).normalized() * heavy_force * 0.8, foot, SWEEP_DMG, 1.0, true)
 		get_parent().impact(0.07, 0.6)
@@ -1116,6 +1156,8 @@ func _release_prop(v: Vector3) -> void:
 	held_prop = null
 	b.freeze = false
 	b.collision_layer = 1
+	if Vector2(v.x, v.z).length() > 3.0:   # lancé : il part dans l'axe du héros (les mains ne le tiennent pas toujours pile au milieu)
+		b.global_position -= global_basis.x * (b.global_position - global_position).dot(global_basis.x)
 	b.linear_velocity = v
 	b.angular_velocity = Vector3(randf_range(-4, 4), randf_range(-4, 4), randf_range(-4, 4)) * clampf(v.length() / 10.0, 0.0, 1.0)
 	if v.length() > 3.0:
@@ -1219,6 +1261,10 @@ func _charge(dt: float) -> void:
 
 
 func _air_kick() -> void:
+	if air_heavy == "knee":
+		start("air_bigknee")   # gros genou : il garde l'élan du saut (pas de rebond), on enchaîne derrière (v0.216)
+		velocity.y = maxf(velocity.y, 1.0)
+		return
 	start("bicycle" if air_heavy == "bicycle" else "air_kick")
 	velocity.y = maxf(velocity.y, 3.5)   # petit rebond pour la vrille
 
@@ -1394,7 +1440,7 @@ func _animate(dt: float) -> void:
 		var ht: Dictionary = lc.hand_targets()
 		if not ht.is_empty():
 			_arm_ik("l", ht.l, ht.out, ht.w)
-			_arm_ik("r", ht.r, ht.out, ht.w)
+			_arm_ik("r", ht.r, ht.out, ht.get("wr", ht.w))
 	if attack == "collar" and throw_move == "throw" and enemy and enemy.state == "held":
 		_hold_in_hands()
 	if held_prop and attack in ["prop_hold", "prop_wind", "prop_slam", "prop_toss", "prop_bash", "prop_shield"]:
@@ -1731,7 +1777,7 @@ func start(kind: String) -> void:
 	else:
 		approach = false
 		var push: float = ATK[kind].get("step", 0.0)
-		if kind in ["jab", "cross"]:
+		if kind in ["jab", "cross", "jab2"]:
 			velocity.x *= 0.2   # les jabs ne font pas avancer : on ne traverse plus la salle en les spammant
 			velocity.z *= 0.2
 			push = _jab_magnet(kind)
@@ -2079,6 +2125,8 @@ func _collar(_dt: float) -> void:
 	if collar_q and attack == "collar" and t >= 0.12:
 		collar_q = false
 		start("collar_punch")
+	elif hb and attack == "collar" and t >= 0.12 and _grater_wall():   # Y près d'un mur : râpe à fromage (finisher, v0.216)
+		pass
 	elif hb and attack in ["collar", "collar_punch"] and t >= 0.06:   # coup de tête : il le lâche au moment de l'impact
 		start("headbutt")
 	elif roll_buf > 0 and attack == "collar" and t >= 0.12:   # B : suplex (ou tomoe nage, variante v0.212)
@@ -2090,8 +2138,6 @@ func _collar(_dt: float) -> void:
 	elif jump_buf > 0 and attack == "collar" and t >= 0.12:   # A : soulevé par le cou, saut, écrasé sur le dos
 		jump_buf = 0.0
 		start("piledriver")
-	elif grab_buf > 0 and attack == "collar" and t >= 0.12 and _grater_wall():   # près d'un mur : râpe à fromage
-		grab_buf = 0.0
 	elif grab_buf > 0 and attack == "collar" and t >= 0.12:   # à deux mains, comme la chope : soulevé et fracassé
 		grab_buf = 0.0
 		slam_o = global_position
@@ -2240,23 +2286,26 @@ func _hold() -> void:
 # Coups de l'atelier (statut « À tester » sur le site). Chaque coup a sa fiche dans moves/ ; ici, ce qu'il fait.
 # =====================================================================================================================
 
-const ATELIER_HOLDS := ["tackle", "suplex", "piledriver", "hip_throw", "cheese_grater", "cheese_grater_r", "prop_shield", "prop_bash", "tomoe"]
+const ATELIER_HOLDS := ["tackle", "suplex", "piledriver", "hip_throw", "cheese_grater", "cheese_grater_r", "prop_shield", "prop_bash", "tomoe", "tackle_wall"]
 const PENALTY := ["drop_land", "sm_land", "tackle_slam", "pd_land"]   # au sol après un coup risqué : rien ne coupe ces temps-là
 const AIR_LOCKED := ["drop_kick", "superman", "piledriver", "sj_grab", "wall_run_h"]   # coups aériens qu'aucune esquive ne coupe
 const AFTER_ROLL := 0.3      # contre de sortie de roulade : fenêtre après la fin de l'esquive
 const XY_WINDOW := 0.1       # X et Y « en même temps »
-const SUPER_HOLD := 0.2      # A maintenu ce temps : super saut
-const SUPER_JUMP := 12.5
+const SUPER_HOLD := 0.3      # A maintenu ce temps : super saut (v0.216 : à charger un peu plus, 0,2 avant ; il faut encore monter)
+const SUPER_JUMP := 9.6      # v0.216 : ~2,3 m au lieu de ~3,9 m (trop haut, trop safe : retour de Thibaud)
+const PIN_DMG := 6.0         # poing au sol pendant le plaquage du super saut
+const TACKLE_WALL_REACH := 2.6   # plaquage : mur droit devant à moins de ça quand il emporte le sbire = il fonce l'y écraser
+const TACKLE_WALL_DMG := 34.0
 const TACKLE_SPEED := 9.0
 const TACKLE_TIME := 0.34    # plus court qu'avant (0,5 s) : il emporte moins loin
-const GRATER_TIME := 1.3
+const GRATER_TIME := 0.7     # v0.216 : plus courte (1,3 s avant), et c'est un finisher : chope + Y près d'un mur
 const GRATER_SPEED := 5.5
 const SHIELD_HOLD := 0.22    # R1 maintenu ce temps avec un objet : bouclier
 const SHIELD_HITS := 3
 const BASH_HITS := 3
 const WALL_REACH := 1.5
 
-@export_enum("dropkick", "bicycle") var air_heavy := "dropkick"   # Y en l'air : chassé sauté (base) ou bicyclette (forme)
+@export_enum("knee", "dropkick", "bicycle") var air_heavy := "knee"   # Y en l'air : gros genou (base, v0.216), ancien chassé sauté, ou bicyclette (forme)
 
 var clock := 0.0
 var since_roll := 9.0
@@ -2276,6 +2325,11 @@ var hold_c0 := Vector3.ZERO
 var tackle_victim: Node3D = null
 var last_tackle_dmg := 0.0   # (tests) dégâts du dernier plaquage
 var tackle_into := ""   # plaquage (v0.212) : "wall" = écrasé contre un mur (le dos casse), "table" = fracassé sur une table
+var tackle_wall_n := Vector3.ZERO   # plaquage contre le mur (v0.216) : normale et point du mur
+var tackle_wall_p := Vector3.ZERO
+var pin_victim: Node3D = null       # super saut : sbire plaqué au sol, qu'on peut frapper (v0.216)
+var from_sj := false                # la chope plongeante en cours vient du super saut
+var pin_time := 0.0                 # temps passé sur le sbire plaqué
 var wall_n := Vector3.ZERO
 var wall_p := Vector3.ZERO
 var wall_tan := Vector3.ZERO
@@ -2329,6 +2383,11 @@ func _atelier_inputs(grounded: bool, holding: bool) -> void:
 
 ## X (appui, au sol) dans une situation particulière. Renvoie true s'il a lancé un coup de l'atelier.
 func _atelier_light(grounded: bool) -> bool:
+	if attack == "sj_pin" or (attack == "pin_punch" and t >= ATK.pin_punch.cancel):
+		start("pin_punch")   # plaqué sous lui : coup de poing au sol
+		return true
+	if attack == "pin_punch":
+		return true
 	if not grounded or attack in PENALTY or attack == "superman":
 		return attack in PENALTY or attack == "superman"
 	if form_counter and since_roll < AFTER_ROLL and attack == "":
@@ -2343,7 +2402,7 @@ func _atelier_heavy() -> bool:
 		return true
 	if form_dropkick and sprinting and attack == "":
 		sprinting = false
-		start("drop_kick")   # Y en plein sprint : drop kick
+		start("run_kick")   # Y en plein sprint : gros coup de pied sans saut (v0.216 : remplace le drop kick, qui figeait au sol)
 		return true
 	if form_capoeira and since_roll < AFTER_ROLL and attack == "":
 		start("capoeira")   # sortie de roulade : retourné bas, mains au sol
@@ -2443,6 +2502,10 @@ func _atelier_start(kind: String) -> void:
 		"sj_grab":
 			sj_target = _sj_pick()
 			super_air = false
+		"sj_pin":
+			pin_time = 0.0
+		"tackle_wall":
+			velocity = Vector3.ZERO
 		"wall_run":
 			rotation.y = atan2(wall_n.x, wall_n.z)   # face au mur
 			wall_flip = false
@@ -2492,6 +2555,14 @@ func _atelier_tick(dt: float) -> void:
 				_ring_hit(1.7, 0.0, 0.0, 10.0, true)
 		"tackle":
 			_tackle_tick(dt)
+		"tackle_wall":
+			_tackle_wall_tick()
+		"sj_pin", "pin_punch":
+			velocity.x = 0.0
+			velocity.z = 0.0
+			pin_time += dt * attack_speed
+			if pin_victim and is_instance_valid(pin_victim) and pin_victim.state in ["down", "dead"]:
+				pin_victim.timer = maxf(pin_victim.timer, 0.6)   # plaqué : il ne se relève pas tant qu'on est sur lui
 		"tackle_slam":
 			if t < ATK.tackle_slam.active:
 				velocity.x = f.x * 4.0   # il plonge sur lui
@@ -2658,6 +2729,26 @@ func _atelier_hit() -> void:
 				_gain(11.0)
 				_shock_ring(hold_o - hold_f * 1.1)
 				get_parent().impact(0.11, 0.9)
+		"pin_punch":
+			var v: Node3D = pin_victim if pin_victim and is_instance_valid(pin_victim) and pin_victim.state in ["down", "dead"] else _downed_in_front()
+			if v and ((v.parts.pelvis.global_position - global_position) * Vector3(1, 0, 1)).length() < 1.6:
+				var c: Vector3 = v.parts.chest.global_position
+				v.hit(v.parts.chest, (Vector3.DOWN + f * 0.2).normalized() * light_force, c, PIN_DMG * ups.dmg_mult(), 0.0, true)
+				ups.on_hit(v)
+				connected = true
+				_gain(PIN_DMG * 0.6)
+				get_parent().impact(0.05, 0.45)
+		"tackle_wall":
+			if tackle_victim and is_instance_valid(tackle_victim) and tackle_victim.state == "held":
+				tackle_victim.collar_hit(TACKLE_WALL_DMG)   # dos écrasé contre le mur
+				last_tackle_dmg = TACKLE_WALL_DMG
+				_area_hit(tackle_victim.parts.chest.global_position, 1.3, 8.0, tackle_victim)
+				_shock_ring(tackle_victim.parts.chest.global_position + tackle_wall_n * 0.2)
+				_sparks(tackle_victim.parts.chest.global_position - tackle_wall_n * 0.25)
+				_flash(Color(1, 0.4, 0.3), 0.08)
+				connected = true
+				_gain(15.0)
+				get_parent().impact(0.18, 1.5)
 		"tackle_slam":
 			if tackle_victim and is_instance_valid(tackle_victim) and tackle_victim.state == "held":
 				var at: Vector3 = tackle_victim.parts.pelvis.global_position
@@ -2696,6 +2787,8 @@ func _ring_hit(radius: float, force: float, up: float, dmg: float, trip := false
 		var out := d.normalized() if d.length() > 0.05 else -global_basis.z
 		if trip and e.state == "stand":
 			e.trip(out, dmg)
+		elif trip and e.state in ["down", "dead", "crisp"] and e.parts.pelvis.global_position.y < 0.7:
+			e.ground_kick(out, dmg)   # capoeira sur un sbire couché : il prend le coup
 		else:
 			e.hit(e.parts.chest, (out + Vector3.UP * up).normalized() * maxf(force, light_force), c, dmg, 1.0, true)
 		connected = true
@@ -2726,16 +2819,43 @@ func _tackle_tick(_dt: float) -> void:
 		var face := Basis(Vector3.UP, atan2(-f.x, -f.z))
 		tackle_victim.hold(Basis(Vector3.UP.cross(f), deg_to_rad(-75)) * face, global_position + f * 0.55 + Vector3.UP * 1.25)   # plié sur l'épaule
 	if tackle_victim and is_instance_valid(tackle_victim) and tackle_victim.state == "held" and tackle_into == "":
-		var pr := lc.probe(f, 1.1) if lc else {}
-		if not pr.is_empty() and (pr.top == INF or pr.rel > 1.4):
-			tackle_into = "wall"   # un mur droit devant : il l'y écrase
-			start("tackle_slam")
+		var pr := lc.probe(f, TACKLE_WALL_REACH) if lc else {}
+		if not pr.is_empty() and (pr.top == INF or pr.rel > 1.4) and pr.n.dot(-f) > 0.5:
+			tackle_into = "wall"   # un mur droit devant : il fonce l'y écraser, le sbire debout, dos au mur (v0.216)
+			tackle_wall_n = pr.n
+			tackle_wall_p = pr.pos
+	if tackle_into == "wall" and tackle_victim and is_instance_valid(tackle_victim) and tackle_victim.state == "held":
+		var gap := (global_position - tackle_wall_p).dot(tackle_wall_n)
+		if gap < 1.0 or is_on_wall() or t >= 1.0 * attack_speed:
+			start("tackle_wall")
 			return
+		return
 	if t >= TACKLE_TIME * attack_speed or (tackle_victim and t >= 0.3 * attack_speed):
 		if tackle_victim:
 			start("tackle_slam")
 		else:
 			attack = ""   # raté : il s'arrête
+
+
+## Plaquage contre le mur (v0.216, retour de Thibaud) : le sbire, debout, est écrasé dos contre le mur par l'épaule du héros,
+## y reste collé un instant, puis s'effondre devant lui.
+func _tackle_wall_tick() -> void:
+	velocity = Vector3.ZERO
+	var n := tackle_wall_n
+	rotation.y = atan2(n.x, n.z)   # face au mur
+	var v := tackle_victim
+	if v == null or not is_instance_valid(v) or v.state != "held":
+		return
+	var on_wall := global_position - n * (global_position - tackle_wall_p).dot(n)   # point du mur en face du héros
+	var face := Basis(Vector3.UP, atan2(-n.x, -n.z))   # son dos contre le mur, il nous regarde
+	var start_c := global_position - n * 0.55 + Vector3.UP * 1.25
+	var wall_c := on_wall + n * 0.3 + Vector3.UP * 1.2
+	var u := smoothstep(0.0, 1.0, t / maxf(ATK.tackle_wall.active, 0.01))
+	var sq := 0.06 * sin(PI * clampf((t - ATK.tackle_wall.active) / 0.2, 0.0, 1.0))   # écrasé : il s'enfonce un peu dans le mur
+	v.hold(Basis(Vector3.UP.cross(n), deg_to_rad(-8.0)) * face, start_c.lerp(wall_c, u) - n * sq)
+	if t >= 0.42:
+		v.toss(n * 1.8 + Vector3.UP * 0.6, 0.8)   # il s'effondre devant le mur
+		tackle_victim = null
 
 
 ## Suplex : le buste de l'ennemi passe de devant, à au-dessus de la tête, à derrière au sol, la tête en bas.
@@ -2846,7 +2966,9 @@ func _grater_tick(dt: float) -> void:
 		_sparks(enemy.parts.head.global_position - wall_n * 0.1)
 		get_parent().impact(0.0, 0.25)
 	if t >= GRATER_TIME * attack_speed:
-		enemy.toss(wall_n * 6.0 + Vector3.UP * 3.0, 3.0)   # lâché, projeté loin du mur
+		enemy.collar_hit(8.0)   # finisher : dernière frotte
+		enemy.toss(wall_n * 7.0 + Vector3.UP * 3.5, 3.5)   # lâché, projeté loin du mur
+		get_parent().impact(0.1, 0.9)
 		start("collar_finish")
 		hit_done = true
 		connected = true
@@ -3012,6 +3134,7 @@ func _sj_grab_tick() -> void:
 			enemy = sj_target
 			sj_target.collar_grab()
 			start("air_slam")
+			from_sj = true
 			velocity = Vector3.UP * 1.0
 			get_parent().impact(0.06, 0.4)
 			return

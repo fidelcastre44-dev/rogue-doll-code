@@ -5,7 +5,7 @@ extends Node3D
 ## « Devant » = vers le haut du stick = DIAG (la caméra regarde en diagonale) : les éléments à franchir sont tournés face à DIAG.
 ##
 ##   Nord-ouest : plateforme haute (2 m) avec un bord dégagé, grand escalier (10 marches) et rampe lisse qui y montent.
-##   Nord-est   : blocs en escalier libre (0,4 / 1 / 2 / 3 m) et un bloc de 2 m seul (s'agripper).
+##   Nord-est   : blocs en escalier libre (0,4 / 1 / 2 / 3 m ; s'agripper au 3 m) et un bloc de 2 m seul (se hisser).
 ##   Est        : deux longs murs en L (3,5 m) : courses au mur, mur devant, mur sur le côté, coin (râpe à fromage).
 ##   Ouest      : muret (0,9 m), rambarde à barreaux (1,1 m), barrière haute à glisser dessous (0,8 m de vide).
 ##   Sud        : piliers, tables cassables, chaises, caisses, tonneaux.
@@ -194,6 +194,8 @@ func build() -> void:
 	_label("Bloc 2 m", Vector3(14, 2.5, -12))
 	_anchor("block2", Vector3(14, 0, -12) - DIAG * 2.4, DIAG)
 	_anchor("step04", Vector3(5, 0, -14.6), Vector3(0, 0, -1))
+	_anchor("block3", Vector3(11, 0, -14.6), Vector3(0, 0, -1))                 # devant le bloc de 3 m (s'agripper, v0.216)
+	_anchor("block3_top", Vector3(11, 3.0, -17.4), Vector3(0, 0, 1))            # sur le bloc de 3 m, face au vide (grande chute)
 	_anchor("block1", Vector3(7, 0, -14.6), Vector3(0, 0, -1))
 
 	# --- Est : deux longs murs en L autour du coin K, tournés face au centre (murs de 3,5 m, 12 m de long).
@@ -229,6 +231,7 @@ func build() -> void:
 	for p in [Vector3(1, 0, 15), Vector3(-2, 0, 18), K - DIAG * 4.0 - SIDE * 1.2]:
 		breakables.append(_table(p))
 	_anchor("table", Vector3(1, 0, 15) - DIAG * 3.2, DIAG)
+	_anchor("table_near", Vector3(1, 0, 15) - DIAG * 1.6, DIAG)                 # tout près d'une table (l'enjamber, v0.216)
 	_anchor("table_wall", K - DIAG * 9.0 - SIDE * 1.8, DIAG)
 	var kinds := ["chair", "chair", "crate", "crate", "barrel", "barrel", "trash", "bench"]
 	for i in kinds.size():
@@ -240,7 +243,7 @@ func build() -> void:
 
 ## Hauteur du sol sous un point (depuis 2,5 m au-dessus).
 func ground_y(at: Vector3) -> float:
-	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 2.5, at + Vector3.DOWN * 5.0, LAYER)
+	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 4.0, at + Vector3.DOWN * 5.0, LAYER)   # 4 m : au-dessus du bloc de 3 m
 	var r := get_world_3d().direct_space_state.intersect_ray(q)
 	return at.y if r.is_empty() else r.position.y
 

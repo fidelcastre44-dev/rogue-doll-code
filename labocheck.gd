@@ -15,12 +15,13 @@ var waiting := 0
 const TESTS := {
 	"mseed00": [[[5, "light", "tap"]], ["jab"]],
 	"mseed58": [[[5, "light", "press"], [5, "heavy", "press"], [7, "light", "release"], [7, "heavy", "release"]], ["superman"]],
-	"mseed24": [[[1, "up", "press"], [2, "", "sprint"], [12, "heavy", "tap"], [40, "up", "release"]], ["drop_kick", "drop_land"]],
+	"mseed24": [[[1, "up", "press"], [2, "", "sprint"], [12, "heavy", "tap"], [40, "up", "release"]], ["run_kick"]],
 	"mseed32": [[[1, "up", "press"], [2, "", "sprint"], [75, "grab", "tap"], [175, "up", "release"]], ["tackle", "tackle_slam"]],
 	"mseed53": [[[40, "jump", "tap"]], ["piledriver", "pd_land"]],
 	"mseed33": [[[40, "roll", "tap"]], ["suplex"]],
 	"mseed39": [[[5, "grab", "tap"]], ["hip_throw"]],
-	"mseed36": [[[40, "grab", "tap"]], ["cheese_grater_r"]],   # mur de la carte sur la droite (v0.212)
+	"mseed36": [[[40, "heavy", "tap"]], ["cheese_grater_r"]],   # mur de la carte sur la droite (v0.212) ; chope + Y depuis la v0.216
+	"mseed06": [[[60, "jump", "tap"], [80, "heavy", "tap"]], ["air_bigknee"]],
 	"mseed19": [[[40, "heavy", "tap"], [110, "heavy", "tap"], [180, "heavy", "tap"]], ["prop_bash"]],
 	"mseed16": [[[5, "roll", "tap"], [70, "light", "tap"]], ["spin_counter"]],
 	"mseed25": [[[5, "roll", "tap"], [70, "heavy", "tap"]], ["capoeira"]],
