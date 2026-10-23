@@ -215,6 +215,14 @@ tomoe nage (chope + B, en variante : chope + B reste le suplex par défaut), plu
 
 **Caméra** : plus proche (elle ne recule plus avec la taille de la fenêtre), beaucoup plus stable, zoom réglable (labo et menu pause).
 
+## Version 0.213 : animations reprises de vraies captures (CMU)
+
+Le **jab**, le **direct**, le **chassé**, le **shoot de foot** et le **shoot d'objet** sont rejoués d'après des captures de mouvement
+de la base CMU (libres de droits ; outils dans `tools/cmu`). Même rythme, même portée et même direction qu'avant : seul le geste change.
+Les anciennes poses (jab, cross, kick, sk2_*) restent dans poses.tres (d'autres coups s'en servent).
+Pas repris, à retravailler avec la même méthode : **high kick** (le nôtre, exagéré, plonge le buste sous la jambe), crochet, uppercut,
+se hisser sur un rebord, glissade, atterrissages, coups aériens.
+
 ## Problèmes notés (à régler plus tard)
 
 - **Chope plongeante** : en pratique on n'a presque jamais d'ennemi en l'air à attraper, sauf après un shoryuken ou un lanceur ; souvent on l'a débloquée sans rien pour faire décoller les ennemis. Pistes : la proposer seulement si on a un lanceur, la rendre possible sur un ennemi debout (saut + R1 = il l'emporte), ou donner un petit lanceur de base.

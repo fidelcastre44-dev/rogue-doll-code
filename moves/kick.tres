@@ -6,7 +6,8 @@
 script = ExtResource("1_30sgw")
 id = &"kick"
 display_name = "Chassé"
-notes = "Ancien coup lourd au sol, gardé en réserve (amélioration possible)."
+notes = "Ancien coup lourd au sol, gardé en réserve (amélioration possible).
+Animation reprise de la capture CMU 144_05 (tools/cmu)."
 active = 0.13
 cancel = 0.24
 end = 0.45
@@ -20,5 +21,5 @@ hitstop = 0.1
 shake = 0.8
 lunge = 3.0
 flags = PackedStringArray()
-keys = [[0.0, "from"], [0.08, "chamber"], [0.13, "kick"], [0.19, "kick"], [0.28, "chamber"], [0.45, "guard"]]
+keys = [[0.0, "from"], [0.03, "cmu_kick_0", "lin"], [0.06, "cmu_kick_1", "lin"], [0.09, "cmu_kick_2", "lin"], [0.13, "cmu_kick_3", "lin"], [0.19, "cmu_kick_4", "lin"], [0.25, "cmu_kick_5", "lin"], [0.32, "cmu_kick_6", "lin"], [0.39, "cmu_kick_7", "lin"], [0.45, "guard", "inout"]]
 present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "heavy", "dmg", "drop", "stop", "shake", "up", "lunge", "keys")

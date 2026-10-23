@@ -6,10 +6,11 @@
 script = ExtResource("1_jc8de")
 id = &"soccer_kick"
 display_name = "Shoot de foot"
-notes = "Atelier des coups (à tester)."
+notes = "Atelier des coups (à tester).
+Animation reprise de la capture CMU 10_01 (tools/cmu)."
 active = 0.19
 cancel = 0.32
 end = 0.55
 flags = PackedStringArray("atelier")
-keys = [[0.0, "from"], [0.11, "sk2_back"], [0.19, "sk2_kick", "in"], [0.3, "sk2_kick"], [0.55, "guard"]]
+keys = [[0.0, "from"], [0.04, "cmu_soccer_0", "lin"], [0.08, "cmu_soccer_1", "lin"], [0.11, "cmu_soccer_2", "lin"], [0.15, "cmu_soccer_3", "lin"], [0.19, "cmu_soccer_4", "lin"], [0.24, "cmu_soccer_5", "lin"], [0.3, "cmu_soccer_6", "lin"], [0.38, "cmu_soccer_7", "lin"], [0.46, "cmu_soccer_8", "lin"], [0.55, "guard", "inout"]]
 present = PackedStringArray()

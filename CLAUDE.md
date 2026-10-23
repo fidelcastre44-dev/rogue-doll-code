@@ -58,6 +58,10 @@ Godot 4.7 + Jolt. Équipe : Paul (code avec Claude, son), Thibaud (visuels, game
   (champ `moveideas.tier` = S / A / B / C / D, onglet Atelier des coups → « Tier list »).
 - `tools/gen_atelier_moves.gd` : a généré les fiches et poses des coups de l'atelier (déjà lancé ; à garder comme exemple).
   `tools/gen_v011_moves.gd` : poses et fiches des correctifs 0.11 (relançable ; ne change que les champs listés d'une fiche existante).
+- `tools/cmu/` + `tools/import_cmu.gd` : **animations reprises de captures CMU** (libres de droits, v0.213). `clips.py` = quel coup vient de
+  quelle capture et à quels instants ; `retarget.py` = reprise sur le héros en blocs ; `import_cmu.gd` = poses `cmu_<coup>_<n>` + clés des
+  fiches, recalées sur la direction et la portée de l'ancien coup (`old_tips.json`). Mode d'emploi : `tools/cmu/README.md`.
+- `tools/audit_anims.gd` : audit chiffré des animations, sans rendu (à-coups, membres sous le sol, pieds qui glissent, rotations > 170°).
 - `tools/shot_tool.gd` (+ `../shot.sh` hors projet) : rendu d'images d'un coup du labo en vue de profil / dessus / poursuite, pour vérifier une animation.
 - États « punitifs » (`PENALTY` dans player.gd : drop_land, sm_land, tackle_slam, pd_land) : rien ne les coupe ; `AIR_LOCKED` : coups aériens
   qu'aucune esquive ne coupe (ils durent jusqu'à la réception).

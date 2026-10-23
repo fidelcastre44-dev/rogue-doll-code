@@ -6,6 +6,7 @@
 script = ExtResource("1_2e5jh")
 id = &"jab"
 display_name = "Jab"
+notes = "Animation reprise de la capture CMU 144_14 (tools/cmu)."
 active = 0.075
 cancel = 0.11
 end = 0.25
@@ -17,5 +18,5 @@ hitstop = 0.06
 shake = 0.4
 lunge = 0.4
 flags = PackedStringArray()
-keys = [[0.0, "from"], [0.035, "jab_load"], [0.075, "jab"], [0.1, "jab"], [0.25, "guard"]]
+keys = [[0.0, "from"], [0.025, "cmu_jab_0", "lin"], [0.05, "cmu_jab_1", "lin"], [0.075, "cmu_jab_2", "lin"], [0.1, "cmu_jab_3", "lin"], [0.13, "cmu_jab_4", "lin"], [0.17, "cmu_jab_5", "lin"], [0.25, "guard", "inout"]]
 present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "dmg", "drop", "stop", "shake", "up", "lunge", "keys", "step")

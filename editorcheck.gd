@@ -34,7 +34,7 @@ func _run() -> void:
 	await wait(5)
 	print("Ouverture")
 	ok(ed.cards.size() > 20 and ed.cards[0][0] == "mseed00", "liste des coups du labo (%d)" % ed.cards.size())
-	ok(ed.move_id == "jab" and ed.keys.size() == 5, "premier coup : le jab, ses 5 clés (%s, %d)" % [ed.move_id, ed.keys.size()])
+	ok(ed.move_id == "jab" and ed.keys.size() == MoveLibrary.moves()["jab"].keys.size(), "premier coup : le jab, toutes ses clés (%s, %d)" % [ed.move_id, ed.keys.size()])
 	var md: MoveData = MoveLibrary.moves()["hikick"]
 	ed.load_move("hikick")
 	ok(ed.keys.size() == md.keys.size() and absf(ed.timing.active - md.active) < 0.001, "high kick : clés et rythme de la fiche")
