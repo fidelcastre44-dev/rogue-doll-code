@@ -90,6 +90,10 @@ Rendu d'images : xvfb-run + `--rendering-driver opengl3 --rendering-method gl_co
 Le projet de Paul est sur son PC : `D:\Rogue Doll\ragdoll_proto`. On travaille et on teste ici, puis on écrit les fichiers modifiés
 chez lui (pont vers son ordinateur). Pas de terminal sur son PC : il lance Godot lui-même.
 
+## Dépôt du code
+Le code complet (projet Godot, sans `.godot/`) est sur GitHub : `fidelcastre44-dev/rogue-doll-code` (clone dans /home/claude/rogue-doll-code).
+À chaque version : copier le projet dedans (sans `.godot/`), commit, push. Les builds jouables restent dans `fidelcastre44-dev/rogue-doll`.
+
 ## Versions à tester (journal du site)
 - Numéro dans `version.gd` (`GameVersion.NUM`), affiché dans le menu pause et le labo. **Règle de Paul** : de simples correctifs
   = 0.11, 0.12… ; on passe à 0.2, 0.3… seulement quand on ajoute vraiment des fonctionnalités.
