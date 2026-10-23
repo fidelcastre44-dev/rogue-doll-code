@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_863ip"]
+
+[resource]
+script = ExtResource("1_863ip")
+id = &"knee"
+display_name = "Genou volant"
+notes = "Genou volant : il décolle en montant le genou dans le menton ; l'ennemi part en l'air avec toi (enchaîne en aérien)."
+end = 0.34
+tip = "kn_r"
+radius = 0.55
+damage = 16.0
+force_mult = 0.45
+heavy = true
+drop = 1.0
+up = 2.2
+guard_break = true
+hitstop = 0.09
+shake = 0.7
+step = 3.0
+air = true
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.1, "knee_up"], [0.17, "knee_up"], [0.34, "air_rest"]]
+present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "heavy", "air", "dmg", "drop", "stop", "shake", "up", "lunge", "step", "guard_break", "keys")

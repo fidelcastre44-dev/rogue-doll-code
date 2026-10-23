@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_egus8"]
+
+[resource]
+script = ExtResource("1_egus8")
+id = &"prop_wind"
+display_name = "Objet : élan du lancer"
+active = 99.0
+cancel = 99.0
+end = 99.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.15, "grab_lift"], [0.6, "throw_hold"], [99.0, "throw_hold"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "keys")

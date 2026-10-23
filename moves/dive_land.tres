@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_2hpn0"]
+
+[resource]
+script = ExtResource("1_2hpn0")
+id = &"dive_land"
+display_name = "Plongeon (impact au sol)"
+notes = "même geste que le marteau : extension arrière en arc (il reste suspendu, il charge), puis il s'abat et pique vers le sol Réception du plongeon : il abat les deux poings dans le sol devant lui, accroupi très bas ; onde de choc tout autour."
+active = 99.0
+cancel = 0.3
+end = 0.5
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.05, "pound", "in"], [0.26, "pound"], [0.5, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "keys")

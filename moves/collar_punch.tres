@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_qgeg8"]
+
+[resource]
+script = ExtResource("1_qgeg8")
+id = &"collar_punch"
+display_name = "Chope : droite"
+active = 0.06
+cancel = 0.13
+end = 0.18
+flags = PackedStringArray("collar_punch")
+keys = [[0.0, "collar_hold"], [0.06, "collar_punch"], [0.09, "collar_punch"], [0.18, "collar_hold"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "collar_punch", "keys")

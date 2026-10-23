@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_ki24l"]
+
+[resource]
+script = ExtResource("1_ki24l")
+id = &"superman"
+display_name = "Superman punch"
+notes = "Atelier des coups (à tester)."
+active = 0.2
+cancel = 99.0
+end = 99.0
+roll_ok = 99.0
+tip = "fist_r"
+radius = 0.55
+damage = 18.0
+force_mult = 0.9
+heavy = true
+drop = 1.0
+up = 0.35
+guard_break = true
+hitstop = 0.11
+shake = 0.9
+air = true
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.09, "sm_load"], [0.2, "sm_fly", "in"], [0.34, "sm_fly"], [99.0, "sm_fly"]]
+present = PackedStringArray()

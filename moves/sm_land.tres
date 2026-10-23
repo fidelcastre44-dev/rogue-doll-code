@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_slvu8"]
+
+[resource]
+script = ExtResource("1_slvu8")
+id = &"sm_land"
+display_name = "Superman punch (à plat ventre)"
+notes = "Version 0.11 (retours de Paul)."
+active = 99.0
+cancel = 99.0
+end = 0.78
+roll_ok = 99.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.07, "sm_down", "in"], [0.42, "sm_down"], [0.55, "sm_push"], [0.66, "crouch"], [0.78, "guard"]]
+present = PackedStringArray()

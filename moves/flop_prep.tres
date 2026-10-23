@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_2ejnf"]
+
+[resource]
+script = ExtResource("1_2ejnf")
+id = &"flop_prep"
+display_name = "Plongeon pantin (élan)"
+active = 0.16
+cancel = 99.0
+end = 99.0
+flags = PackedStringArray("flop_launch")
+keys = [[0.0, "from"], [0.12, "flop_crouch", "in"], [99.0, "flop_crouch"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "flop_launch", "keys")

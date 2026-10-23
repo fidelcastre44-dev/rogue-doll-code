@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_ny4g1"]
+
+[resource]
+script = ExtResource("1_ny4g1")
+id = &"airslam_land"
+display_name = "Chope plongeante (impact)"
+notes = "Réception de la chope plongeante : accroupi, il l'écrase au sol à deux mains."
+active = 99.0
+cancel = 0.3
+end = 0.5
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.05, "pound", "in"], [0.25, "pound"], [0.5, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "keys")

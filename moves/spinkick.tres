@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_frgmx"]
+
+[resource]
+script = ExtResource("1_frgmx")
+id = &"spinkick"
+display_name = "Coup de pied retourné"
+notes = "Coup de pied retourné au visage : tour complet, dos à l'ennemi, talon à hauteur de tête, puis la rotation continue."
+active = 0.18
+cancel = 0.3
+end = 0.48
+tip = "foot_r"
+radius = 0.5
+damage = 22.0
+force_mult = 1.1
+heavy = true
+drop = 1.0
+up = 0.4
+hitstop = 0.11
+shake = 0.9
+lunge = 1.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.07, "sk_turn"], [0.13, "sk_chamber"], [0.18, "sk_kick"], [0.24, "sk_kick"], [0.32, "sk_through"], [0.48, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "heavy", "dmg", "drop", "stop", "shake", "up", "lunge", "keys")

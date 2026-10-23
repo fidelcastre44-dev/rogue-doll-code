@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_jc8de"]
+
+[resource]
+script = ExtResource("1_jc8de")
+id = &"soccer_kick"
+display_name = "Shoot de foot"
+notes = "Atelier des coups (à tester)."
+active = 0.19
+cancel = 0.32
+end = 0.55
+flags = PackedStringArray("atelier")
+keys = [[0.0, "from"], [0.11, "sk2_back"], [0.19, "sk2_kick", "in"], [0.3, "sk2_kick"], [0.55, "guard"]]
+present = PackedStringArray()

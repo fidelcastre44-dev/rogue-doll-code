@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_pvxgg"]
+
+[resource]
+script = ExtResource("1_pvxgg")
+id = &"hadoken"
+display_name = "Boule d'énergie (lancer)"
+notes = "Boule d'énergie (hadoken) : mains ramenées à la hanche, puis paumes poussées devant ; la boule part vite, tout droit."
+active = 0.11
+cancel = 0.26
+end = 0.38
+flags = PackedStringArray("projectile")
+keys = [[0.0, "from"], [0.06, "hado_load"], [0.11, "hado_push", "in"], [0.22, "hado_push"], [0.38, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "projectile", "keys")

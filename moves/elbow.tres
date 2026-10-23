@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_f3ogg"]
+
+[resource]
+script = ExtResource("1_f3ogg")
+id = &"elbow"
+display_name = "Coup de coude (abandonné)"
+notes = "Coup de coude (3e coup, light_move = \"elbow\") : tout près, le coude gauche fauche le visage à plat ; gros impact, il tombe."
+active = 0.09
+end = 0.34
+tip = "el_l"
+radius = 0.45
+damage = 15.0
+force_mult = 1.7
+drop = 1.0
+up = 0.15
+side = 2
+hitstop = 0.11
+shake = 0.85
+lunge = 1.5
+step = 4.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.05, "elbow_load"], [0.09, "elbow", "in"], [0.15, "elbow"], [0.34, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "dmg", "drop", "stop", "shake", "up", "lunge", "step", "side_r", "keys")

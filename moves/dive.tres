@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_qtx05"]
+
+[resource]
+script = ExtResource("1_qtx05")
+id = &"dive"
+display_name = "Plongeon"
+notes = "Plongeon (modificateur de saut) : piqué vers le sol, pieds en avant ; onde de choc à l'atterrissage."
+active = 99.0
+cancel = 99.0
+end = 99.0
+air = true
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.11, "air_hammer_up"], [0.2, "air_hammer_arch", "lin"], [99.0, "air_hammer_arch"]]
+present = PackedStringArray("active", "cancel", "end", "air", "lunge", "keys")

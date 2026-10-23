@@ -1,0 +1,6 @@
+# Cache d'import de Godot (régénéré à l'ouverture du projet)
+.godot/
+# Exports
+build/
+*.exe
+*.zip

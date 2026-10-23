@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_s7pof"]
+
+[resource]
+script = ExtResource("1_s7pof")
+id = &"flip_jump"
+display_name = "Double saut en salto"
+notes = "Double saut en salto avant : il s'enroule et fait un tour complet (même boule que l'axe kick)."
+active = 99.0
+end = 0.34
+air = true
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.1, "fl_tuck1"], [0.2, "fl_tuck2"], [0.34, "air_rest"]]
+present = PackedStringArray("active", "cancel", "end", "air", "lunge", "keys")

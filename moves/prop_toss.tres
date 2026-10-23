@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_j0h8j"]
+
+[resource]
+script = ExtResource("1_j0h8j")
+id = &"prop_toss"
+display_name = "Objet lancé"
+active = 0.07
+cancel = 0.15
+end = 0.35
+flags = PackedStringArray("prop_toss")
+keys = [[0.0, "from"], [0.07, "throw_out", "in"], [0.35, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "prop_toss", "keys")

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_3pjnv"]
+
+[resource]
+script = ExtResource("1_3pjnv")
+id = &"prop_bash"
+display_name = "Coup de chaise"
+notes = "Atelier des coups (à tester)."
+active = 0.2
+cancel = 0.35
+end = 0.5
+flags = PackedStringArray("atelier")
+keys = [[0.0, "from"], [0.1, "pb_up"], [0.2, "pb_down", "in"], [0.32, "pb_down"], [0.5, "grab_lift"]]
+present = PackedStringArray()

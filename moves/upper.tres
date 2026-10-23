@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_qlq0t"]
+
+[resource]
+script = ExtResource("1_qlq0t")
+id = &"upper"
+display_name = "Uppercut"
+active = 0.12
+cancel = 0.32
+end = 0.36
+tip = "fist_l"
+radius = 0.4
+damage = 14.0
+force_mult = 1.6
+drop = 1.0
+up = 1.2
+guard_break = true
+hitstop = 0.09
+shake = 0.7
+lunge = 1.0
+step = 5.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.065, "upper_load"], [0.12, "upper"], [0.18, "upper"], [0.36, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "dmg", "drop", "stop", "shake", "up", "lunge", "step", "guard_break", "keys")

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_3bv5y"]
+
+[resource]
+script = ExtResource("1_3bv5y")
+id = &"dive_kick"
+display_name = "Coup de pied en piqué"
+notes = "Coup de pied en piqué (Y + stick vers le bas, en l'air) : il fond en diagonale vers le sol pieds en avant ; il touche tout ce qu'il croise jusqu'au sol, y compris les sbires couchés (qu'il fait rebondir en l'air)."
+active = 0.05
+cancel = 99.0
+end = 99.0
+tip = "foot_r"
+radius = 0.6
+damage = 16.0
+force_mult = 0.9
+heavy = true
+drop = 1.0
+up = 0.3
+hitstop = 0.1
+shake = 0.8
+air = true
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.05, "divekick"], [99.0, "divekick"]]
+present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "heavy", "air", "dmg", "drop", "stop", "shake", "up", "lunge", "keys")

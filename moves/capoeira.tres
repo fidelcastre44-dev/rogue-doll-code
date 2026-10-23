@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_b0ag6"]
+
+[resource]
+script = ExtResource("1_b0ag6")
+id = &"capoeira"
+display_name = "Retourné capoeira"
+notes = "Atelier des coups (à tester)."
+active = 0.12
+cancel = 0.42
+end = 0.6
+flags = PackedStringArray("atelier")
+keys = [[0.0, "from"], [0.08, "cp_hands"], [0.42, "cp_hands"], [0.6, "guard"]]
+present = PackedStringArray()

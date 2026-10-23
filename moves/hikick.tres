@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_uic3g"]
+
+[resource]
+script = ExtResource("1_uic3g")
+id = &"hikick"
+display_name = "High kick"
+notes = "High kick latéral (coup lourd au sol) : jambe qui balaie de côté, il envoie l'ennemi sur ta gauche."
+active = 0.12
+cancel = 0.24
+end = 0.44
+tip = "foot_r"
+radius = 0.5
+damage = 18.0
+heavy = true
+drop = 1.0
+up = 0.3
+side = 1
+hitstop = 0.1
+shake = 0.8
+lunge = 1.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.06, "hk_chamber"], [0.12, "hk_kick"], [0.17, "hk_through"], [0.3, "hk_chamber"], [0.44, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "heavy", "side", "dmg", "drop", "stop", "shake", "up", "lunge", "keys")

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_ko3bx"]
+
+[resource]
+script = ExtResource("1_ko3bx")
+id = &"throw_release"
+display_name = "Lancer visé (lâcher)"
+notes = "Lancer visé (amélioration, throw_move = \"throw\") : lancé après l'élan."
+active = 0.0
+cancel = 0.12
+end = 0.3
+flags = PackedStringArray()
+keys = [[0.0, "throw_hold"], [0.08, "throw_out"], [0.3, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "keys")

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_r3rlk"]
+
+[resource]
+script = ExtResource("1_r3rlk")
+id = &"flop"
+display_name = "Plongeon pantin"
+notes = "Plongeon pantin (attaque en sprint) : temps d'arrêt, il plie les jambes, puis se jette en avant ; son corps devient un vrai ragdoll."
+active = 99.0
+cancel = 99.0
+end = 99.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [99.0, "from"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "keys")

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_3noji"]
+
+[resource]
+script = ExtResource("1_3noji")
+id = &"wall_run_h"
+display_name = "Course au mur horizontale"
+notes = "Version 0.11 (retours de Paul)."
+active = 0.62
+cancel = 99.0
+end = 99.0
+roll_ok = 99.0
+tip = "foot_r"
+radius = 0.7
+damage = 16.0
+force_mult = 0.9
+heavy = true
+drop = 1.0
+up = 0.3
+hitstop = 0.1
+shake = 0.9
+air = true
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.06, "wh_run"], [0.54, "wh_run"], [0.62, "wh_kick", "in"], [99.0, "wh_kick"]]
+present = PackedStringArray()

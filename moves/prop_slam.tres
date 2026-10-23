@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_26waj"]
+
+[resource]
+script = ExtResource("1_26waj")
+id = &"prop_slam"
+display_name = "Objet fracassé"
+active = 0.2
+cancel = 0.32
+end = 0.55
+flags = PackedStringArray("prop_slam")
+keys = [[0.0, "from"], [0.2, "grab_slam", "in"], [0.32, "grab_slam"], [0.55, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "prop_slam", "keys")

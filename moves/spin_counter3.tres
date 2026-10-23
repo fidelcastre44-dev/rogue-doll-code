@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_xi7fx"]
+
+[resource]
+script = ExtResource("1_xi7fx")
+id = &"spin_counter3"
+display_name = "Contre tournant (3 tours)"
+notes = "Version 0.11 (retours de Paul)."
+active = 0.14
+cancel = 0.72
+end = 0.85
+flags = PackedStringArray("atelier")
+keys = [[0.0, "from"], [0.05, "sc_load"], [0.12, "sc_out", "in"], [0.7, "sc_out"], [0.85, "guard"]]
+present = PackedStringArray()

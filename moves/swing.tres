@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_iw88s"]
+
+[resource]
+script = ExtResource("1_iw88s")
+id = &"swing"
+display_name = "Grand tour"
+notes = "Grand tour (amélioration de chope, throw_move = \"swing\") : il tourne sur lui-même bras tendus, l'ennemi à l'horizontale, puis le lâche."
+active = 99.0
+cancel = 99.0
+end = 99.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.15, "swing_hold"], [99.0, "swing_hold"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "keys")

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_b5q4h"]
+
+[resource]
+script = ExtResource("1_b5q4h")
+id = &"headbutt"
+display_name = "Chope : coup de tête"
+notes = "Coup de tête (pendant une chope par le col, Y) : il le lâche au moment de l'impact, l'ennemi rebondit au sol."
+active = 0.24
+cancel = 0.32
+end = 0.5
+flags = PackedStringArray("headbutt")
+keys = [[0.0, "collar_hold"], [0.12, "hb_load"], [0.17, "hb_load"], [0.24, "hb_hit", "in"], [0.3, "hb_hit"], [0.5, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "headbutt", "keys")

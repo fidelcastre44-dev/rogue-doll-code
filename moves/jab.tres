@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_2e5jh"]
+
+[resource]
+script = ExtResource("1_2e5jh")
+id = &"jab"
+display_name = "Jab"
+active = 0.075
+cancel = 0.11
+end = 0.25
+tip = "fist_l"
+radius = 0.35
+damage = 8.0
+force_mult = 0.22
+hitstop = 0.06
+shake = 0.4
+lunge = 0.4
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.035, "jab_load"], [0.075, "jab"], [0.1, "jab"], [0.25, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "dmg", "drop", "stop", "shake", "up", "lunge", "keys", "step")

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_sr03m"]
+
+[resource]
+script = ExtResource("1_sr03m")
+id = &"tackle_slam"
+display_name = "Plaquage (écrasé au sol)"
+notes = "Atelier des coups (à tester)."
+active = 0.14
+cancel = 0.75
+end = 0.95
+roll_ok = 0.75
+flags = PackedStringArray("atelier")
+keys = [[0.0, "from"], [0.14, "tk_dive", "in"], [0.32, "tk_dive2"], [0.5, "tk_dive"], [0.66, "sm_push"], [0.8, "crouch"], [0.95, "guard"]]
+present = PackedStringArray()

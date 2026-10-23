@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_hbbh5"]
+
+[resource]
+script = ExtResource("1_hbbh5")
+id = &"collar"
+display_name = "Chope au col (tenue)"
+notes = "Chope au sol : il le relève par le col et le tient. Poing = droite (3 puis il repart en l'air), chope = fracas au sol."
+active = 99.0
+cancel = 99.0
+end = 99.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.12, "collar_hold"], [99.0, "collar_hold"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "keys")

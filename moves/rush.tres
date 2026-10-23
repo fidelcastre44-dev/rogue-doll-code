@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_3ce6m"]
+
+[resource]
+script = ExtResource("1_3ce6m")
+id = &"rush"
+display_name = "Rafale de poings"
+notes = "Atelier des coups (à tester)."
+active = 99.0
+cancel = 99.0
+end = 99.0
+flags = PackedStringArray("atelier")
+keys = [[0.0, "from"], [0.04, "rush_l"], [0.08, "rush_r"], [0.12, "rush_l"], [0.16, "rush_r"], [99.0, "rush_r"]]
+present = PackedStringArray()

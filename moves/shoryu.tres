@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_h3ubf"]
+
+[resource]
+script = ExtResource("1_h3ubf")
+id = &"shoryu"
+display_name = "Shoryuken"
+notes = "Shoryuken : accroupi, puis il jaillit vers le ciel poing droit tendu en vrillant ; l'ennemi part très haut. Invulnérable au départ."
+active = 0.09
+cancel = 0.3
+end = 0.6
+tip = "fist_r"
+radius = 0.7
+damage = 18.0
+force_mult = 0.75
+heavy = true
+drop = 1.0
+up = 4.0
+hitstop = 0.12
+shake = 1.0
+step = 3.0
+air = true
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.06, "sho_load"], [0.09, "sho_hit", "in"], [0.16, "sho_up"], [0.32, "sho_up2"], [0.6, "air_rest"]]
+present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "heavy", "air", "dmg", "drop", "stop", "shake", "up", "lunge", "step", "keys")

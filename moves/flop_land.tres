@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_plfeb"]
+
+[resource]
+script = ExtResource("1_plfeb")
+id = &"flop_land"
+display_name = "Plongeon pantin (réception)"
+notes = "Réception du plongeon pantin : à plat ventre, puis il se relève d'un bond."
+active = 99.0
+cancel = 0.35
+end = 0.6
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.06, "flop_lie"], [0.3, "flop_lie"], [0.45, "crouch"], [0.6, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "keys")

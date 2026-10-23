@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_ryjyi"]
+
+[resource]
+script = ExtResource("1_ryjyi")
+id = &"air_upper"
+display_name = "Uppercut aérien"
+notes = "Version 0.11 (retours de Paul)."
+cancel = 0.26
+end = 0.36
+tip = "fist_l"
+radius = 0.6
+damage = 14.0
+force_mult = 1.6
+heavy = true
+drop = 1.0
+up = 1.6
+guard_break = true
+hitstop = 0.09
+shake = 0.7
+step = 2.0
+air = true
+light_air = true
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.05, "air_upper_load"], [0.1, "air_upper", "in"], [0.18, "air_upper"], [0.36, "air_rest"]]
+present = PackedStringArray()

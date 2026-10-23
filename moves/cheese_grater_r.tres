@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_af6s7"]
+
+[resource]
+script = ExtResource("1_af6s7")
+id = &"cheese_grater_r"
+display_name = "Râpe à fromage (mur à droite)"
+notes = "Atelier des coups (à tester)."
+active = 99.0
+cancel = 99.0
+end = 99.0
+flags = PackedStringArray("atelier")
+keys = [[0.0, "from"], [0.12, "cg_drag_r"], [99.0, "cg_drag_r"]]
+present = PackedStringArray()

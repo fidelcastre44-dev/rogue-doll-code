@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_oybjm"]
+
+[resource]
+script = ExtResource("1_oybjm")
+id = &"quake"
+display_name = "Frappe au sol"
+notes = "Frappe au sol (heavy_move = \"quake\") : poing levé au ciel, puis abattu dans le sol ; même onde de choc que le plongeon."
+active = 0.2
+cancel = 0.38
+end = 0.6
+flags = PackedStringArray("quake")
+keys = [[0.0, "from"], [0.12, "quake_up"], [0.2, "pound", "in"], [0.36, "pound"], [0.6, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "quake", "keys")

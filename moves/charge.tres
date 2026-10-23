@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_uo5mh"]
+
+[resource]
+script = ExtResource("1_uo5mh")
+id = &"charge"
+display_name = "Chassé chargé (charge)"
+notes = "Coup chargé (heavy_move = \"charged\") : Y maintenu, planté, genou armé ; relâché = chassé d'autant plus fort que la charge est longue."
+active = 99.0
+cancel = 99.0
+end = 99.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.12, "chamber"], [99.0, "chamber"]]
+present = PackedStringArray("active", "cancel", "end", "lunge", "keys")

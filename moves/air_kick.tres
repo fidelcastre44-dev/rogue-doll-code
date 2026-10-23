@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_05btb"]
+
+[resource]
+script = ExtResource("1_05btb")
+id = &"air_kick"
+display_name = "Chassé sauté"
+notes = "Chassé sauté à deux pieds (coup lourd en l'air) : en boule, il fait 3/4 de tour, se met à l'horizontale et se détend pieds en avant."
+active = 0.27
+cancel = 0.5
+end = 0.55
+tip = "foot_r"
+radius = 0.6
+damage = 20.0
+force_mult = 1.15
+heavy = true
+drop = 1.0
+up = 0.15
+hitstop = 0.11
+shake = 0.9
+air = true
+flags = PackedStringArray("dropkick")
+keys = [[0.0, "from"], [0.1, "dk_tuck1"], [0.2, "dk_tuck2"], [0.27, "dk_ext"], [0.4, "dk_ext"], [0.55, "air_rest"]]
+present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "heavy", "air", "dropkick", "dmg", "drop", "stop", "shake", "up", "lunge", "keys")

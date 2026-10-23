@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_gy5js"]
+
+[resource]
+script = ExtResource("1_gy5js")
+id = &"tramp"
+display_name = "Trampoline"
+notes = "Atelier des coups (à tester)."
+active = 99.0
+cancel = 0.15
+end = 0.6
+air = true
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.06, "tramp_tuck"], [0.28, "tramp_open"], [0.6, "air_rest"]]
+present = PackedStringArray()

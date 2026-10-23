@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_2py6i"]
+
+[resource]
+script = ExtResource("1_2py6i")
+id = &"wave"
+display_name = "La vague"
+notes = "v0.212 (à tester)."
+active = 0.5
+cancel = 1.0
+end = 1.15
+hitstop = 0.06
+shake = 0.6
+flags = PackedStringArray("v212")
+keys = [[0.0, "from"], [0.12, "wv_a"], [0.3, "wv_b", "inout"], [0.48, "wv_a", "inout"], [0.66, "wv_b", "inout"], [0.84, "wv_c", "inout"], [1.15, "guard", "inout"]]
+present = PackedStringArray()

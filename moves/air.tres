@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_mynko"]
+
+[resource]
+script = ExtResource("1_mynko")
+id = &"air"
+display_name = "Poing aérien"
+notes = "Coup de poing aérien (de base) : il reste un instant suspendu ; jusqu'à MAX_AIR par saut. Il relance un ennemi en l'air (jongle)."
+active = 0.06
+cancel = 0.14
+end = 0.24
+tip = "fist_l"
+radius = 0.55
+damage = 6.0
+force_mult = 0.8
+drop = 0.3
+up = 0.9
+hitstop = 0.05
+shake = 0.35
+air = true
+light_air = true
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.06, "air_jab"], [0.1, "air_jab"], [0.24, "air_rest"]]
+present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "dmg", "drop", "stop", "shake", "up", "lunge", "step", "air", "light_air", "keys")

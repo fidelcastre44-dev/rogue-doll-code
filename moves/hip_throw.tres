@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_823q0"]
+
+[resource]
+script = ExtResource("1_823q0")
+id = &"hip_throw"
+display_name = "Projection de hanche"
+notes = "Atelier des coups (à tester)."
+active = 0.36
+cancel = 0.62
+end = 0.85
+flags = PackedStringArray("atelier")
+keys = [[0.0, "from"], [0.12, "ht2_load"], [0.36, "ht2_throw", "in"], [0.55, "ht2_throw"], [0.85, "guard"]]
+present = PackedStringArray()

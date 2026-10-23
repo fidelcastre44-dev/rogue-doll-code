@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_30sgw"]
+
+[resource]
+script = ExtResource("1_30sgw")
+id = &"kick"
+display_name = "Chassé"
+notes = "Ancien coup lourd au sol, gardé en réserve (amélioration possible)."
+active = 0.13
+cancel = 0.24
+end = 0.45
+tip = "foot_r"
+radius = 0.45
+damage = 22.0
+heavy = true
+drop = 0.8
+up = 0.35
+hitstop = 0.1
+shake = 0.8
+lunge = 3.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.08, "chamber"], [0.13, "kick"], [0.19, "kick"], [0.28, "chamber"], [0.45, "guard"]]
+present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "heavy", "dmg", "drop", "stop", "shake", "up", "lunge", "keys")

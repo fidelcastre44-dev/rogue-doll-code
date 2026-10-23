@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_unlbs"]
+
+[resource]
+script = ExtResource("1_unlbs")
+id = &"tomoe"
+display_name = "Tomoe nage"
+notes = "v0.212 (à tester)."
+active = 0.34
+cancel = 0.8
+end = 0.95
+hitstop = 0.08
+shake = 0.8
+flags = PackedStringArray("v212")
+keys = [[0.0, "from"], [0.12, "tm_sit"], [0.32, "tm_back", "inout"], [0.55, "back_lie"], [0.78, "crouch", "inout"], [0.95, "guard", "inout"]]
+present = PackedStringArray()

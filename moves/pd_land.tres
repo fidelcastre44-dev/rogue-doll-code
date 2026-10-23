@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_m6o67"]
+
+[resource]
+script = ExtResource("1_m6o67")
+id = &"pd_land"
+display_name = "Prise de catch (écrasé)"
+notes = "Atelier des coups (à tester)."
+active = 99.0
+cancel = 0.5
+end = 0.75
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.05, "back_lie", "in"], [0.38, "back_lie"], [0.55, "crouch"], [0.75, "guard"]]
+present = PackedStringArray()

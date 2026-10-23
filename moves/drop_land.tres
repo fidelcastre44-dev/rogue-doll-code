@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://combat/move_data.gd" id="1_2i5cy"]
+
+[resource]
+script = ExtResource("1_2i5cy")
+id = &"drop_land"
+display_name = "Drop kick (réception sur le dos)"
+notes = "Atelier des coups (à tester)."
+active = 99.0
+cancel = 99.0
+end = 2.0
+roll_ok = 99.0
+flags = PackedStringArray()
+keys = [[0.0, "from"], [0.06, "back_lie", "in"], [0.5, "back_lie"], [0.85, "back_lie2"], [1.25, "back_lie"], [1.6, "back_lie2"], [1.8, "crouch"], [2.0, "guard"]]
+present = PackedStringArray()
