@@ -6,10 +6,11 @@
 script = ExtResource("1_plfeb")
 id = &"flop_land"
 display_name = "Plongeon pantin (réception)"
-notes = "Réception du plongeon pantin : à plat ventre, puis il se relève d'un bond."
+notes = "Réception du plongeon pantin : à plat ventre, puis il se relève d'un bond.
+Animation reprise de la capture CMU 139_16 (tools/cmu)."
 active = 99.0
-cancel = 0.35
-end = 0.6
+cancel = 1.0130000000000001
+end = 1.2635
 flags = PackedStringArray()
-keys = [[0.0, "from"], [0.06, "flop_lie"], [0.3, "flop_lie"], [0.45, "crouch"], [0.6, "guard"]]
+keys = [[0.0, "from"], [0.06, "cmu_up_flop_0", "lin"], [0.3, "cmu_up_flop_1", "lin"], [0.39, "cmu_up_flop_2", "lin"], [0.42, "cmu_up_flop_3", "lin"], [0.45, "cmu_up_flop_4", "lin"], [0.48, "cmu_up_flop_5", "lin"], [0.51, "cmu_up_flop_6", "lin"], [0.54, "cmu_up_flop_7", "lin"], [0.57, "cmu_up_flop_8", "lin"], [0.6, "cmu_up_flop_9", "lin"], [0.63, "cmu_up_flop_10", "lin"], [0.66, "cmu_up_flop_11", "lin"], [0.69, "cmu_up_flop_12", "lin"], [0.72, "cmu_up_flop_13", "lin"], [0.75, "cmu_up_flop_14", "lin"], [0.78, "cmu_up_flop_15", "lin"], [0.81, "cmu_up_flop_16", "lin"], [0.84, "cmu_up_flop_17", "lin"], [0.87, "cmu_up_flop_18", "lin"], [0.9, "cmu_up_flop_19", "lin"], [0.93, "cmu_up_flop_20", "lin"], [0.96, "cmu_up_flop_21", "lin"], [0.99, "cmu_up_flop_22", "lin"], [1.02, "cmu_up_flop_23", "lin"], [1.05, "cmu_up_flop_24", "lin"], [1.08, "cmu_up_flop_25", "lin"], [1.11, "cmu_up_flop_26", "lin"], [1.14, "cmu_up_flop_27", "lin"], [1.17, "cmu_up_flop_28", "lin"], [1.1835, "cmu_up_flop_29", "lin"], [1.2635, "guard", "inout"]]
 present = PackedStringArray("active", "cancel", "end", "lunge", "keys")

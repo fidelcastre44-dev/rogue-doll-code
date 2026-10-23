@@ -223,6 +223,22 @@ Les anciennes poses (jab, cross, kick, sk2_*) restent dans poses.tres (d'autres 
 Pas repris, à retravailler avec la même méthode : **high kick** (le nôtre, exagéré, plonge le buste sous la jambe), crochet, uppercut,
 se hisser sur un rebord, glissade, atterrissages, coups aériens.
 
+## Version 0.214 : tout en vraies captures (CMU), sbires compris
+
+- **Rythme** : les coups repris (jab, direct, chassé, high kick, shoots, crochet, uppercut) suivent la capture jouée 2× plus vite
+  (avant : 3 à 4× plus vite). Ils sont donc plus lents qu'avant (le jab touche en 0,13 s au lieu de 0,06 s).
+- **Portée** : le pas ajouté pour garder l'ancienne allonge est retiré (geste pur) ; jab et direct ont une zone de frappe un peu plus grosse.
+- **High kick** : capture 135_07 (moins exagéré : la tête ne plonge plus sous la jambe).
+- **Course, marche** : cycles capturés, les pieds ne patinent plus ; **garde au repos** : rebonds d'un boxeur capturé.
+- **Roulade** (esquive, réception roulée) : capturée, 0,64 s au lieu de 0,5 s (même distance).
+- **Enjambée** et **atterrissage lourd** capturés ; **se hisser** : mains posées sur le rebord (IK des bras), pieds posés sur le dessus.
+- **Glissade** : accroupi de côté (retour de Paul), pied droit devant.
+- **Relevés** (plongeon pantin, superman punch, prise de catch, drop kick) : capturés, 3× plus vite que la capture (plus longs qu'avant).
+- **Sbires** : marche et course capturées (pas de côté, recul), direct capturé (armé du jeu gardé : il prévient), relevé capturé
+  à plat ventre ou sur le dos (remplace la boule + roulade arrière).
+- Pas de capture qui corresponde : coup de pied retourné, lancers d'objet (la capture lance une balle à une main), parade,
+  ramasser, coups aériens, prises : restent faits main.
+
 ## Problèmes notés (à régler plus tard)
 
 - **Chope plongeante** : en pratique on n'a presque jamais d'ennemi en l'air à attraper, sauf après un shoryuken ou un lanceur ; souvent on l'a débloquée sans rien pour faire décoller les ennemis. Pistes : la proposer seulement si on a un lanceur, la rendre possible sur un ennemi debout (saut + R1 = il l'emporte), ou donner un petit lanceur de base.

@@ -9,10 +9,12 @@ import json, sys, os
 import numpy as np
 sys.path.insert(0, os.path.dirname(__file__))
 from bvh import BVH
-from clips import CLIPS
+from clips import CLIPS, CYCLES, GETUPS
 
 C = np.diag([-1.0, 1.0, -1.0])        # capture : regarde +Z, gauche en +X ; héros : regarde -Z, gauche en -X
 LEG = 0.43 + 0.45
+ATTACK_SPEED = 1.35   # player.attack_speed
+LOW = ("LeftFoot", "RightFoot", "LeftHand", "RightHand", "Neck1")   # ce qui peut toucher le sol quand il est couché
 GUARD_FEET = {"l": np.array([-0.13, 0.02, -0.22]), "r": np.array([0.16, 0.02, 0.24])}   # pieds de la garde (poses.tres)
 
 
@@ -65,7 +67,7 @@ class Retarget:
         self.s = LEG / self.leg
         self.prev_z = {}
 
-    def frame(self, f, yaw, ground, plant):
+    def frame(self, f, yaw, ground, plant, origin=None):
         b, I = self.b, self.I
         P, R = b.fk(f)
         Y = ry(yaw)
@@ -75,8 +77,11 @@ class Retarget:
         # bassin : hauteur des hanches (articulations des cuisses) au-dessus du sol, à l'échelle
         hj = (W("LeftUpLeg") + W("RightUpLeg")) * 0.5
         # pieds d'appui : ils restent là où la garde du jeu les met ; le bassin se place par rapport à eux comme dans la capture
-        ref = sum(W({"l": "LeftFoot", "r": "RightFoot"}[k]) for k in plant) / len(plant)
-        gref = sum(GUARD_FEET[k] for k in plant) / len(plant)
+        if plant:
+            ref = sum(W({"l": "LeftFoot", "r": "RightFoot"}[k]) for k in plant) / len(plant)
+            gref = sum(GUARD_FEET[k] for k in plant) / len(plant)
+        else:   # cycle (course, marche) : le bassin se place par rapport à un point qui avance à vitesse constante
+            ref, gref = origin, np.zeros(3)
         hp = (hj - ref) * self.s + gref
         hp[1] = (hj[1] - ground) * self.s + 0.02 - 0.9
         out["hips_pos"] = hp.tolist()
@@ -118,8 +123,132 @@ class Retarget:
         return out
 
 
+def cycle(folder, c):
+    """Cycle (course, marche, garde) : n images sur une période ; le déplacement moyen est retiré (le jeu fait avancer le héros),
+    le cap moyen devient -Z ; la phase 0 = pied gauche le plus en avant. Sortie : images + foulée (m par cycle) + période."""
+    b = BVH(os.path.join(folder, c["file"] + ".bvh"))
+    rt = Retarget(b)
+    I = b.idx
+    if c.get("rm"):
+        c = dict(c, period=c["t1"] - c["t0"])
+    f0, n = int(round(c["t0"] / b.dt)), int(round(c["period"] / b.dt))
+    if c.get("end_origin"):
+        # relevé : repère = debout à la fin (pieds au milieu, cap du bassin) ; le bassin garde tout son trajet jusque-là
+        fr = lambda t: int(round(t / b.dt))
+        P, R = b.fk(fr(c["t1"]))
+        fw = C @ R[I["Hips"]] @ np.array([0, 0, 1.0])
+        yaw = -np.arctan2(fw[0], -fw[2])
+        if (ry(yaw) @ fw)[2] > 0:
+            yaw += np.pi
+        Y = ry(yaw)
+        org = Y @ C @ ((P[I["LeftFoot"]] + P[I["RightFoot"]]) * 0.5)
+        org[1] = 0.0
+        ground = min(min((Y @ C @ b.fk(f)[0][I[k]])[1] for k in LOW) for f in range(f0, f0 + n + 1, 4))
+        N = c.get("n", 24)
+        frames = [rt.frame(f0 + int(round(i * n / (N - 1))), yaw, ground, "", origin=org) for i in range(N)]
+        return {"clip": c["file"], "frames": frames, "stride": 0.0, "period": c["period"], "rm": True, "planted": False, "end_origin": True}
+    H = np.array([b.fk(f)[0][0] for f in range(f0, f0 + n + 1)])   # bassin, repère de la capture
+    draw = H[-1] - H[0]
+    draw[1] = 0.0
+    d = C @ draw
+    move = np.linalg.norm(d)
+    yaw = 0.0
+    if move > 1e-3 and not c.get("plant") and c.get("face") != "hips":
+        yaw = -np.arctan2(d[0], -d[2])
+        if (ry(yaw) @ d)[2] > 0:
+            yaw += np.pi
+    else:   # sur place (garde) : on garde le cap du bassin
+        fw = C @ b.fk(f0)[1][0] @ np.array([0, 0, 1.0])
+        yaw = -np.arctan2(fw[0], -fw[2])
+        if (ry(yaw) @ fw)[2] > 0:
+            yaw += np.pi
+        yaw += np.radians(c.get("yaw", 0.0))
+    Y = ry(yaw)
+    ground = min(min((Y @ C @ b.fk(f)[0][I[k]])[1] for k in ("LeftFoot", "RightFoot")) for f in range(f0, f0 + n + 1))
+    if c.get("rm"):
+        # geste avec déplacement (enjambée, roulade, réception…) : le bassin garde tout son trajet depuis le départ ;
+        # le jeu en tire la trajectoire du héros (tools/import_cmu.gd)
+        if "ground_t" in c:   # sol de la fin (tapis…) : hauteur des chevilles à cet instant
+            P = b.fk(int(round(c["ground_t"] / b.dt)))[0]
+            ground = min((Y @ C @ P[I[k]])[1] for k in ("LeftFoot", "RightFoot"))
+        N = c.get("n", 24)
+        org = Y @ C @ H[0]
+        org[1] = 0.0
+        frames = []
+        for i in range(N):
+            f = f0 + int(round(i * n / (N - 1)))
+            frames.append(rt.frame(f, yaw, ground, c.get("plant", ""), origin=org))
+        return {"clip": c["file"], "frames": frames, "stride": float(move * rt.s), "period": c["period"], "rm": True,
+                "planted": bool(c.get("plant"))}
+    # phase 0 : pied gauche le plus en avant (par rapport au bassin)
+    best, k0 = None, 0
+    for k in range(n):
+        P = b.fk(f0 + k)[0]
+        z = (Y @ C @ (P[I["LeftFoot"]] - P[0]))[2]
+        if best is None or z < best:
+            best, k0 = z, k
+    N = c.get("n", 32)
+    frames = []
+    for i in range(N):
+        k = (k0 + i * n / N) % n
+        f = f0 + int(round(k))
+        org = Y @ C @ (H[0] + draw * (k / n))
+        org[1] = 0.0
+        fd = rt.frame(f, yaw, ground, c.get("plant", ""), origin=org)
+        frames.append(fd)
+    # le bassin oscille autour de la verticale des pieds : on centre le cycle
+    if c.get("plant"):
+        return {"clip": c["file"], "frames": frames, "stride": 0.0, "period": c["period"], "additive": True}
+    mx = np.mean([fd["hips_pos"][0] for fd in frames])
+    mz = np.mean([fd["hips_pos"][2] for fd in frames])
+    for fd in frames:
+        fd["hips_pos"][0] -= mx
+        fd["hips_pos"][2] -= mz
+    return {"clip": c["file"], "frames": frames, "stride": float(move * rt.s), "period": c["period"]}
+
+
+def getup(folder, c):
+    """Relevé (fin d'une fiche) : les clés de la fiche jusqu'à `keep` (temps du jeu) restent (il est couché), puis la capture,
+    du bassin qui décolle (t0) à debout (t1), `speed` fois plus vite. Le héros finit planté là où la capture se tient debout."""
+    b = BVH(os.path.join(folder, c["file"] + ".bvh"))
+    rt = Retarget(b)
+    I = b.idx
+    fr = lambda t: int(round(t / b.dt))
+    P, R = b.fk(fr(c["t1"]))
+    fw = C @ R[I["Hips"]] @ np.array([0, 0, 1.0])
+    yaw = -np.arctan2(fw[0], -fw[2])
+    if (ry(yaw) @ fw)[2] > 0:
+        yaw += np.pi
+    Y = ry(yaw)
+    org = Y @ C @ ((P[I["LeftFoot"]] + P[I["RightFoot"]]) * 0.5)
+    org[1] = 0.0
+    # couché : le plus bas des chevilles, des mains et de la tête touche le sol
+    ground = min(min((Y @ C @ b.fk(f)[0][I[k]])[1] for k in LOW) for f in range(fr(c["t0"]), fr(c["t1"]) + 1, 4))
+    sp = c.get("speed", 2.0) / ATTACK_SPEED
+    step = c.get("step", 1.0 / 15.0)
+    ts = list(np.arange(c["t0"], c["t1"] - 1e-6, step)) + [c["t1"]]
+    frames = []
+    if c.get("lie"):   # il reste couché dans la pose de la capture (au lieu de la pose couchée de la fiche)
+        for tt in (c.get("gap", 0.06), c["keep"]):
+            fd = rt.frame(fr(c["t0"]), yaw, ground, "", origin=org)
+            fd["t"] = round(tt, 4)
+            frames.append(fd)
+        ts = ts[1:]
+    for x in ts:
+        fd = rt.frame(fr(x), yaw, ground, "", origin=org)
+        fd["t"] = round(c["keep"] + c.get("gap", 0.06) + (x - c["t0"]) / sp, 4)
+        frames.append(fd)
+    end = round(frames[-1]["t"] + c.get("blend", 0.08), 4)
+    return {"clip": c["file"], "pose": c["pose"], "frames": frames, "rest": None, "curve": "lin", "end_key": "guard",
+            "align": False, "reach": False, "keep": c["keep"], "lie": bool(c.get("lie")), "timing": {"end": end}}
+
+
 def run(folder, dest):
-    res = {}
+    res = {"_cycles": {}}
+    for c in CYCLES:
+        res["_cycles"][c["name"]] = cycle(folder, c)
+    for c in GETUPS:
+        res[c["move"]] = getup(folder, c)
     for c in CLIPS:
         b = BVH(os.path.join(folder, c["file"] + ".bvh"))
         rt = Retarget(b)
@@ -138,15 +267,33 @@ def run(folder, dest):
         lo = min(fr(c["t0"]), fr(c.get("gt0", c["t0"])))
         hi = max(fr(c["t1"]), fr(c.get("gt1", c["t1"])))
         ground = min(min((Y @ C @ b.fk(f)[0][I[n]])[1] for n in ("LeftFoot", "RightFoot")) for f in range(lo, hi + 1, 2))
+        timing = None
+        samples = c.get("samples")
+        if samples is None:
+            # rythme de la capture, accéléré `speed` fois (temps des fiches = avant la vitesse d'attaque du héros)
+            sp = c.get("speed", 2.0) / ATTACK_SPEED
+            step = c.get("step", 1.0 / 30.0)
+            ts = list(np.arange(c["t0"] + step, c["t1"] - 1e-6, step)) + [c["hit"], c["t1"]]
+            ts = sorted(set(round(float(x), 4) for x in ts))
+            ts = [x for x in ts if abs(x - c["hit"]) > step * 0.4 or x == c["hit"]]
+            samples = []
+            for x in ts:
+                pl = c.get("plant", "lr")
+                for a0, a1, p in c.get("plant_at", []):
+                    if a0 <= x <= a1:
+                        pl = p
+                samples.append((round((x - c["t0"]) / sp, 4), x, pl))
+            timing = {"active": round((c["hit"] - c["t0"]) / sp, 4), "end": round((c["t1"] - c["t0"]) / sp + c.get("blend", 0.08), 4)}
         frames = []
-        for tm in c["samples"]:
+        for tm in samples:
             fd = rt.frame(fr(tm[1]), yaw, ground, tm[2] if len(tm) > 2 else c.get("plant", "lr"))
             fd["t"] = tm[0]
             fd["hips_pos"][1] += c.get("lift", 0.0)   # bassin un peu plus haut : le pied qui balaie ne frotte pas le sol
             frames.append(fd)
         rest = [rt.frame(fr(c[k]), yaw, ground, c.get("plant", "lr")) for k in ("t0", "t1")]   # garde de la capture, avant et après
         res[c["move"]] = {"clip": c["file"], "pose": c["pose"], "frames": frames, "rest": rest, "curve": c.get("curve", "lin"),
-                          "end_key": c.get("end_key", "guard"), "align": c.get("align", True)}
+                          "end_key": c.get("end_key", "guard"), "align": c.get("align", True),
+                          "reach": c.get("reach", False), "timing": timing}
     json.dump(res, open(dest, "w"), indent=1)
     print("ok", list(res))
 

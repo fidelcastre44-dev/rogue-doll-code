@@ -58,7 +58,10 @@ Godot 4.7 + Jolt. Équipe : Paul (code avec Claude, son), Thibaud (visuels, game
   (champ `moveideas.tier` = S / A / B / C / D, onglet Atelier des coups → « Tier list »).
 - `tools/gen_atelier_moves.gd` : a généré les fiches et poses des coups de l'atelier (déjà lancé ; à garder comme exemple).
   `tools/gen_v011_moves.gd` : poses et fiches des correctifs 0.11 (relançable ; ne change que les champs listés d'une fiche existante).
-- `tools/cmu/` + `tools/import_cmu.gd` : **animations reprises de captures CMU** (libres de droits, v0.213). `clips.py` = quel coup vient de
+- `combat/cycles_data.gd` (`CycleData`, **généré**) : cycles et gestes capturés (course, marche, garde au repos, enjambée, roulade,
+  atterrissage lourd, relevés et direct des sbires). player.gd : `_run_pose` / `_cyc` / `_clip` / `_track`, `_arm_ik` (mains sur un rebord) ;
+  enemy.gd : `to_enemy()` (pose du héros -> sbire), `_gait_pose`, `_punch_pose`, `_start_mocap_up`.
+- `tools/cmu/` + `tools/import_cmu.gd` : **animations reprises de captures CMU** (libres de droits, v0.213-0.214). `clips.py` = quel coup vient de
   quelle capture et à quels instants ; `retarget.py` = reprise sur le héros en blocs ; `import_cmu.gd` = poses `cmu_<coup>_<n>` + clés des
   fiches, recalées sur la direction et la portée de l'ancien coup (`old_tips.json`). Mode d'emploi : `tools/cmu/README.md`.
 - `tools/audit_anims.gd` : audit chiffré des animations, sans rendu (à-coups, membres sous le sol, pieds qui glissent, rotations > 170°).

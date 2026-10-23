@@ -231,7 +231,7 @@ func _process(_dt: float) -> bool:
 				_tap("heavy")
 			if k == 266:
 				_check(p.attack == "kick", "appui court sur Y : le coup lourd normal, toujours là (%s)" % p.attack)
-			if k == 200:
+			if k == 255:
 				_check(v.get("ch", true) and v.mv < 0.5, "chassé chargé : Y maintenu, il charge sur place (vitesse max %.2f)" % v.mv)
 				_check(v.get("auto", false), "chargé au max, il part tout seul (Y encore enfoncé)")
 				_check(v.hp0 - e.hp > 22.0 * 1.8 and e.state != "stand", "chassé 2× plus fort, il passe la garde et met au sol (%.0f dégâts, %s)" % [v.hp0 - e.hp, e.state])

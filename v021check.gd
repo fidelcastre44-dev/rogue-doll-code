@@ -245,8 +245,9 @@ func _run() -> void:
 	Input.action_press("up")
 	await wait(30)
 	var hip: Quaternion = p.j.hip_l.quaternion
-	await wait(8)
-	ok(hip.angle_to(p.j.hip_l.quaternion) > deg_to_rad(8), "il marche en le portant (les jambes bougent)")
+	var swing := {"max": 0.0}
+	await watch(40, func(): swing.max = maxf(swing.max, hip.angle_to(p.j.hip_l.quaternion)))
+	ok(swing.max > deg_to_rad(8), "il marche en le portant (les jambes bougent de %.0f°)" % rad_to_deg(swing.max))
 	Input.action_release("up")
 	await tap("heavy")
 	await wait(4)

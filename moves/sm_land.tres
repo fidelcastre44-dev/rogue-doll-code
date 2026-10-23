@@ -6,11 +6,12 @@
 script = ExtResource("1_slvu8")
 id = &"sm_land"
 display_name = "Superman punch (à plat ventre)"
-notes = "Version 0.11 (retours de Paul)."
+notes = "Version 0.11 (retours de Paul).
+Animation reprise de la capture CMU 139_16 (tools/cmu)."
 active = 99.0
 cancel = 99.0
-end = 0.78
+end = 1.3835
 roll_ok = 99.0
 flags = PackedStringArray()
-keys = [[0.0, "from"], [0.07, "sm_down", "in"], [0.42, "sm_down"], [0.55, "sm_push"], [0.66, "crouch"], [0.78, "guard"]]
+keys = [[0.0, "from"], [0.06, "cmu_up_sm_0", "lin"], [0.42, "cmu_up_sm_1", "lin"], [0.51, "cmu_up_sm_2", "lin"], [0.54, "cmu_up_sm_3", "lin"], [0.57, "cmu_up_sm_4", "lin"], [0.6, "cmu_up_sm_5", "lin"], [0.63, "cmu_up_sm_6", "lin"], [0.66, "cmu_up_sm_7", "lin"], [0.69, "cmu_up_sm_8", "lin"], [0.72, "cmu_up_sm_9", "lin"], [0.75, "cmu_up_sm_10", "lin"], [0.78, "cmu_up_sm_11", "lin"], [0.81, "cmu_up_sm_12", "lin"], [0.84, "cmu_up_sm_13", "lin"], [0.87, "cmu_up_sm_14", "lin"], [0.9, "cmu_up_sm_15", "lin"], [0.93, "cmu_up_sm_16", "lin"], [0.96, "cmu_up_sm_17", "lin"], [0.99, "cmu_up_sm_18", "lin"], [1.02, "cmu_up_sm_19", "lin"], [1.05, "cmu_up_sm_20", "lin"], [1.08, "cmu_up_sm_21", "lin"], [1.11, "cmu_up_sm_22", "lin"], [1.14, "cmu_up_sm_23", "lin"], [1.17, "cmu_up_sm_24", "lin"], [1.2, "cmu_up_sm_25", "lin"], [1.23, "cmu_up_sm_26", "lin"], [1.26, "cmu_up_sm_27", "lin"], [1.29, "cmu_up_sm_28", "lin"], [1.3035, "cmu_up_sm_29", "lin"], [1.3835, "guard", "inout"]]
 present = PackedStringArray()

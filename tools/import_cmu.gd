@@ -37,8 +37,10 @@ func _run() -> void:
 			if String(k).begins_with("cmu_"):
 				ps.diffs.erase(k)   # import complet : les poses des coups retirés de clips.py disparaissent aussi
 	var old_tips: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(TIPS_PATH % "old"))
+	if data.has("_cycles") and only.is_empty():
+		_cycles(h, data._cycles)
 	for id in data:
-		if only.size() and not id in only:
+		if id == "_cycles" or (only.size() and not id in only):
 			continue
 		var m: Dictionary = data[id]
 		var path := "res://moves/%s.tres" % id
@@ -46,6 +48,21 @@ func _run() -> void:
 		for k in ps.diffs.keys():
 			if String(k).begins_with(m.pose + "_"):
 				ps.diffs.erase(k)   # relançable : on remplace les poses déjà créées
+		if m.get("keep") != null:   # relevé : les clés où il est couché restent, la capture prend la suite
+			var kept := []
+			for k in md.keys:
+				if k[0] <= m.keep and k[1] != "guard" and (not m.get("lie", false) or k[1] == "from"):
+					kept.append(k)
+			var old_end := md.end
+			md.end = m.timing.end
+			if md.cancel < 50.0:
+				md.cancel = snappedf(md.cancel + (md.end - old_end), 0.001)
+			md.keys = kept
+		elif m.get("timing") != null:   # rythme de la capture : la fiche prend ses durées (annulation au même rapport qu'avant)
+			var r := (md.cancel - md.active) / maxf(md.end - md.active, 0.001)
+			md.active = m.timing.active
+			md.end = m.timing.end
+			md.cancel = snappedf(md.active + r * (md.end - md.active), 0.001)
 		var fr := []
 		var yaw := 0.0
 		for f in m.frames:
@@ -56,9 +73,12 @@ func _run() -> void:
 				F[s] = null if f[s] == null else Vector3(f[s][0], f[s][1], f[s][2])
 			fr.append(F)
 		if old_tips.has(id) and m.get("align", true):
-			yaw = _fit(h, fr, md, old_tips[id].pos)
-		_from_guard(h, fr, m.rest, md, yaw)
-		var keys := [[0.0, "from"]]
+			yaw = _fit(h, fr, md, old_tips[id].pos, m.get("reach", false))
+		if m.rest != null:
+			_from_guard(h, fr, m.rest, md, yaw)
+		if m.get("keep") != null:
+			_above_ground(h, fr)
+		var keys := [[0.0, "from"]] if m.get("keep") == null else md.keys.duplicate()
 		var prev := {}
 		for jn in JN:
 			prev[jn] = h.GUARD.get(jn, Vector3.ZERO)   # angles proches de ceux de la garde (pas de tour complet en partant ou en revenant)
@@ -90,9 +110,101 @@ func _run() -> void:
 	quit()
 
 
+## Cycles (course, marche, garde au repos) -> combat/cycles_data.gd (CycleData) : angles YXZ en degrés de chaque image.
+## La garde au repos est « additive » : on n'enregistre que l'écart à sa pose moyenne (petits rebonds, respiration), ajouté
+## à la garde du jeu ; la dérive entre la fin et le début est retirée pour que la boucle ne saute pas.
+func _cycles(h, cyc: Dictionary) -> void:
+	var out := "class_name CycleData\n## Généré par tools/import_cmu.gd (captures CMU) : ne pas modifier à la main.\n\n"
+	for name in cyc:
+		var c: Dictionary = cyc[name]
+		var frames := []
+		for f in c.frames:
+			var F := {"hips_pos": Vector3(f.hips_pos[0], f.hips_pos[1], f.hips_pos[2])}
+			for jn in JN:
+				F[jn] = Quaternion(f[jn][0], f[jn][1], f[jn][2], f[jn][3]).normalized()
+			frames.append(F)
+		var rows := []
+		if c.get("additive", false):
+			var mean := {}
+			var mhp := Vector3.ZERO
+			for jn in JN:
+				var acc := Vector4.ZERO
+				var q0: Quaternion = frames[0][jn]
+				for F in frames:
+					var q: Quaternion = F[jn]
+					if q.dot(q0) < 0.0:
+						q = -q
+					acc += Vector4(q.x, q.y, q.z, q.w)
+				acc = acc.normalized()
+				mean[jn] = Quaternion(acc.x, acc.y, acc.z, acc.w)
+			for F in frames:
+				mhp += F.hips_pos / frames.size()
+			var n := frames.size()
+			var first := {}
+			var last := {}
+			for i in n:
+				var row := {"hips_pos": frames[i].hips_pos - mhp}
+				for jn in JN:
+					row[jn] = (frames[i][jn] * mean[jn].inverse()).get_euler() * (180.0 / PI)
+				rows.append(row)
+			for k in rows[0]:   # boucle sans saut : la dérive fin -> début est répartie sur le cycle
+				var drift = rows[n - 1][k] - rows[0][k]
+				for i in n:
+					rows[i][k] -= drift * (float(i) / float(n))
+				var avg = rows[0][k] * 0.0
+				for i in n:
+					avg += rows[i][k] / float(n)
+				for i in n:
+					rows[i][k] -= avg   # écart moyen nul : la garde du jeu reste la pose moyenne
+		else:
+			var prev := {}
+			for jn in JN:
+				prev[jn] = h.GUARD.get(jn, Vector3.ZERO)
+			for i in frames.size():
+				var F: Dictionary = frames[i]
+				var row := {"hips_pos": F.hips_pos}
+				for jn in JN:
+					var e := _unwrap(F[jn].get_euler() * (180.0 / PI), prev[jn])
+					prev[jn] = e
+					row[jn] = e
+				if c.get("planted", false):
+					for s in ["foot_l", "foot_r"]:
+						var fp = c.frames[i][s]
+						if fp != null:
+							row[s] = Vector3(fp[0], fp[1], fp[2])
+				rows.append(row)
+		var root := []
+		if c.get("rm", false) and not c.get("planted", false) and not c.get("end_origin", false):
+			# trajectoire : le héros suit le bassin de la capture (au sol au départ) ; la pose garde la hauteur du bassin du départ
+			var hp0: Vector3 = rows[0].hips_pos
+			for row in rows:
+				root.append(Vector3(row.hips_pos.x, row.hips_pos.y - hp0.y, row.hips_pos.z))
+				row.hips_pos = Vector3(0, hp0.y, 0)
+		var txt := []
+		for row in rows:
+			var parts := []
+			for k in ["hips_pos"] + JN + ["foot_l", "foot_r"]:
+				if not row.has(k):
+					continue
+				var v: Vector3 = row[k]
+				parts.append("\"%s\": Vector3(%s, %s, %s)" % [k, snappedf(v.x, 0.001 if not k in JN else 0.01), snappedf(v.y, 0.001 if not k in JN else 0.01), snappedf(v.z, 0.001 if not k in JN else 0.01)])
+			txt.append("\t{" + ", ".join(parts) + "},")
+		out += "## %s : capture CMU %s, foulée %.2f m par cycle, période %.3f s\n" % [name, c.clip, c.stride, c.period]
+		out += "const %s_STRIDE := %s\nconst %s_PERIOD := %s\nconst %s := [\n%s\n]\n\n" % [name.to_upper(), snappedf(c.stride, 0.001), name.to_upper(), c.period, name.to_upper(), "\n".join(txt)]
+		if not root.is_empty():
+			var rt := []
+			for v in root:
+				rt.append("Vector3(%s, %s, %s)" % [snappedf(v.x, 0.001), snappedf(v.y, 0.001), snappedf(v.z, 0.001)])
+			out += "const %s_ROOT := [%s]\n\n" % [name.to_upper(), ", ".join(rt)]
+	var f := FileAccess.open("res://combat/cycles_data.gd", FileAccess.WRITE)
+	f.store_string(out)
+	f.close()
+	print("cycles -> combat/cycles_data.gd : ", cyc.keys())
+
+
 ## Recale la capture sur l'ancien coup : même direction de frappe (on tourne tout le corps autour des pieds), et au moins
 ## la même allonge (le bassin avance et le pied avant fait un pas pendant le coup, puis reviennent) : la portée du coup ne change pas.
-func _fit(h, fr: Array, md: MoveData, old: Array) -> float:
+func _fit(h, fr: Array, md: MoveData, old: Array, reach: bool) -> float:
 	var target := Vector3(old[0], old[1], old[2])
 	var hit: Dictionary = fr[0]
 	for F in fr:
@@ -115,7 +227,7 @@ func _fit(h, fr: Array, md: MoveData, old: Array) -> float:
 	var dir: Vector2 = flat.call(target).normalized()
 	var hold := md.active + (md.cancel - md.active) * 0.6
 	var total := 0.0
-	for it in 4:   # allonge
+	for it in (4 if reach else 0):   # allonge (désactivée depuis la v0.214 : geste pur, la portée suit la capture)
 		var short: float = flat.call(target).length() - flat.call(_tip(h, hit, md.tip)).length()
 		if short <= 0.01:
 			break
@@ -155,6 +267,16 @@ func _from_guard(h, fr: Array, rest: Array, md: MoveData, yaw: float) -> void:
 			F[jn] = Quaternion.IDENTITY.slerp(c, 1.0 - w) * F[jn]
 		var rh := Basis(Vector3.UP, yaw) * Vector3(R.hips_pos[0], R.hips_pos[1], R.hips_pos[2])
 		F.hips_pos += (h.GUARD.get("hips_pos", Vector3.ZERO) - rh) * (1.0 - w)
+
+
+## Relevés : nos bras sont plus longs que ceux de la capture (rapport aux jambes) ; quand une main, la tête ou un pied passe
+## sous le sol, on remonte le corps d'autant (image par image).
+func _above_ground(h, fr: Array) -> void:
+	for F in fr:
+		var need := 0.0
+		for e in [["fist_l", 0.06], ["fist_r", 0.06], ["head", 0.12], ["foot_l", 0.02], ["foot_r", 0.02]]:
+			need = maxf(need, e[1] - _tip(h, F, e[0]).y)
+		F.hips_pos.y += need
 
 
 func _tip(h, F: Dictionary, tip: String) -> Vector3:

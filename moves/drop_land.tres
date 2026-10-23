@@ -6,11 +6,12 @@
 script = ExtResource("1_2i5cy")
 id = &"drop_land"
 display_name = "Drop kick (réception sur le dos)"
-notes = "Atelier des coups (à tester)."
+notes = "Atelier des coups (à tester).
+Animation reprise de la capture CMU 140_09 (tools/cmu)."
 active = 99.0
 cancel = 99.0
-end = 2.0
+end = 2.811
 roll_ok = 99.0
 flags = PackedStringArray()
-keys = [[0.0, "from"], [0.06, "back_lie", "in"], [0.5, "back_lie"], [0.85, "back_lie2"], [1.25, "back_lie"], [1.6, "back_lie2"], [1.8, "crouch"], [2.0, "guard"]]
+keys = [[0.0, "from"], [0.06, "back_lie", "in"], [0.5, "back_lie"], [0.85, "back_lie2"], [1.25, "back_lie"], [1.6, "back_lie2"], [1.66, "cmu_up_drop_0", "lin"], [1.69, "cmu_up_drop_1", "lin"], [1.72, "cmu_up_drop_2", "lin"], [1.75, "cmu_up_drop_3", "lin"], [1.78, "cmu_up_drop_4", "lin"], [1.81, "cmu_up_drop_5", "lin"], [1.84, "cmu_up_drop_6", "lin"], [1.87, "cmu_up_drop_7", "lin"], [1.9, "cmu_up_drop_8", "lin"], [1.93, "cmu_up_drop_9", "lin"], [1.96, "cmu_up_drop_10", "lin"], [1.99, "cmu_up_drop_11", "lin"], [2.02, "cmu_up_drop_12", "lin"], [2.05, "cmu_up_drop_13", "lin"], [2.08, "cmu_up_drop_14", "lin"], [2.11, "cmu_up_drop_15", "lin"], [2.14, "cmu_up_drop_16", "lin"], [2.17, "cmu_up_drop_17", "lin"], [2.2, "cmu_up_drop_18", "lin"], [2.23, "cmu_up_drop_19", "lin"], [2.26, "cmu_up_drop_20", "lin"], [2.29, "cmu_up_drop_21", "lin"], [2.32, "cmu_up_drop_22", "lin"], [2.35, "cmu_up_drop_23", "lin"], [2.38, "cmu_up_drop_24", "lin"], [2.41, "cmu_up_drop_25", "lin"], [2.44, "cmu_up_drop_26", "lin"], [2.47, "cmu_up_drop_27", "lin"], [2.5, "cmu_up_drop_28", "lin"], [2.53, "cmu_up_drop_29", "lin"], [2.56, "cmu_up_drop_30", "lin"], [2.59, "cmu_up_drop_31", "lin"], [2.62, "cmu_up_drop_32", "lin"], [2.65, "cmu_up_drop_33", "lin"], [2.68, "cmu_up_drop_34", "lin"], [2.71, "cmu_up_drop_35", "lin"], [2.731, "cmu_up_drop_36", "lin"], [2.811, "guard", "inout"]]
 present = PackedStringArray()

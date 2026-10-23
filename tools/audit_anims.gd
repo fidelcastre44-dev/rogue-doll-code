@@ -86,8 +86,53 @@ func _run() -> void:
 			print("- %s : %s" % [r[1], " ; ".join(r[2])])
 	print("Sans défaut mesuré (%d) : %s" % [clean.size(), ", ".join(clean)])
 	h.queue_free()
+	await _gait()
+	await _foes()
 	await _loco()
 	quit()
+
+
+## C. Marche et course jouées pour de vrai (stick à fond ou à moitié) : de combien glisse un pied posé au sol (patinage).
+func _gait() -> void:
+	var lab = load("res://labo.tscn").instantiate()
+	root.add_child(lab)
+	for i in 10:
+		await physics_frame
+	lab.set_menu(false)
+	var p = lab.player
+	print("=== C. Marche et course ===")
+	for case in [["marche", 0.45, false], ["course", 1.0, false], ["sprint", 1.0, true]]:
+		p.global_position = Vector3(-6, 0, 6)
+		p.velocity = Vector3.ZERO
+		for i in 20:
+			await physics_frame
+		Input.action_press("left", case[1])
+		if case[2]:
+			p.sprinting = true
+		var slide := {"foot_l": 0.0, "foot_r": 0.0}
+		var last := {}
+		var n := 0
+		var vmax := 0.0
+		for i in 150:
+			await physics_frame
+			if case[2]:
+				p.sprinting = true
+			if i < 40:
+				continue
+			vmax = maxf(vmax, Vector2(p.velocity.x, p.velocity.z).length())
+			var low: String = "foot_l" if p.j.foot_l.global_position.y < p.j.foot_r.global_position.y else "foot_r"   # pied d'appui
+			for f in slide:
+				var fp: Vector3 = p.j[f].global_position
+				if f == low and last.has(f) and last.get("low") == f and fp.y < p.global_position.y + 0.06:
+					slide[f] += Vector2(fp.x - last[f].x, fp.z - last[f].z).length()
+				last[f] = fp
+			last["low"] = low
+			n += 1
+		Input.action_release("left")
+		p.sprinting = false
+		print("- %s (%.1f m/s) : pied d'appui qui glisse de %.0f et %.0f cm en %.1f s" % [case[0], vmax, slide.foot_l * 100.0, slide.foot_r * 100.0, n / 120.0])
+	lab.queue_free()
+	await process_frame
 
 
 ## B. Déplacements joués pour de vrai dans le labo (physique, sans rendu).
@@ -167,3 +212,46 @@ func _loco() -> void:
 			if r.pop > 0.09:
 				notes.append("à-coup %.0f cm/image" % (r.pop * 100.0))
 			print("- %s / %s : %s" % [id, s, " ; ".join(notes)])
+
+
+## D. Sbires : relevés capturés (couché sur le ventre / sur le dos) et marche. Membres sous le sol, à-coups, pieds qui glissent.
+func _foes() -> void:
+	var main = load("res://main.tscn").instantiate()
+	root.add_child(main)
+	for i in 10:
+		await physics_frame
+	var e = main.enemy
+	main.player.global_position = Vector3(0, 0, 6)
+	print("=== D. Sbires ===")
+	for k in 4:
+		e.global_position = Vector3(0, 0, 0)
+		e.build()
+		e.ai_on = false
+		for i in 5:
+			await physics_frame
+		# renversé : sur le dos (poussé vers l'arrière) ou sur le ventre (poussé vers l'avant)
+		var dir := Vector3(0, 0, 1) if k % 2 == 0 else Vector3(0, 0, -1)
+		e.hp = 999.0
+		e.hit(e.parts.chest, (dir * 14.0 + Vector3.UP * 2.0) * (1.0 + k * 0.3), e.parts.chest.global_position, 1.0, 1.0)
+		var seen := {}
+		var under := 0.0
+		var pop := 0.0
+		var last := {}
+		var kind := ""
+		for i in 900:
+			await physics_frame
+			if e.state in ["getup", "rise"]:
+				seen[e.state] = true
+				if kind == "" and not e.up_clip.is_empty():
+					kind = "ventre" if e.up_clip == e.E_UP_FRONT else "dos"
+				for n in e.parts:
+					var gp: Vector3 = e.parts[n].global_position
+					under = minf(under, gp.y - (0.13 if n == "head" else 0.05))
+					if last.has(n):
+						pop = maxf(pop, gp.distance_to(last[n]))
+					last[n] = gp
+			if e.state == "stand" and seen.has("rise"):
+				break
+		print("- relevé %d (%s) : %s ; membre le plus bas %.0f cm sous le sol ; à-coup max %.0f cm/image" % [k, kind, str(seen.keys()), maxf(-under, 0.0) * 100.0, pop * 100.0])
+	main.queue_free()
+	await process_frame

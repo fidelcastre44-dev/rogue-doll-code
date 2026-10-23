@@ -93,16 +93,14 @@ func _process(_dt: float) -> bool:
 			if e.state == "down" and pel.y < 0.35:
 				_check(true, "il s'écrase au sol en ragdoll (bassin à %.2f m)" % pel.y)
 				phase = "techroll"
-		"techroll":
-			if e.state == "techroll" and roll_from == Vector3.ZERO:
+		"techroll":   # v0.214 : relevé capturé (CMU) à la place de la roulade arrière
+			if e.state == "rise" and roll_from == Vector3.ZERO:
 				roll_from = e.roll_start
 				hp0 = e.hp
 				e.hit(e.parts.chest, Vector3(0, 0, -20), e.parts.chest.global_position, 10.0, 0.5)   # on tente de l'achever pendant son relevé
 				_check(e.hp == hp0, "intouchable pendant son relevé (vie %.0f)" % e.hp)
 			if e.state == "stand" and roll_from != Vector3.ZERO:
-				var back: float = Vector2(e.root.origin.x - roll_from.x, e.root.origin.z - roll_from.z).length()
-				_check(back > 1.0, "il se relève en roulade arrière en reculant (%.2f m)" % back)
-				_check(absf(e.parts.head.global_position.y - 1.69) < 0.05, "et finit debout en garde (tête à %.2f m)" % e.parts.head.global_position.y)
+				_check(absf(e.parts.head.global_position.y - 1.69) < 0.08, "il se relève et finit debout en garde (tête à %.2f m)" % e.parts.head.global_position.y)
 				phase = "air_limit"
 				e.global_position = Vector3(30, 0, 30)
 				e.build()

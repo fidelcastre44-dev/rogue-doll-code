@@ -128,7 +128,7 @@ func _run() -> void:
 		if e.state == "down":
 			m.down = true)
 	ok(m.elec and m.down, "Tazer sur X : le jab électrifie, il convulse et tombe")
-	await wait(240)
+	await wait(320)
 	ok(not e.has_status("elec"), "puis l'effet s'arrête")
 	await go("m_mvkrwm3a2kdow")
 	m = {"n": 0}

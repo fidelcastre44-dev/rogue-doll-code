@@ -14,10 +14,12 @@ extends RefCounted
 ## de player._physics_process est sauté.
 
 const STEP := 0.42            # m : marche franchie sans sauter
-const VAULT_T := 0.42         # s : enjambée
+const VAULT_T := 0.53         # s : enjambée (capture CMU 127_27 jouée 1,5× plus vite)
 const MANTLE_T := 0.4         # s : se hisser sur un bloc bas
 const CLIMB_T := 0.6          # s : se hisser depuis le rebord
-const HEAVY_T := 0.5          # s : atterrissage lourd (temps mort)
+const HEAVY_T := 0.5          # s : atterrissage lourd (temps mort ; capture CMU 82_02 à sa vitesse)
+const HEAVY_AMP := 2.0        # amorti de l'atterrissage lourd : 2× celui de la capture (chute de 2 m contre 0,7 m)
+const VAULT_CLEAR := 0.67     # m : hauteur que la capture d'enjambée franchit d'elle-même (pieds à 0,79 m)
 const BIG_FALL := 1.8         # m : au-delà, réception roulée ou atterrissage lourd (la plateforme fait 2 m)
 const ROLL_WINDOW := 0.3      # s : B pressé avant de toucher le sol = réception roulée
 const HANG_REACH := 2.05      # m : des pieds aux mains, bras tendus
@@ -33,6 +35,7 @@ var a0 := Vector3.ZERO        # départ / arrivée des mouvements guidés
 var a1 := Vector3.ZERO
 var top := 0.0
 var wall_n := Vector3.ZERO
+var edge := Vector3.ZERO      # milieu du rebord saisi (haut du mur, côté face) : les mains s'y posent (IK des bras)
 var air_peak := 0.0           # point le plus haut du saut / de la chute en cours
 var takeoff_g := 0.0          # hauteur du sol quitté (seules les chutes d'un rebord comptent : un grand saut sur place ne pénalise pas)
 var was_air := false
@@ -284,6 +287,7 @@ func _start_mantle(pr: Dictionary) -> void:
 	top = pr.top
 	a0 = p.global_position
 	a1 = Vector3(pr.pos.x, top + 0.02, pr.pos.z) - wall_n * 0.45
+	edge = Vector3(pr.pos.x, top, pr.pos.z)
 	p.rotation.y = atan2(wall_n.x, wall_n.z)
 
 
@@ -292,6 +296,7 @@ func _start_hang(pr: Dictionary) -> void:
 	wall_n = pr.n
 	top = pr.top
 	a0 = Vector3(pr.pos.x, top - HANG_REACH, pr.pos.z) + wall_n * 0.33
+	edge = Vector3(pr.pos.x, top, pr.pos.z)
 	p.global_position = a0
 	p.velocity = Vector3.ZERO
 	p.rotation.y = atan2(wall_n.x, wall_n.z)
@@ -335,13 +340,21 @@ func tick(dt: float) -> bool:
 		w = move_toward(w, 0.0, dt * 8.0)
 		return false
 	t += dt
-	w = move_toward(w, 1.0, dt * 14.0)
+	w = move_toward(w, 1.0, dt * (7.0 if state == "glide" else 14.0))   # glissade : il se met de côté, pas d'un coup
 	match state:
 		"vault":
+			# trajectoire de la capture : avancée recalée pour retomber en a1, saut rehaussé si l'obstacle est plus haut
 			var u := clampf(t / VAULT_T, 0.0, 1.0)
-			var pos := a0.lerp(a1, smoothstep(0.0, 1.0, u))
-			var peak := maxf(top + 0.12, maxf(a0.y, a1.y) + 0.3)
-			pos.y = lerpf(a0.y, a1.y, u) + (peak - lerpf(a0.y, a1.y, 0.5)) * sin(PI * u) * 1.0
+			var rt: Vector3 = p._track(CycleData.VAULT_ROOT, u)
+			var end: Vector3 = p._track(CycleData.VAULT_ROOT, 1.0)
+			var fw := -wall_n
+			var dist := Vector2(a1.x - a0.x, a1.z - a0.z).length()
+			var pos := a0 + fw * (-rt.z) * dist / maxf(-end.z, 0.01)
+			var peak := 0.0
+			for v in CycleData.VAULT_ROOT:
+				peak = maxf(peak, v.y - CycleData.VAULT_ROOT[0].y)
+			var extra := maxf(top - a0.y + 0.12 - VAULT_CLEAR, 0.0)   # pieds de la capture : 0,79 m au plus haut
+			pos.y = a0.y + rt.y + extra * rt.y / maxf(peak, 0.01) + (a1.y - a0.y - end.y) * u
 			p.global_position = pos
 			p.velocity = Vector3.ZERO
 			if u >= 1.0:
@@ -532,42 +545,80 @@ func _landed(fall: float) -> void:
 
 # ------------------------------------------------------------------ poses (degrés, comme les fiches de coups)
 
+## Mains posées sur le rebord pendant qu'il y est accroché ou qu'il se hisse : cibles (monde) et poids de l'IK des bras.
+func hand_targets() -> Dictionary:
+	var k := 0.0
+	match state:
+		"hang":
+			k = 1.0
+		"climb":
+			k = 1.0 - smoothstep(0.68, 0.85, t / CLIMB_T)
+		"mantle":
+			k = 1.0 - smoothstep(0.55, 0.75, t / MANTLE_T)
+	if k <= 0.0:
+		return {}
+	var f := -wall_n
+	var right := f.cross(Vector3.UP)
+	var base := edge + f * 0.06 + Vector3.UP * 0.05   # poings posés sur le dessus, juste derrière l'arête
+	return {"l": base - right * 0.22, "r": base + right * 0.22, "w": k * w, "out": wall_n}
+
+
+## Se hisser (rebord de 2 m : climb ; bloc de 1 m : mantle). Les mains restent sur le rebord (IK des bras, player.gd),
+## le genou droit monte, le pied droit se pose sur le dessus, puis le gauche, et il se redresse.
+func _climb_pose(u: float, low: bool) -> Dictionary:
+	var N = null
+	var f := -wall_n
+	var right := f.cross(Vector3.UP)
+	var on_top := func(side: float, back: float) -> Vector3:   # point du dessus, dans le repère du héros (cible de pied)
+		var wp := edge + f * back + right * side + Vector3.UP * 0.02
+		return p.global_basis.inverse() * (wp - p.global_position)
+	var a := 0.45 if low else 0.5     # le pied droit arrive sur le dessus
+	var b := 0.62 if low else 0.7     # le pied gauche suit
+	var c := 0.85                     # debout
+	var pull := smoothstep(0.0, a, u)
+	var lean := smoothstep(a * 0.6, b, u) * (1.0 - smoothstep(b, 1.0, u))
+	var pz := {"hips_pos": Vector3(0, -0.12 * lean, 0.05 * (1.0 - pull)), "hips": Vector3(-10 * pull - 30 * lean, 0, 0),
+		"spine": Vector3(-8 - 30 * lean, 0, 0), "head": Vector3(-25 * (1.0 - pull) + 20 * lean, 0, 0),
+		"sh_l": Vector3(150, 0, 15), "el_l": Vector3(60, 0, 0), "sh_r": Vector3(150, 0, -15), "el_r": Vector3(60, 0, 0),
+		"hip_r": Vector3(lerpf(15, 110, pull), 0, -5), "kn_r": Vector3(lerpf(-35, -130, pull), 0, 0),
+		"hip_l": Vector3(lerpf(5, 40, pull), 0, 5), "kn_l": Vector3(lerpf(-25, -70, pull), 0, 0), "foot_l": N, "foot_r": N}
+	# pieds toujours guidés (IK) : pendus sous lui, le genou droit qui monte, puis posés sur le dessus l'un après l'autre
+	var hang_r := Vector3(0.1, 0.05 + 0.45 * pull, 0.08 - 0.25 * pull)
+	var hang_l := Vector3(-0.1, 0.05 + 0.2 * pull, 0.12)
+	pz.foot_r = hang_r.lerp(on_top.call(0.12, 0.25 + 0.15 * smoothstep(a, c, u)), smoothstep(a - 0.12, a, u))
+	pz.foot_l = hang_l.lerp(on_top.call(-0.14, 0.2 + 0.25 * smoothstep(b, c, u)), smoothstep(b - 0.12, b, u))
+	if u >= c:   # debout : pieds de la garde
+		var k := smoothstep(c, 1.0, u)
+		pz.foot_r = pz.foot_r.lerp(p.GUARD.foot_r, k)
+		pz.foot_l = pz.foot_l.lerp(p.GUARD.foot_l, k)
+	return pz
+
 func pose() -> Dictionary:
 	var N = null
 	match state:
-		"vault":
-			var u := clampf(t / VAULT_T, 0.0, 1.0)
-			var k := sin(PI * u)
-			return {"hips_pos": Vector3(0, 0.05 * k, 0), "hips": Vector3(-15 * k, 0, 45 * k), "spine": Vector3(-8, 0, -18 * k), "head": Vector3(8, 0, -22 * k),
-				"sh_r": Vector3(55, 0, -15), "el_r": Vector3(0, 0, 0), "sh_l": Vector3(110, 0, 75 * k), "el_l": Vector3(20, 0, 0),
-				"hip_l": Vector3(95 * k, 0, -25 * k), "kn_l": Vector3(-110 * k, 0, 0), "hip_r": Vector3(80 * k, 0, -15 * k), "kn_r": Vector3(-95 * k, 0, 0),
-				"foot_l": N, "foot_r": N}
+		"vault":   # capture CMU 127_27 (saut par-dessus en courant)
+			var pz: Dictionary = p._clip(CycleData.VAULT, clampf(t / VAULT_T, 0.0, 1.0))
+			pz.foot_l = N
+			pz.foot_r = N
+			return pz
 		"mantle", "climb":
-			var u := clampf(t / (MANTLE_T if state == "mantle" else CLIMB_T), 0.0, 1.0)
-			if state == "climb" and u < 0.45:
-				var k2 := u / 0.45
-				return {"hips_pos": Vector3(0, 0, 0.05), "hips": Vector3(5 - 20 * k2, 0, 0), "spine": Vector3(-10 * k2, 0, 0), "head": Vector3(-20 + 20 * k2, 0, 0),
-					"sh_l": Vector3(lerpf(176, 150, k2), 0, 10), "el_l": Vector3(lerpf(5, 120, k2), 0, 0), "sh_r": Vector3(lerpf(176, 150, k2), 0, -10), "el_r": Vector3(lerpf(5, 120, k2), 0, 0),
-					"hip_l": Vector3(20 + 40 * k2, 0, 0), "kn_l": Vector3(-30 - 50 * k2, 0, 0), "hip_r": Vector3(10, 0, 0), "kn_r": Vector3(-40, 0, 0), "foot_l": N, "foot_r": N}
-			var k := sin(PI * minf(u * 1.2, 1.0))
-			return {"hips_pos": Vector3(0, -0.15 * k, 0), "hips": Vector3(-38 * k, 0, 0), "spine": Vector3(-25 * k, 0, 0), "head": Vector3(25 * k, 0, 0),
-				"sh_l": Vector3(70, 0, 15), "el_l": Vector3(10, 0, 0), "sh_r": Vector3(70, 0, -15), "el_r": Vector3(10, 0, 0),
-				"hip_r": Vector3(110 * k, 0, 0), "kn_r": Vector3(-125 * k, 0, 0), "hip_l": Vector3(15 * k, 0, 0), "kn_l": Vector3(-40 * k, 0, 0), "foot_l": N, "foot_r": N}
+			return _climb_pose(clampf(t / (MANTLE_T if state == "mantle" else CLIMB_T), 0.0, 1.0), state == "mantle")
 		"hang":
 			var sw := sin(t * 3.0) * 6.0
-			return {"hips_pos": Vector3(0, 0, 0.04), "hips": Vector3(6 + sw, 0, 0), "spine": Vector3(4, 0, 0), "head": Vector3(-22, 0, 0),
+			return {"hips_pos": Vector3(0, 0, 0.04), "hips": Vector3(4 + sw, 0, 0), "spine": Vector3(6, 0, 0), "head": Vector3(-28, 0, 0),
 				"sh_l": Vector3(176, 0, 8), "el_l": Vector3(4, 0, 0), "sh_r": Vector3(176, 0, -8), "el_r": Vector3(4, 0, 0),
-				"hip_l": Vector3(18 - sw, 0, 0), "kn_l": Vector3(-25, 0, 0), "hip_r": Vector3(6 + sw, 0, 0), "kn_r": Vector3(-40, 0, 0), "foot_l": N, "foot_r": N}
-		"heavy_land":
-			var k := 1.0 - smoothstep(0.55, 1.0, t / HEAVY_T)
-			return {"hips_pos": Vector3(0, -0.46 * k, 0.05 * k), "hips": Vector3(-38 * k, 0, 0), "spine": Vector3(-28 * k, 0, 0), "head": Vector3(30 * k, 0, 0),
-				"sh_l": Vector3(55 * k, 0, 55 * k), "el_l": Vector3(30 * k, 0, 0), "sh_r": Vector3(100 * k, 0, -12 * k), "el_r": Vector3(8 * k, 0, 0),
-				"foot_l": Vector3(-0.24, 0.02, -0.28), "foot_r": Vector3(0.24, 0.02, 0.24)}
-		"glide":
-			var wob := sin(t * 18.0) * 4.0
-			return {"hips_pos": Vector3(0, -0.62, 0.0), "hips": Vector3(78, 0, wob), "spine": Vector3(12, 0, 0), "head": Vector3(-38, 0, 0),
-				"sh_l": Vector3(160, 0, 35), "el_l": Vector3(25, 0, 0), "sh_r": Vector3(160, 0, -35), "el_r": Vector3(25, 0, 0),
-				"hip_l": Vector3(-6, 0, 8), "kn_l": Vector3(-12, 0, 0), "hip_r": Vector3(-2, 0, -8), "kn_r": Vector3(-30, 0, 0), "foot_l": N, "foot_r": N}
+				"hip_l": Vector3(14 - sw, 0, 4), "kn_l": Vector3(-28, 0, 0), "hip_r": Vector3(4 + sw, 0, -4), "kn_r": Vector3(-42, 0, 0), "foot_l": N, "foot_r": N}
+		"heavy_land":   # capture CMU 82_02 (saut d'un rebord), amorti exagéré : le bassin descend deux fois plus
+			var u := clampf(t / HEAVY_T, 0.0, 1.0)
+			var pz: Dictionary = p._clip(CycleData.HEAVY_LAND, u)
+			var g: float = p.GUARD.get("hips_pos", Vector3.ZERO).y
+			pz.hips_pos.y = g + (pz.hips_pos.y - g) * HEAVY_AMP * (1.0 - smoothstep(0.7, 1.0, u))
+			return pz
+		"glide":   # accroupi de côté, façon surf (retour de Paul) : pieds l'un devant l'autre (droit devant), main gauche qui traîne derrière, vers le sol
+			var wob := sin(t * 18.0) * 3.0
+			return {"hips_pos": Vector3(0.05, -0.44, 0.04), "hips": Vector3(-8, 72, 6 + wob), "spine": Vector3(-35, -18, -12), "head": Vector3(5, -50, 6),
+				"sh_l": Vector3(40, 0, 0), "el_l": Vector3(10, 0, 0), "sh_r": Vector3(70, 0, -55), "el_r": Vector3(45, 0, 0),
+				"foot_r": Vector3(0.04, 0.02, -0.36), "foot_l": Vector3(-0.03, 0.02, 0.3)}   # pied droit devant : c'est lui qui fauche
 		"skid":
 			return {"hips_pos": Vector3(0, -0.6, 0.1), "hips": Vector3(62, 0, 0), "spine": Vector3(-22, 0, 0), "head": Vector3(-12, 0, 0),
 				"hip_r": Vector3(25, 0, 0), "kn_r": Vector3(0, 0, 0), "hip_l": Vector3(8, 0, 0), "kn_l": Vector3(-100, 0, 0),

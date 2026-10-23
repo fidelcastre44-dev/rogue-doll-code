@@ -6,10 +6,11 @@
 script = ExtResource("1_uic3g")
 id = &"hikick"
 display_name = "High kick"
-notes = "High kick latéral (coup lourd au sol) : jambe qui balaie de côté, il envoie l'ennemi sur ta gauche."
-active = 0.12
-cancel = 0.24
-end = 0.44
+notes = "High kick latéral (coup lourd au sol) : jambe qui balaie de côté, il envoie l'ennemi sur ta gauche.
+Animation reprise de la capture CMU 135_07 (tools/cmu)."
+active = 0.3037
+cancel = 0.448
+end = 0.6875
 tip = "foot_r"
 radius = 0.5
 damage = 18.0
@@ -21,5 +22,5 @@ hitstop = 0.1
 shake = 0.8
 lunge = 1.0
 flags = PackedStringArray()
-keys = [[0.0, "from"], [0.06, "hk_chamber"], [0.12, "hk_kick"], [0.17, "hk_through"], [0.3, "hk_chamber"], [0.44, "guard"]]
+keys = [[0.0, "from"], [0.0225, "cmu_hikick_0", "lin"], [0.045, "cmu_hikick_1", "lin"], [0.0675, "cmu_hikick_2", "lin"], [0.09, "cmu_hikick_3", "lin"], [0.1125, "cmu_hikick_4", "lin"], [0.135, "cmu_hikick_5", "lin"], [0.1575, "cmu_hikick_6", "lin"], [0.18, "cmu_hikick_7", "lin"], [0.2025, "cmu_hikick_8", "lin"], [0.225, "cmu_hikick_9", "lin"], [0.2475, "cmu_hikick_10", "lin"], [0.27, "cmu_hikick_11", "lin"], [0.2925, "cmu_hikick_12", "lin"], [0.3037, "cmu_hikick_13", "lin"], [0.315, "cmu_hikick_14", "lin"], [0.3375, "cmu_hikick_15", "lin"], [0.36, "cmu_hikick_16", "lin"], [0.3825, "cmu_hikick_17", "lin"], [0.405, "cmu_hikick_18", "lin"], [0.4275, "cmu_hikick_19", "lin"], [0.45, "cmu_hikick_20", "lin"], [0.4725, "cmu_hikick_21", "lin"], [0.495, "cmu_hikick_22", "lin"], [0.5175, "cmu_hikick_23", "lin"], [0.54, "cmu_hikick_24", "lin"], [0.5625, "cmu_hikick_25", "lin"], [0.585, "cmu_hikick_26", "lin"], [0.6075, "cmu_hikick_27", "lin"], [0.6875, "guard", "inout"]]
 present = PackedStringArray("active", "cancel", "end", "tip", "r", "mult", "heavy", "side", "dmg", "drop", "stop", "shake", "up", "lunge", "keys")

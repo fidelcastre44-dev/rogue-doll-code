@@ -47,6 +47,8 @@ const LAND_DROP := 0.18   # de combien le bassin descend quand il est accroupi
 const GATHER := 0.3       # relevé en roulade : il se ramasse en boule...
 const ROLL := 0.45        # ... fait une roulade arrière...
 const RISE := 0.25        # ... et se relève en garde
+const UP_SPEED := 3.0     # v0.214 : relevé capturé (CMU), joué 3× plus vite que la capture (remplace boule + roulade arrière)
+const UP_BLEND := 0.22    # passage du ragdoll au début du relevé capturé
 const BALL_R := 0.38      # rayon de la boule qu'il forme en roulade
 const TUCK_CENTER := Vector3(0, 1.05, 0.18)   # centre de cette boule, dans son repère debout
 const MAX_JUGGLES := 3    # coups en l'air avant qu'il s'écrase pour de bon
@@ -137,6 +139,11 @@ var cooldown := 2.0  # avant sa prochaine attaque
 var strafe := 1.0    # sens dans lequel il tourne autour du joueur
 var strafe_t := 2.0
 var walk_phase := 0.0
+var gait_v := 0.0          # vitesse au sol (m/s) : marche ou course capturées, rythme des pas
+var gait_yaw := 0.0        # direction du déplacement par rapport à son buste (pas de côté)
+var gait_back := false
+var gait_w := 0.0          # poids des jambes de la marche (monte et descend en douceur)
+var up_clip := []          # relevé capturé en cours (à plat ventre ou sur le dos)
 var punched := false
 var lunge := 0.6      # distance de son élan, calculée au début de la frappe
 var anim := {}       # pose courante (degrés par articulation)
@@ -337,6 +344,9 @@ func _physics_process(dt: float) -> void:
 					poise = 1.0
 					drop = LAND_DROP
 					anim = E_POSES.land.duplicate()
+				elif blend_kind == "mup":
+					state = "rise"
+					rise_from = Transform3D()
 				else:
 					state = "techroll"
 		"techroll":   # roulade arrière : la boule roule sans glisser en s'éloignant du joueur
@@ -350,6 +360,23 @@ func _physics_process(dt: float) -> void:
 				rise_from = _roll_x(-360.0)
 		"rise":
 			timer += dt
+			if not up_clip.is_empty() and rise_from == Transform3D():   # relevé capturé
+				var len := (CycleData.GETUP_FRONT_PERIOD if up_clip == E_UP_FRONT else CycleData.GETUP_BACK_PERIOD) / UP_SPEED
+				var k := minf(timer / len, 1.0)
+				anim = _clip_e(up_clip, k)
+				if k > 0.85:   # fin : il se remet en garde
+					var gw := smoothstep(0.85, 1.0, k)
+					for n in E_POSES.guard:
+						anim[n] = anim.get(n, Vector3.ZERO).lerp(E_POSES.guard[n], gw)
+				_fk(root)
+				if k >= 1.0:
+					up_clip = []
+					state = "stand"
+					ai = "circle"
+					cooldown = _pause()
+					anim = E_POSES.guard.duplicate()
+					_pose()
+				return
 			var u := smoothstep(0.0, 1.0, minf(timer / RISE, 1.0))
 			anim = _blend(E_POSES.tuck, E_POSES.guard, u)
 			var stand := Transform3D(root.basis, _roll_origin(-360.0))
@@ -487,7 +514,12 @@ func _ai(dt: float) -> void:
 	if face:
 		root.basis = root.basis.slerp(Basis(Vector3.UP, atan2(to.x, to.z)), 1.0 - exp(-(10.0 if ai == "windup" else 6.0) * dt))
 	var moving := clampf(vel.length() / 1.5, 0.0, 1.0)
-	walk_phase += dt * 10.0 * moving
+	gait_v = vel.length()
+	var lv := root.basis.inverse() * vel
+	gait_back = lv.z < -0.3 * gait_v   # il recule : le cycle se joue à l'envers
+	var ang := atan2(lv.x, lv.z if not gait_back else -lv.z)
+	gait_yaw = lerp_angle(gait_yaw, clampf(ang, -1.4, 1.4), 1.0 - exp(-10.0 * dt))
+	walk_phase += dt * TAU * gait_v / _stride() * (-1.0 if gait_back else 1.0)   # marche capturée (CMU) : une foulée par tour de phase
 	anim = _anim_pose(moving)
 
 
@@ -609,10 +641,12 @@ func _anim_pose(moving: float) -> Dictionary:
 			a = _blend(E_POSES.guard, E_POSES.block, 1.0 - pow(1.0 - minf(ai_t / BLOCK_RAISE, 1.0), 2.0))
 		"windup":
 			a = _blend(windup_pose, E_POSES.windup, smoothstep(0.0, 0.7, ai_t / windup_len))
-		"strike":
-			a = _blend(E_POSES.windup, E_POSES.strike, 1.0 - pow(1.0 - minf(ai_t / (STRIKE * 0.6), 1.0), 2.0))
-		"recover":
-			a = _blend(E_POSES.strike, E_POSES.guard, smoothstep(0.0, 1.0, ai_t / RECOVER))
+		"strike":   # direct capturé (CMU 144_20) : de l'armé du jeu au bras tendu
+			var k := minf(ai_t / (STRIKE * 0.6), 1.0)
+			a = _blend(E_POSES.windup, _punch_pose(lerpf(0.16, PUNCH_HIT, k)), smoothstep(0.0, 0.5, k))
+		"recover":   # retour capturé, puis la garde
+			var k := minf(ai_t / RECOVER, 1.0)
+			a = _blend(_punch_pose(lerpf(PUNCH_HIT, 1.0, k)), E_POSES.guard, smoothstep(0.6, 1.0, k))
 		"landed":
 			a = _blend(E_POSES.land, E_POSES.guard, smoothstep(0.0, 1.0, ai_t / LANDED))
 	if ai == "stunned":
@@ -626,12 +660,109 @@ func _anim_pose(moving: float) -> Dictionary:
 	if ai == "block":
 		drop = 0.05   # garde haute : il se tasse un peu
 		return a
-	var sw := sin(walk_phase) * 28.0 * moving
-	a.thigh_l = Vector3(-sw, 0, 0)
-	a.thigh_r = Vector3(sw, 0, 0)
-	a.shin_l = Vector3(maxf(-cos(walk_phase), 0.0) * 40.0 * moving, 0, 0)
-	a.shin_r = Vector3(maxf(cos(walk_phase), 0.0) * 40.0 * moving, 0, 0)
+	# jambes de la marche / course capturées (CMU), dans la direction où il se déplace (pas de côté, recul) ; le haut reste en garde
+	gait_w = move_toward(gait_w, clampf(gait_v / 0.4, 0.0, 1.0), get_physics_process_delta_time() * 5.0)
+	moving = gait_w   # foulée entière dès qu'il bouge un peu (sinon les pieds patinent) ; à l'arrêt, les jambes se reposent en douceur
+	if moving > 0.0:
+		var c := _gait_pose(walk_phase / TAU)
+		var turn := Quaternion(Vector3.UP, gait_yaw)
+		for n in ["thigh_l", "thigh_r"]:
+			var q := turn * Quaternion.from_euler(c[n] * (PI / 180)) * turn.inverse()   # plan du pas tourné vers le déplacement
+			a[n] = Vector3.ZERO.lerp(q.get_euler() * (180.0 / PI), moving)
+		for n in ["shin_l", "shin_r"]:
+			a[n] = Vector3.ZERO.lerp(c[n], moving)
+		a.chest = a.chest + c.chest * 0.5 * moving
+		drop = maxf(drop, -c.pelvis_off.y * moving)
 	return a
+
+
+## Image u (0..1, boucle) de la marche ou de la course capturées, mélangées selon sa vitesse ; repère du sbire.
+func _gait_pose(u: float) -> Dictionary:
+	_cycles()
+	var w := smoothstep(1.8, 3.6, gait_v)
+	var a := _cyc_e(E_WALK, u)
+	if w <= 0.0:
+		return a
+	var b := _cyc_e(E_RUN, u)
+	for k in a:
+		a[k] = a[k].lerp(b[k], w)
+	return a
+
+
+func _stride() -> float:
+	return lerpf(CycleData.WALK_STRIDE, CycleData.RUN_STRIDE, smoothstep(1.8, 3.6, gait_v))
+
+
+static func _cyc_e(arr: Array, u: float) -> Dictionary:
+	var x := fposmod(u, 1.0) * arr.size()
+	var i := int(x) % arr.size()
+	var a: Dictionary = arr[i]
+	var b: Dictionary = arr[(i + 1) % arr.size()]
+	var f := x - floorf(x)
+	var out := {}
+	for k in a:
+		out[k] = _mixv(k, a[k], b[k], f)
+	return out
+
+
+static func _clip_e(arr: Array, u: float) -> Dictionary:
+	var x := clampf(u, 0.0, 1.0) * (arr.size() - 1)
+	var i := mini(int(x), arr.size() - 2)
+	var out := {}
+	for k in arr[i]:
+		out[k] = _mixv(k, arr[i][k], arr[i + 1][k], x - i)
+	return out
+
+
+## Deux valeurs d'une pose : les angles par le plus court chemin entre les deux rotations (quaternions), le reste en ligne droite.
+static func _mixv(k: String, a: Vector3, b: Vector3, f: float) -> Vector3:
+	if k == "pelvis_off" or k == "hips_pos" or k.begins_with("foot_"):
+		return a.lerp(b, f)
+	var qa := Quaternion.from_euler(a * (PI / 180))
+	var qb := Quaternion.from_euler(b * (PI / 180))
+	return qa.slerp(qb, f).get_euler() * (180.0 / PI)
+
+
+## Pose du héros (degrés, repère du héros qui regarde -Z) -> pose du sbire (il regarde +Z) : même mouvement, tourné d'un
+## demi-tour (x et z changent de signe), bras et jambes échangés (le bras gauche du héros est du côté +X du sbire).
+static func to_enemy(p: Dictionary) -> Dictionary:
+	const MAP := {"spine": "chest", "head": "head", "sh_l": "arm_r", "el_l": "fore_r", "sh_r": "arm_l", "el_r": "fore_l",
+		"hip_l": "thigh_r", "kn_l": "shin_r", "hip_r": "thigh_l", "kn_r": "shin_l", "hips": "pelvis", "hips_pos": "pelvis_off"}
+	var out := {}
+	for k in MAP:
+		var v: Vector3 = p.get(k, Vector3.ZERO)
+		out[MAP[k]] = Vector3(-v.x, v.y, -v.z)
+	return out
+
+
+static var E_WALK := []
+static var E_RUN := []
+static var E_UP_FRONT := []
+static var E_UP_BACK := []
+static var E_PUNCH := []
+const PUNCH_HIT := 0.526   # instant de l'impact dans la capture du direct
+
+
+## Pose du direct capturé (haut du corps seulement : les jambes restent celles du jeu, le pas d'élan est géré à part).
+func _punch_pose(u: float) -> Dictionary:
+	_cycles()
+	var p := _clip_e(E_PUNCH, u)
+	var out := {}
+	for n in ["chest", "head", "arm_l", "fore_l", "arm_r", "fore_r"]:
+		out[n] = p[n]
+	# exagéré : il plonge le buste dans le coup et vise plus bas (la capture frappe à hauteur de tête, le héros est plus petit)
+	var w := smoothstep(0.2, PUNCH_HIT, u) * (1.0 - smoothstep(0.6, 0.95, u))
+	out.chest = out.chest + Vector3(25.0 * w, 0, 0)
+	out.arm_l = out.arm_l + Vector3(40.0 * w, 0, 0)
+	return out
+
+
+static func _cycles() -> void:
+	if not E_WALK.is_empty():
+		return
+	for pair in [[CycleData.WALK, E_WALK], [CycleData.RUN, E_RUN], [CycleData.GETUP_FRONT, E_UP_FRONT], [CycleData.GETUP_BACK, E_UP_BACK], [CycleData.PUNCH, E_PUNCH]]:
+		for p in pair[0]:
+			pair[1].append(to_enemy(p))
 
 
 func _blend(a: Dictionary, b: Dictionary, u: float) -> Dictionary:
@@ -680,8 +811,22 @@ func _pose(jitter := Vector3.ZERO) -> void:
 	_fk(Transform3D(tilt * root.basis, root.origin + jitter - Vector3.UP * drop))
 
 
+## Repère du corps entier pour une pose debout `r` (sans vacillement) : celui que _fk recevrait.
+func _body_x(r: Transform3D) -> Transform3D:
+	var x := r
+	if anim.has("pelvis") or anim.has("pelvis_off"):
+		var c := Vector3(0, 1.0, 0)
+		var b := Basis(Quaternion.from_euler(anim.get("pelvis", Vector3.ZERO) * (PI / 180)))
+		x = Transform3D(x.basis, x.origin + x.basis * anim.get("pelvis_off", Vector3.ZERO)) * Transform3D(b, c - b * c)
+	return x
+
+
 ## Place chaque membre : x = repère du corps entier, puis chaque membre tourne autour de son articulation selon `anim`.
 func _fk(x: Transform3D) -> void:
+	if anim.has("pelvis") or anim.has("pelvis_off"):   # bassin animé (relevé capturé) : tourné autour de son centre, décalé
+		var c := Vector3(0, 1.0, 0)
+		var b := Basis(Quaternion.from_euler(anim.get("pelvis", Vector3.ZERO) * (PI / 180)))
+		x = Transform3D(x.basis, x.origin + x.basis * anim.get("pelvis_off", Vector3.ZERO)) * Transform3D(b, c - b * c)
 	var xf := {}
 	for d in BODY:
 		var q := Quaternion.from_euler(anim.get(d[0], Vector3.ZERO) * (PI / 180))
@@ -1492,7 +1637,28 @@ func _start_getup() -> void:
 		p = _off_props(p)   # tombé sur un objet du décor : il se relève à côté, pas dedans
 	_face_from(p)
 	roll_start = Vector3(p.x, ground_y(p, 0.3), p.z)
-	_start_blend("gather")
+	_start_mocap_up(p)
+
+
+## Relevé capturé (CMU 139_16 à plat ventre, 140_09 sur le dos) : on choisit selon sa position au sol, on place la capture
+## pour que son corps couché tombe sur le ragdoll (bassin et axe tête-bassin), puis on s'y fond et on la joue.
+func _start_mocap_up(p: Vector3) -> void:
+	_cycles()
+	var face_down: bool = (parts.chest.global_basis.z).y < 0.0   # le devant du buste regarde le sol
+	up_clip = E_UP_FRONT if face_down else E_UP_BACK
+	var first: Dictionary = up_clip[0]
+	# axe du corps couché dans la capture (bassin -> tête) et position du bassin, dans le repère debout final
+	var pb := Basis(Quaternion.from_euler(first.pelvis * (PI / 180)))
+	var axis_c := pb * Vector3.UP
+	var axis_r: Vector3 = parts.head.global_position - parts.pelvis.global_position
+	var yaw := atan2(axis_r.x, axis_r.z) - atan2(axis_c.x, axis_c.z)
+	var b := Basis(Vector3.UP, yaw)
+	var off: Vector3 = b * (first.pelvis_off + Vector3(0, 1.0, 0))   # centre du bassin depuis le point debout final
+	var g := ground_y(p, 0.3)
+	root = Transform3D(b, Vector3(p.x - off.x, g, p.z - off.z))
+	if _on_prop(root.origin):
+		root.origin = _off_props(root.origin)
+	_start_blend("mup")
 
 
 ## Point au sol libre le plus proche, hors des objets du décor sous (ou autour de) ce point.
@@ -1527,6 +1693,11 @@ func _start_blend(kind: String) -> void:
 		blend_len = LAND_BLEND
 		blend_x = Transform3D(root.basis, root.origin - Vector3.UP * LAND_DROP)
 		blend_anim = E_POSES.land
+	elif kind == "mup":
+		blend_len = UP_BLEND
+		anim = up_clip[0].duplicate()
+		blend_anim = anim
+		blend_x = _body_x(root)
 	else:
 		blend_len = GATHER
 		blend_x = _roll_x(-90.0)

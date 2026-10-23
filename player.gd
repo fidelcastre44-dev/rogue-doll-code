@@ -49,9 +49,9 @@ const GRAVITY := 20.0
 const JUMP_SPEED := 6.5     # m/s : ~1 m de haut, ~0.65 s en l'air
 const JUMP_WINDUP := 0.06   # flexion avant de décoller
 const LAND_TIME := 0.15     # amorti à l'atterrissage
-const ROLL_TIME := 0.5
-const ROLL_SPEED := 9.0     # m/s au départ de la roulade, ralentit jusqu'à ROLL_END_SPEED
-const ROLL_END_SPEED := 2.5
+const ROLL_TIME := 0.64     # v0.214 : roulade capturée, jouée 2× plus vite que la capture (0,5 s avant)
+const ROLL_SPEED := 7.0     # m/s au départ de la roulade, ralentit jusqu'à ROLL_END_SPEED (v0.214 : roulade plus longue, même distance)
+const ROLL_END_SPEED := 2.0
 const MAX_AIR := 3          # coups aériens par saut
 const COMBO_WINDOW := 0.25   # secondes après la fin d'un coup pendant lesquelles le suivant enchaîne encore
 const GRAB_REACH := 0.75    # la chope attrape un ennemi dont le buste est à cette distance devant toi (à 0,75 m près)
@@ -151,6 +151,8 @@ var attack := ""
 var t := 0.0
 var hit_done := false
 var run_phase := 0.0
+const IDLE_AMP := 0.6   # amplitude de la garde au repos capturée (le boxeur de la capture rebondit beaucoup)
+var gait_v := 0.0   # vitesse au sol (m/s) : choisit marche ou course et le rythme des foulées
 var run_mix := 0.0   # 0 = garde, 1 = course
 var from := {}       # pose au moment où l'attaque démarre
 var base := {}       # pose de la frame courante (garde/course)
@@ -1321,7 +1323,7 @@ func is_invulnerable() -> bool:
 			return roll >= 0.0 and roll <= 0.32
 		"dash":
 			return roll >= 0.0 and roll <= DASH_TIME
-	return roll >= 0.04 and roll <= (_dodge_time() - 0.13 if roll_kind == "sweep" else 0.36)
+	return roll >= 0.04 and roll <= (_dodge_time() - 0.13 if roll_kind == "sweep" else ROLL_TIME * 0.72)
 
 
 func _animate(dt: float) -> void:
@@ -1329,19 +1331,14 @@ func _animate(dt: float) -> void:
 		wind_key.rotate_z(dt * (2.0 + 6.0 * clampf(Vector2(velocity.x, velocity.z).length() / speed, 0.0, 1.5)))   # la clé tourne, plus vite quand il court
 	var moving := clampf(Vector2(velocity.x, velocity.z).length() / speed, 0.0, 1.0)
 	run_mix = move_toward(run_mix, 1.0 if moving > 0.3 and attack == "" else 0.0, dt * 6.0)
-	run_phase += dt * 12.0 * moving
+	gait_v = Vector2(velocity.x, velocity.z).length()
+	run_phase += dt * TAU * gait_v / _stride()   # cycle de course capturé (CMU) : un tour de phase = une foulée, les pieds ne patinent pas
 	idle_t += dt
 	var ig := _pose("guard")
-	# Micro-animations au repos : il respire, sautille un peu sur ses appuis, la tête et les poings bougent sans arrêt.
-	var br := sin(idle_t * 2.4)
-	var bob := sin(idle_t * 5.2)
-	ig.hips_pos = ig.hips_pos + Vector3(0.012 * sin(idle_t * 1.3), 0.018 * bob - 0.01, 0)
-	ig.spine = ig.spine + Vector3(2.5 * br, 2.0 * sin(idle_t * 1.1), 1.2 * sin(idle_t * 0.9))
-	ig.head = ig.head + Vector3(-2.0 * br + 1.5 * sin(idle_t * 0.7), 4.0 * sin(idle_t * 0.5), 0)
-	ig.sh_l = ig.sh_l + Vector3(4.0 * sin(idle_t * 5.2 + 0.6), 0, 2.0 * br)
-	ig.sh_r = ig.sh_r + Vector3(4.0 * sin(idle_t * 5.2 + 2.1), 0, -2.0 * br)
-	ig.el_l = ig.el_l + Vector3(5.0 * sin(idle_t * 3.1), 0, 0)
-	ig.el_r = ig.el_r + Vector3(5.0 * sin(idle_t * 2.7 + 1.0), 0, 0)
+	# Garde au repos : rebonds et respiration d'un boxeur capturé (CMU 13_17), ajoutés à la garde du jeu.
+	var io := _cyc(CycleData.IDLE, idle_t / CycleData.IDLE_PERIOD)
+	for n in ["hips_pos", "hips", "spine", "head", "sh_l", "el_l", "sh_r", "el_r"]:
+		ig[n] = ig.get(n, Vector3.ZERO) + io[n] * IDLE_AMP
 	base = _mix(_resolve(ig), _resolve(_run_pose(run_phase)), smoothstep(0.0, 1.0, run_mix))
 	sprint_mix = move_toward(sprint_mix, 1.0 if sprinting and moving > 0.5 and attack == "" else 0.0, dt * 6.0)
 	if sprint_mix > 0:   # sprint : buste très penché en avant, tête qui fonce
@@ -1393,6 +1390,11 @@ func _animate(dt: float) -> void:
 	if lc and lc.w > 0.0 and lc.state != "":
 		r = _mix(r, _resolve(GUARD.merged(lc.pose(), true)), lc.w)   # enjambée, rebord, glissade, atterrissage lourd
 	apply_pose(r)
+	if lc and lc.w > 0.0 and lc.state != "":
+		var ht: Dictionary = lc.hand_targets()
+		if not ht.is_empty():
+			_arm_ik("l", ht.l, ht.out, ht.w)
+			_arm_ik("r", ht.r, ht.out, ht.w)
 	if attack == "collar" and throw_move == "throw" and enemy and enemy.state == "held":
 		_hold_in_hands()
 	if held_prop and attack in ["prop_hold", "prop_wind", "prop_slam", "prop_toss", "prop_bash", "prop_shield"]:
@@ -1467,15 +1469,69 @@ func _pose(pose_name: String) -> Dictionary:
 	return GUARD.merged(POSE_DIFF[pose_name], true)
 
 
-## Course procédurale : jambes et bras opposés, buste penché, épaules qui contre-tournent les hanches, rebond à chaque pas.
+## Course et marche capturées (CMU 09_02 et 08_02, combat/cycles_data.gd) : la marche passe à la course avec la vitesse.
+## ph = phase (2π par foulée) ; même départ pour les deux (pied gauche devant), donc le mélange reste en rythme.
 func _run_pose(ph: float) -> Dictionary:
-	var s := sin(ph)
-	return {
-		"hips_pos": Vector3(0, -0.06 - 0.03 * cos(2.0 * ph), 0), "hips": Vector3(0, -10 * s, 0), "spine": Vector3(-12, 18 * s, 0), "head": Vector3(4, -8 * s, 0),
-		"hip_l": Vector3(45 * s, 0, 0), "kn_l": Vector3(-(12 + 85 * maxf(cos(ph), 0.0)), 0, 0),
-		"hip_r": Vector3(-45 * s, 0, 0), "kn_r": Vector3(-(12 + 85 * maxf(-cos(ph), 0.0)), 0, 0),
-		"sh_l": Vector3(-45 * s, 0, 8), "el_l": Vector3(85, 0, 0), "sh_r": Vector3(45 * s, 0, -8), "el_r": Vector3(85, 0, 0),
-	}
+	var u := ph / TAU
+	var w := _run_w()
+	if w >= 1.0:
+		return _cyc(CycleData.RUN, u)
+	if w <= 0.0:
+		return _cyc(CycleData.WALK, u)
+	var a := _cyc(CycleData.WALK, u)
+	var b := _cyc(CycleData.RUN, u)
+	for k in a:
+		a[k] = a[k].lerp(b[k], w)
+	return a
+
+
+func _run_w() -> float:
+	return smoothstep(1.8, 3.6, gait_v) if gait_v > 0.0 else 1.0
+
+
+## Longueur d'une foulée (m) à la vitesse actuelle : celle de la marche, de la course, entre les deux.
+func _stride() -> float:
+	return lerpf(CycleData.WALK_STRIDE, CycleData.RUN_STRIDE, _run_w())
+
+
+## Image u (0..1, sans boucle) d'un geste capturé (enjambée, roulade…).
+static func _clip(arr: Array, u: float) -> Dictionary:
+	var x := clampf(u, 0.0, 1.0) * (arr.size() - 1)
+	var i := mini(int(x), arr.size() - 2)
+	var a: Dictionary = arr[i]
+	var b: Dictionary = arr[i + 1]
+	var f := x - i
+	var out := {}
+	for k in a:
+		out[k] = _mixv(k, a[k], b[k], f)
+	return out
+
+
+## Deux valeurs d'une pose : les angles par le plus court chemin entre les deux rotations (quaternions), le reste en ligne droite.
+static func _mixv(k: String, a: Vector3, b: Vector3, f: float) -> Vector3:
+	if not k in JOINTS:
+		return a.lerp(b, f)
+	return Quaternion.from_euler(a * (PI / 180)).slerp(Quaternion.from_euler(b * (PI / 180)), f).get_euler() * (180.0 / PI)
+
+
+## Point u (0..1) d'une trajectoire capturée, depuis son départ.
+static func _track(arr: Array, u: float) -> Vector3:
+	var x := clampf(u, 0.0, 1.0) * (arr.size() - 1)
+	var i := mini(int(x), arr.size() - 2)
+	return arr[i].lerp(arr[i + 1], x - i) - arr[0]
+
+
+## Image u (0..1, boucle) d'un cycle capturé : interpolation entre ses deux images voisines.
+static func _cyc(arr: Array, u: float) -> Dictionary:
+	var x := fposmod(u, 1.0) * arr.size()
+	var i := int(x) % arr.size()
+	var a: Dictionary = arr[i]
+	var b: Dictionary = arr[(i + 1) % arr.size()]
+	var f := x - floorf(x)
+	var out := {}
+	for k in a:
+		out[k] = _mixv(k, a[k], b[k], f)
+	return out
 
 
 ## Tacle glissé : couché en arrière sur la hanche, jambe droite tendue devant au ras du sol, l'autre repliée, mains derrière.
@@ -1512,6 +1568,10 @@ func _sweep_pose(u: float) -> Dictionary:
 
 ## Roulade avant : il se met en boule et fait un tour complet sur lui-même, puis se redéplie.
 func _roll_pose(u: float) -> Dictionary:
+	if CycleData.ROLL.size() > 1:   # roulade capturée (CMU 127_23) : mains au sol, roulé sur le dos, relevé
+		var pz := _clip(CycleData.ROLL, u)
+		pz.hips_pos += Vector3(0, _track(CycleData.ROLL_ROOT, u).y, 0)
+		return pz
 	var w := sin(PI * clampf(u, 0.0, 1.0))   # 0 -> en boule -> 0
 	var angle := -360.0 * smoothstep(0.1, 0.85, u)
 	var upside := (1.0 - cos(deg_to_rad(angle))) / 2.0   # 1 quand il a la tête en bas : on remonte le pivot pour ne pas passer sous le sol
@@ -1548,6 +1608,28 @@ func _mix(a: Dictionary, b: Dictionary, u: float) -> Dictionary:
 			r["hip_" + side] = la[0].slerp(lb[0], u)
 			r["kn_" + side] = la[1].slerp(lb[1], u)
 	return r
+
+
+## IK deux os du bras (bras + avant-bras, 0,3 m chacun) : le poing va sur la cible (monde), le coude part vers `out`.
+## Appliqué après la pose (rebords : les mains restent posées sur l'arête), dosé par k.
+func _arm_ik(side: String, target: Vector3, out: Vector3, k: float) -> void:
+	var sh: Node3D = j["sh_" + side]
+	var sp: Basis = j.spine.global_basis.orthonormalized()
+	var d: Vector3 = sp.inverse() * (target - sh.global_position)
+	var reach := clampf(d.length(), 0.05, 0.599)
+	var dir := d.normalized()
+	var hint: Vector3 = sp.inverse() * (out + Vector3.DOWN * 0.4 + (sh.global_position - j.spine.global_position).normalized() * 0.6)
+	hint = (hint - dir * dir.dot(hint)).normalized()
+	var a := acos(clampf((0.09 + reach * reach - 0.09) / (2.0 * 0.3 * reach), -1.0, 1.0))
+	var upper: Vector3 = dir * cos(a) + hint * sin(a)
+	var fore: Vector3 = (dir * reach - upper * 0.3).normalized()
+	var y: Vector3 = -upper
+	var z: Vector3 = -(fore - upper * upper.dot(fore)).normalized()
+	if z.length() < 0.5:
+		z = Vector3.BACK
+	var q := Basis(y.cross(z), y, z).orthonormalized().get_rotation_quaternion()
+	sh.quaternion = sh.quaternion.slerp(q, k)
+	j["el_" + side].quaternion = j["el_" + side].quaternion.slerp(Quaternion(Vector3.RIGHT, upper.angle_to(fore)), k)
 
 
 ## IK deux os (cuisse + tibia) : rotations de hanche et de genou pour que la cheville atteigne la cible, genou vers l'avant.

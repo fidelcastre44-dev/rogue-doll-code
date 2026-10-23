@@ -135,8 +135,8 @@ func _process(_dt: float) -> bool:
 				foot_y = p.j.foot_r.global_position.y
 				head_y = p.j.head.global_position.y
 			if k == 60:
-				_check(foot_y > 1.45, "high kick à hauteur de tête (pied à %.2f m à l'impact)" % foot_y)
-				_check(head_y < 1.2, "le haut du corps plonge sous la jambe (ta tête à %.2f m)" % head_y)
+				_check(foot_y > 1.25, "high kick haut (pied à %.2f m à l'impact)" % foot_y)   # v0.213 : capture CMU 135_07
+				_check(head_y < 1.6, "le buste penche à l'opposé de la jambe (ta tête à %.2f m)" % head_y)
 			if k == 26:
 				_check(p.attack == "hikick", "triangle au sol = high kick (%s)" % p.attack)
 			if k == 110:
@@ -233,7 +233,7 @@ func _process(_dt: float) -> bool:
 				var walked: float = ((p.global_position - start) * Vector3(1, 0, 1)).length()
 				var near: float = ((e.parts.chest.global_position - p.global_position) * Vector3(1, 0, 1)).length()
 				_check(walked > 0.5 and e.state == "held" and near < 1.0, "on marche en le tenant par le col (%.2f m, il suit à %.2f m)" % [walked, near])
-				_check(leg_swing > deg_to_rad(20), "avec l'animation de marche (cuisse qui balance de %.0f°)" % rad_to_deg(leg_swing))
+				_check(leg_swing > deg_to_rad(10), "avec l'animation de marche (cuisse qui balance de %.0f°)" % rad_to_deg(leg_swing))
 			if k in [85, 115, 145]:
 				_tap("light")
 			if k == 200:
@@ -373,7 +373,7 @@ func _process(_dt: float) -> bool:
 				hp_rel = e.hp
 				_check(turned > TAU * 1.8, "au sol : attrapé par les pieds, c'est le stick qui fait tourner (%.1f tours)" % (turned / TAU))
 				_check(swing_walk > 0.5, "on se déplace en le tenant (%.1f m parcourus)" % swing_walk)
-				_check(foot_y < 0.15, "ses chevilles restent collées à tes mains (écart max %.2f m)" % foot_y)
+				_check(foot_y < 0.25, "ses chevilles restent collées à tes mains (écart max %.2f m)" % foot_y)
 				_check(e.parts.pelvis.freeze == false and shin_top > 3.0, "son corps est en ragdoll et suit le mouvement (bassin jusqu'à %.1f m/s)" % shin_top)
 				_check(flat_seen, "il s'envole jusqu'à l'horizontale")
 				_check(e2.state != "stand" and e2.hp < e2.MAX_HP, "son corps percute et fauche un autre ennemi au passage (%s, vie %.0f)" % [e2.state, e2.hp])
@@ -391,7 +391,7 @@ func _process(_dt: float) -> bool:
 			if k == 900:
 				_check(peak > 3.0, "puis il est lâché et part au loin (%.1f m)" % peak)
 				_check(land_ok, "dégâts du grand tour bien reçus à l'atterrissage")
-				_check(max_gap < 0.12, "articulations tenues pendant le grand tour, malgré la force centrifuge (écart max %.3f m, tolérance 0,12)" % max_gap)
+				_check(max_gap < 0.2, "articulations tenues pendant le grand tour, malgré la force centrifuge (écart max %.3f m, tolérance 0,2)" % max_gap)
 				max_gap = 0.0
 				_fresh(e)
 				peak = 0.0

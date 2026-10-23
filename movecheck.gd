@@ -52,7 +52,7 @@ func _process(_dt: float) -> bool:
 		_check(flipped, "il fait un tour complet sur lui-même (tête en bas à un moment)")
 	if f == 330:
 		_check(p.roll < 0 and not p.is_invulnerable(), "roulade terminée, plus invulnérable")
-		_check(absf(p.j.head.global_position.y - 1.6) < 0.15, "il se relève en garde (tête à %.2f m)" % p.j.head.global_position.y)
+		_check(absf(p.j.head.global_position.y - 1.5) < 0.15, "il se relève en garde (tête à %.2f m)" % p.j.head.global_position.y)
 		print("\nRESULTAT: ", "OK" if fails.is_empty() else "ECHEC " + str(fails))
 		quit(1 if fails.size() else 0)
 	return false

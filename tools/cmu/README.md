@@ -19,6 +19,10 @@ Source : base de captures de mouvement de Carnegie Mellon (mocap.cs.cmu.edu), ve
 - Le coup part de la garde du jeu et y revient : l'écart entre la garde de la capture et la nôtre est retiré au début et à la fin,
   pas à l'impact.
 
-## Coups repris (v0.213)
+## Coups repris (v0.213-0.214)
 jab (144_14), direct (144_20), chassé (144_05), shoot de foot et shoot d'objet (10_01).
-Pas repris : high kick (le nôtre, exagéré, plonge le buste sous la jambe ; la capture 135_07 est réaliste).
+High kick (135_07) ajouté après coup, à la demande de Paul.
+
+v0.214 : rythme de la capture (2× plus vite), crochet et uppercut (15_13), relevés des fiches (139_16, 140_09), cycles
+(course 09_02, marche 08_02, garde 13_17), gestes avec trajectoire (enjambée 127_27, roulade 127_23, atterrissage 82_02),
+sbires (marche, course, direct 144_20, relevés). Les cycles et gestes vont dans `combat/cycles_data.gd` (généré).
