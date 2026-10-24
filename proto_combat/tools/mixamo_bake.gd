@@ -27,9 +27,13 @@ const TARGETS := {
 }
 const FPS := 30.0
 # animations aussi produites en miroir (gauche <-> droite), sous le nom <nom>_m
-const MIRROR := ["wall__wall_run", "wall__diagonal_wall_run"]
+const MIRROR := ["wall__wall_run", "wall__diagonal_wall_run", "hit__side_right", "hit__head_big_right", "hit__head_light_right"]
 # animations dont on retire aussi la montée (le jeu fait monter la capsule sur le mur / l'obstacle)
 const NO_VERT := ["wall__wall_run_up_platform", "ledge__sprint_to_wall_climb", "wall__vault_two_hands", "wall__vault_one_hand", "wall__wall_run", "wall__diagonal_wall_run"]
+# animations à deux (v0.114) : attaquant et victime enregistrés dans le même repère. On garde tout le déplacement du bassin
+# (ni recentrage ni retrait) : jouées depuis la même origine, les deux corps restent à la bonne place l'un par rapport à l'autre.
+const KEEP_ROOT := ["grab__hell_slammer_a", "grab__hell_slammer_b", "grab__shoulder_throw_aggressor", "grab__shoulder_throw_victim",
+	"grab__double_leg_takedown_attacker", "grab__double_leg_takedown_victim"]
 # animations en boucle
 const LOOPS := ["axe__idle", "axe__run", "bat__batter_idle", "grab__being_carried", "grab__carrying_someone_idle", "grab__walking_carrying_someone",
 	"greatsword__blocking_idle", "greatsword__idle", "katana__running_with_sword", "ledge__braced_shimmy_left", "ledge__braced_shimmy_right",
@@ -169,6 +173,9 @@ func _bake(a: Animation, ssk: Skeleton3D, tsk: Skeleton3D, nm: String, mir := fa
 	var drift: Vector3 = ((send["Hips"] as Transform3D).origin - start) * scale
 	if not nm.trim_suffix("_m") in NO_VERT:
 		drift.y = 0
+	var keep: bool = nm in KEEP_ROOT
+	if keep:
+		drift = Vector3.ZERO
 	for fr in n:
 		var tg: float = minf(fr / FPS, dur)
 		var src := _src_pose(a, ssk, tg, mir)
@@ -220,7 +227,7 @@ func _bake(a: Animation, ssk: Skeleton3D, tsk: Skeleton3D, nm: String, mir := fa
 					lq = -lq
 				prevq[bn] = lq
 				out.rotation_track_insert_key(tracks[bn], tg, lq)
-		var hp: Vector3 = ((src["Hips"] as Transform3D).origin - Vector3(start.x, 0, start.z)) * scale
+		var hp: Vector3 = ((src["Hips"] as Transform3D).origin - (Vector3.ZERO if keep else Vector3(start.x, 0, start.z))) * scale
 		last_hp = hp
 		feet.append(minf((src["LeftToeBase"] as Transform3D).origin.y, (src["RightToeBase"] as Transform3D).origin.y) * scale)
 		hp -= drift * (tg / maxf(dur, 0.001))
@@ -239,4 +246,5 @@ func _bake(a: Animation, ssk: Skeleton3D, tsk: Skeleton3D, nm: String, mir := fa
 		elif was_up and feet[i] < gmin + 0.04:
 			ground_t = i / FPS
 			break
-	return [out, {"length": dur, "loop": loop, "ground_t": snappedf(ground_t, 0.01), "move": [snappedf(last_hp.x, 0.01), snappedf(last_hp.y - hip0.y, 0.01), snappedf(last_hp.z, 0.01)]}]
+	return [out, {"length": dur, "loop": loop, "ground_t": snappedf(ground_t, 0.01), "move": [snappedf(last_hp.x, 0.01), snappedf(last_hp.y - hip0.y, 0.01), snappedf(last_hp.z, 0.01)],
+		"start": [snappedf(hip0.x, 0.01), snappedf(hip0.z, 0.01)]}]

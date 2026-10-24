@@ -26,7 +26,9 @@ const SCENARIOS := {
 	"hang_strip": [[2, "spot", "parcours"], [3, "pos", Vector3(26.5, 0.05, 7.0)], [4, "yaw", 90.0], [5, "zoom", 0.5], [10, "stick", Vector2(1, 0)], [12, "press", "jump"], [24, "stick", Vector2.ZERO], [60, "press", "jump"], [8, "strip", [10, 106, 4]], [110, "end", 0]],
 	"wallrun_strip": [[2, "spot", "parcours"], [3, "pos", Vector3(22.9, 0.05, 34.0)], [4, "zoom", 0.75], [6, "stick", Vector2(0, -1)], [36, "press", "jump"], [60, "press", "jump"], [90, "press", "jump"], [8, "strip", [30, 140, 5]], [150, "end", 0]],
 	# v0.113
-	"grab_walk_strip": [[2, "spot", "centre"], [3, "pos", Vector3(0, 0.05, 0.6)], [4, "zoom", 0.6], [10, "press", "grab"], [24, "stick", Vector2(1, 0)], [60, "stick", Vector2.ZERO], [64, "press", "attack"], [84, "press", "heavy"], [8, "strip", [16, 140, 6]], [150, "end", 0]],
+	"grab_walk_strip": [[2, "spot", "centre"], [3, "pos", Vector3(0, 0.05, 0.6)], [4, "zoom", 0.6], [10, "press", "grab"], [70, "stick", Vector2(1, 0)], [110, "stick", Vector2.ZERO], [114, "press", "attack"], [140, "press", "heavy"], [8, "strip", [20, 230, 7]], [240, "end", 0]],
+	"grab_throw_strip": [[2, "spot", "centre"], [3, "pos", Vector3(0, 0.05, 0.6)], [4, "zoom", 0.6], [10, "press", "grab"], [80, "press", "grab"], [8, "strip", [40, 180, 6]], [190, "end", 0]],
+	"getup_strip": [[2, "spot", "centre"], [3, "zoom", 0.55], [10, "press", "attack"], [22, "press", "attack"], [34, "press", "attack"], [46, "press", "attack"], [8, "strip", [60, 200, 7]], [210, "end", 0]],
 	"vault_strip": [[2, "spot", "centre"], [3, "pos", Vector3(-14, 0.05, 10.5)], [4, "yaw", 90.0], [5, "zoom", 0.6], [6, "stick", Vector2(0, -1)], [8, "strip", [10, 80, 4]], [90, "end", 0]],
 	"runup_strip": [[2, "spot", "parcours"], [3, "pos", Vector3(29.5, 0.05, 11.0)], [4, "yaw", 90.0], [5, "zoom", 0.7], [6, "stick", Vector2(0, -1)], [34, "press", "jump"], [50, "stick", Vector2.ZERO], [8, "strip", [30, 100, 4]], [110, "end", 0]],
 	"react_strip": [[2, "spot", "centre"], [3, "zoom", 0.5], [10, "press", "attack"], [40, "press", "attack"], [70, "press", "attack"], [100, "press", "attack"], [8, "strip", [12, 130, 6]], [140, "end", 0]],

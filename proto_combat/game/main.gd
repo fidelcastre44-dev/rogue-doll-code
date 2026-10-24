@@ -3,7 +3,7 @@ extends Node3D
 ## Ce nœud monte tout (lumière, terrain, héros, mannequins, caméra, effets, sons, interface, menu) et sert d'arbitre :
 ## figé à l'impact, secousses, ralentis, parade, esquive parfaite, jetons d'attaque des ennemis (2 à la fois au plus).
 
-const VERSION := "0.113"
+const VERSION := "0.114"
 const MAX_ATTACKERS := 2
 
 var arena: Arena

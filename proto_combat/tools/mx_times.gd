@@ -53,6 +53,7 @@ func _init() -> void:
 		for i in range(2, sp.size() - 2):
 			if sp[i] >= sp[i - 1] and sp[i] >= sp[i + 1] and sp[i] >= sp[i - 2] and sp[i] >= sp[i + 2] and sp[i] > mx * 0.45:
 				var p: Vector3 = pts[i][1]
-				peaks.append("%.2fs %.0fm/s devant %.2f haut %.2f côté %.2f" % [pts[i][0], sp[i], p.z, p.y, p.x])
+				var v: Vector3 = ((pts[i + 1][1] as Vector3) - (pts[i - 1][1] as Vector3)).normalized()
+				peaks.append("%.2fs %.0fm/s devant %.2f haut %.2f côté %.2f | dir devant %+.2f haut %+.2f côté %+.2f" % [pts[i][0], sp[i], p.z, p.y, p.x, v.z, v.y, v.x])
 		print("%s [%s] len %.2f\n   %s" % [an, limb, a.length, "\n   ".join(peaks)])
 	quit()

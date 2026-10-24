@@ -92,6 +92,7 @@ func _run() -> void:
 	await t_wallrun()
 	await t_camera()
 	await t_v113()
+	await t_v114()
 	print("")
 	if fails.is_empty():
 		print("RESULTAT: OK")
@@ -246,6 +247,7 @@ func t_grab() -> void:
 	print("chope + lancer")
 	await setup("centre", 3, "passive", 1.0)
 	# deux mannequins alignés derrière le premier : il les renverse en étant lancé
+	# v0.114 : projection d'épaule : il retombe dans le sens du stick (le héros lui tourne le dos)
 	foe(1).reset_at(foe(0).global_position + Vector3(0, 0, -2.5), Vector3(0, 0, 1))
 	foe(2).reset_at(foe(0).global_position + Vector3(0, 0, -4.0), Vector3(0, 0, 1))
 	game.hero.facing = Vector3(0, 0, -1)
@@ -253,8 +255,10 @@ func t_grab() -> void:
 	ok(foe(0).state == "grabbed", "attrapé (%s)" % foe(0).state)
 	await wait(90)
 	ok(foe(0).state == "grabbed", "toujours tenu après 1,5 s (%s)" % foe(0).state)
-	await tap("grab", 16)
-	ok(foe(0).state == "air", "R1 : lancé (%s)" % foe(0).state)
+	inp.fake_stick = Vector2(0, -1)
+	await tap("grab", 60)
+	inp.fake_stick = Vector2.ZERO
+	ok(foe(0).state == "air", "R1 : projection d'épaule puis lancé (%s)" % foe(0).state)
 	await wait(30)
 	ok(foe(1).state in ["air", "down"] or foe(2).state in ["air", "down"], "il renverse les autres (boule de bowling)")
 	await wait(60)
@@ -356,12 +360,12 @@ func t_grab_slam() -> void:
 	game.hero.facing = Vector3(0, 0, -1)
 	await tap("grab", 10)
 	ok(foe().state == "grabbed", "attrapé")
-	await wait(30)
+	await wait(50)
 	var hp0: float = foe().hp
 	await tap("heavy", 1)
 	var max_y := -1.0
 	var landed := false
-	for i in 70:
+	for i in 100:
 		await wait(1)
 		if foe().slammed_by == null and foe().state == "air":
 			landed = true
@@ -378,9 +382,10 @@ func t_grab_escape() -> void:
 	await setup("centre", 1, "passive", 1.0)
 	game.hero.facing = Vector3(0, 0, -1)
 	await tap("grab", 10)
+	await wait(45)
 	await tap("attack", 20)
 	ok(foe().hp < foe().HP_MAX, "X pendant la chope : coups")
-	await wait(170)
+	await wait(120)
 	ok(foe().state != "grabbed", "après 3 s il se dégage (%s)" % foe().state)
 
 
@@ -538,17 +543,17 @@ func t_v113() -> void:
 	ok(top_h > top_e - 0.9 and top_h > 1.8, "saut de poursuite : héros %.2f m, ennemi %.2f m" % [top_h, top_e])
 	await wait(60)
 	# combo aérien : jab puis coups de pied latéraux (animations Mixamo)
-	ok(str(Moves.M.air_cross.anim).contains("side_kick") and str(Moves.M.air_kick.anim).contains("roundhouse"), "combo aérien : jab, pied latéral, pied circulaire")
+	ok(str(Moves.M.air_cross.anim).contains("side_kick") and str(Moves.M.air_kick.anim).contains("stomp"), "combo aérien : jab, pied latéral, talon qui écrase")
 	# chope : on marche en le tenant
 	await setup("centre", 1, "passive", 1.0)
 	game.hero.facing = Vector3(0, 0, -1)
 	await tap("grab", 10)
 	var p0: Vector3 = game.hero.global_position
 	inp.fake_stick = Vector2(1, 0)
-	await wait(40)
-	inp.fake_stick = Vector2.ZERO
+	await wait(70)
 	ok(foe().state == "grabbed" and (game.hero.global_position - p0).length() > 1.0, "on marche en tenant l'ennemi (%.2f m)" % (game.hero.global_position - p0).length())
-	ok(game.hero.rig.current.begins_with("mx/grab__"), "animation de chope Mixamo (%s)" % game.hero.rig.current)
+	ok(game.hero.rig.current == "walk" and game.hero.rig.overlay_anim.contains("choke_lift"), "il marche, le bras levé de la prise (%s)" % game.hero.rig.current)
+	inp.fake_stick = Vector2.ZERO
 	await tap("dodge", 30)
 	# réactions variées des ennemis + réaction physique partielle
 	await setup("centre", 1, "passive", 1.2)
@@ -621,3 +626,47 @@ func t_v113() -> void:
 	ok(ran_up and game.hero.global_position.y > 3.0, "mur de 3,2 m monté en courant (y %.2f)" % game.hero.global_position.y)
 	# aperçu des animations Mixamo
 	ok(game._mx_names().size() >= 120, "%d animations Mixamo dans le jeu" % game._mx_names().size())
+
+
+func t_v114() -> void:
+	print("v0.114")
+	# coups : l'animation va dans le sens de l'effet
+	ok(str(Moves.M.air_kick.anim).contains("stomp") and str(Moves.M.launcher.anim).contains("uppercut") and str(Moves.M.hook.anim).contains("elbow"), "coups : nouvelles animations (talon, uppercut, coude)")
+	ok(Moves.SWEEP.get("ka_c", 0) == -1 and Moves.SWEEP.get("ka_a", 0) == 1, "sens du geste noté pour les réactions")
+	# réactions : la tête part dans le sens du geste
+	await setup("centre", 1, "passive", 1.0)
+	var picks := {}
+	for i in 6:
+		picks[foe()._pick_hit_anim(-foe().facing, {"dmg": 4, "box": [1, 1.4, 0.5], "sweep": 1})] = true
+	ok(picks.keys().all(func(a): return a in Dummy.HIT_ANIMS.front_high_r), "geste vers sa droite : réaction « droite » (%s)" % str(picks.keys()))
+	# chope : il pend en ragdoll, la tête dans la main du héros
+	game.hero.facing = Vector3(0, 0, -1)
+	await tap("grab", 10)
+	await wait(60)
+	var d_head: float = foe().rag.head_pos().distance_to(game.hero.grip_point())
+	ok(foe().state == "grabbed" and foe().rag.active and d_head < 0.35, "tenu à bout de bras, il pend en ragdoll (tête à %.2f m de la main)" % d_head)
+	# Y : animation à deux (le sbire joue la victime de « Hell Slammer »)
+	await tap("heavy", 4)
+	ok(foe().state == "paired" and foe().rig.current == "mx/grab__hell_slammer_b" and game.hero.rig.current == "mx/grab__hell_slammer_a", "Y : animation à deux (%s / %s)" % [foe().rig.current, game.hero.rig.current])
+	await wait(100)
+	# ragdoll : la capsule ne suit jamais le corps
+	await setup("centre", 1, "passive", 1.6)
+	game.hero.facing = Vector3(0, 0, -1)
+	await tap("attack", 10)
+	await tap("attack", 10)
+	await tap("attack", 10)
+	await tap("attack", 1)
+	var down_seen := false
+	var drift := 0.0
+	var p_down := Vector3.ZERO
+	for i in 120:
+		await wait(1)
+		if foe().state == "down" and foe().f >= 14:
+			if not down_seen:
+				down_seen = true
+				p_down = foe().global_position
+			drift = maxf(drift, Vector2(foe().global_position.x - p_down.x, foe().global_position.z - p_down.z).length())
+	ok(down_seen and drift < 0.05, "au sol : la capsule ne bouge pas avec le ragdoll (%.3f m)" % drift)
+	ok(foe().fall_up, "poussé vers l'arrière : il se relèvera sur le dos")
+	# course au mur : pas au ras du sol
+	ok(game.hero.WR_MIN_H >= 0.7, "course au mur : seulement à partir de %.1f m" % game.hero.WR_MIN_H)

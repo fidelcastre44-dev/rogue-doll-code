@@ -2,7 +2,8 @@ class_name Dummy
 extends CharacterBody3D
 ## Mannequin d'entraînement (sbire). Les états de jeu restent lisibles comme dans un jeu de baston pro ; le ragdoll est
 ## seulement VISUEL (game/ragdoll.gd) : en l'air le bassin du pantin suit la capsule (la trajectoire du jongle reste celle
-## du jeu), au sol il tombe librement, puis il se relève depuis la pose où il est tombé (sur le dos / à plat ventre).
+## du jeu), au sol un ressort le garde près de la capsule ; au relevé il glisse jusqu'à la capsule puis l'animation démarre
+## (sur le dos / à plat ventre selon le sens du coup). v0.114 : le ragdoll ne déplace jamais la capsule.
 ## Modes : "passive" (encaisse), "guard" (garde de face, se fait briser par les coups lourds), "attack" (IA qui tourne autour
 ## du héros et frappe en prévenant : flash rouge = coup normal, orange = coup lourd imparable, à esquiver ou parer).
 ## États : idle, walk, windup, strike, recover, hurt, air (jonglé / projeté), down (à terre), getup, block, stagger, grabbed, splat.
@@ -45,24 +46,32 @@ var rag: Ragdoll
 var ragdoll_on := true
 var last_vy := 0.0              # vitesse verticale juste avant le dernier déplacement (le sol la remet à 0)
 var slammed_by: Node = null     # v0.112 : éclaté au sol par une chope (rebond plus haut, impact signalé au héros)
+var fall_up := true             # v0.114 : se relèvera sur le dos (true) ou à plat ventre, décidé par le sens du coup
+var getup_glide := {}           # v0.114 : relevé en cours : le ragdoll glisse vers ce point avant l'animation
+var pair_xform := Transform3D() # v0.114 : animation à deux en cours (le modèle est posé sur le repère de l'attaquant)
+var paired := false
 
 const ATTACKS := {
 	"light": {"anim": "cross", "from": 0.0, "hit": 0.283, "end": 0.7, "windup": 26, "active": 4, "recovery": 26, "reach": 1.5, "dmg": 8, "kb": 5.0, "heavy": false, "flash": Color(1, 0.15, 0.1)},
 	"heavy": {"anim": "hook", "from": 0.0, "hit": 0.267, "end": 0.467, "windup": 38, "active": 5, "recovery": 34, "reach": 2.4, "dmg": 16, "kb": 9.0, "heavy": true, "lunge": 2.2, "flash": Color(1, 0.55, 0.0)},
-	# v0.113 : coups de pied Mixamo (« Mma Low Kick » normal, « Mma Roundhouse Kick » lourd)
+	# v0.113 : coups de pied Mixamo (« Mma Low Kick » normal ; lourd : « Standing Melee Attack Kick Ver. 2 » en v0.114, il pousse tout droit)
 	"kick": {"anim": "mx/enemy__mma_low_kick", "from": 0.2, "hit": 0.5, "end": 0.9, "windup": 24, "active": 4, "recovery": 26, "reach": 1.7, "dmg": 9, "kb": 5.0, "heavy": false, "flash": Color(1, 0.15, 0.1)},
-	"round": {"anim": "mx/enemy__mma_roundhouse", "from": 0.35, "hit": 0.75, "end": 1.1, "windup": 34, "active": 5, "recovery": 32, "reach": 2.0, "dmg": 15, "kb": 9.0, "heavy": true, "flash": Color(1, 0.55, 0.0)},
+	"round": {"anim": "mx/kick__melee_kick_2", "from": 0.25, "hit": 0.6, "end": 1.0, "windup": 34, "active": 5, "recovery": 32, "reach": 2.0, "dmg": 15, "kb": 9.0, "heavy": true, "flash": Color(1, 0.55, 0.0)},
 }
 
-## Réactions aux coups (Mixamo, v0.113) : choisies selon le côté d'où vient le coup, sa hauteur et sa force, au hasard sans
-## rejouer la même deux fois de suite.
+## Réactions aux coups (Mixamo) : choisies selon le côté d'où vient le coup, sa hauteur et sa force, au hasard sans
+## rejouer la même deux fois de suite. v0.114 : la tête part dans le sens du geste (`sweep` du coup) et à l'opposé du côté
+## d'où vient le coup ; les réactions « droite » de Mixamo (tête vers la droite) ont un miroir `_m` (tête vers la gauche).
 const HIT_ANIMS := {
-	"front_high": ["mx/hit__head_light_left", "mx/hit__head_light_right", "mx/hit__head_medium_straight"],
-	"front_high_big": ["mx/hit__head_big_left", "mx/hit__head_big_right", "mx/hit__head_big_straight"],
+	"front_high": ["mx/hit__head_light_left", "mx/hit__head_medium_straight"],
+	"front_high_r": ["mx/hit__head_light_right", "mx/hit__head_medium_straight"], "front_high_l": ["mx/hit__head_light_right_m"],
+	"front_high_big": ["mx/hit__head_big_straight", "mx/hit__head_big_left"],
+	"front_high_big_r": ["mx/hit__head_big_right"], "front_high_big_l": ["mx/hit__head_big_right_m"],
 	"front_low": ["mx/hit__stomach_hit", "mx/hit__punch_body"],
 	"front_low_big": ["mx/hit__stomach_big", "mx/hit__punch_body"],
 	"back": ["mx/hit__back_small"], "back_big": ["mx/hit__back_large", "mx/hit__back_small"],
-	"left": ["mx/hit__side_left"], "right": ["mx/hit__side_right"],
+	# coup venu de la gauche du mannequin : la tête part vers sa droite (« side_right ») ; venu de sa droite : le miroir
+	"left": ["mx/hit__side_right"], "right": ["mx/hit__side_right_m"],
 }
 var last_hit_anim := ""
 
@@ -131,6 +140,10 @@ func set_mode(m: String) -> void:
 func reset_at(p: Vector3, face: Vector3) -> void:
 	slammed_by = null
 	grabbed_by = null
+	getup_glide = {}
+	if paired:
+		paired = false
+		rig.transform = Transform3D.IDENTITY
 	global_position = p
 	home = p
 	facing = face
@@ -167,14 +180,15 @@ func _physics_process(dt: float) -> void:
 		"air": _st_air(dt, on_floor)
 		"down": _st_down(dt)
 		"getup": _st_getup(dt)
-		"grabbed": _st_grabbed()
+		"grabbed": _st_grabbed(dt)
+		"paired": _st_paired(dt)
 		"taunt":
 			hvel = hvel.move_toward(Vector3.ZERO, 20 * dt)
 			velocity.y = -2.0
 			if f >= 70:
 				_to_idle()
 		"splat": _st_splat(dt)
-	if state != "grabbed":
+	if not state in ["grabbed", "paired"]:
 		velocity.x = hvel.x
 		velocity.z = hvel.z
 		var pre := hvel
@@ -188,15 +202,12 @@ func _physics_process(dt: float) -> void:
 		if rag.pinned:
 			rag.pin(global_position + Vector3.UP * 0.95, dt)
 		elif state == "down":
-			# couché : la capsule suit le corps (zone de frappe au sol = là où il est vraiment)
-			var pp := rag.pelvis_pos()
-			global_position.x = pp.x
-			global_position.z = pp.z
-			var hd := rag.head_pos() - pp
-			hd.y = 0
-			if hd.length() > 0.1:
-				facing = -hd.normalized()
-	rig.rotation.y = atan2(facing.x, facing.z)
+			# couché : un ressort garde le corps près de la capsule (la capsule ne suit jamais le corps)
+			rag.tether(global_position, dt)
+	if paired:
+		rig.global_transform = pair_xform
+	else:
+		rig.rotation.y = atan2(facing.x, facing.z)
 	lean_v = lean_v.lerp(lean_target, 1.0 - exp(-18.0 * dt))
 	lean_target = lean_target.lerp(Vector3.ZERO, 1.0 - exp(-7.0 * dt))
 	rig.lean = lean_v
@@ -479,9 +490,12 @@ func _pick_hit_anim(dir: Vector3, m: Dictionary) -> String:
 	var rt := facing.cross(Vector3.UP).dot(from)
 	var big := float(m.get("dmg", 5)) >= 8.0
 	var high := float((m.get("box", [0, 1.3]) as Array)[1]) >= 1.2
+	var sweep := int(m.get("sweep", 0))     # +1 : le geste file vers la droite du mannequin (face à face)
 	var key := ""
 	if fw > 0.45:
 		key = ("front_high" if high else "front_low") + ("_big" if big else "")
+		if high and sweep != 0:
+			key += "_r" if sweep > 0 else "_l"
 	elif fw < -0.45:
 		key = "back_big" if big else "back"
 	else:
@@ -506,6 +520,8 @@ func _launch(dir: Vector3, kb: Array, effect: String, stun_f: int) -> void:
 		juggle = 0
 	var decay := pow(0.88, juggle)     # plus on jongle, moins ça remonte (pas de combo infini)
 	hvel = dir * float(kb[0])
+	# il tombera sur le dos s'il est poussé vers l'arrière (il fait face au coup, sauf pendant un jongle), sinon à plat ventre
+	fall_up = true if effect != "juggle" else dir.dot(facing) <= 0.0
 	velocity.y = float(kb[1]) * (decay if float(kb[1]) > 0 else 1.0)
 	if effect == "spike":
 		velocity.y = float(kb[1])
@@ -593,26 +609,7 @@ func _st_air(dt: float, on_floor: bool) -> void:
 			game.sfx.play("land", global_position, 0.9)
 			juggle += 2
 			if slammed_by:
-				# éclaté au sol par la chope : gros impact, il rebondit haut (jonglable)
-				velocity.y = Moves.GRAB.slam_bounce
-				juggle = 0
-				stun = 60
-				hitstop = 10
-				rig.freeze(10 / 60.0)
-				game.fx.shockwave(global_position + Vector3.UP * 0.05, 2.4)
-				game.fx.dust(global_position, 1.8)
-				game.shake(0.6)
-				game.cam.punch(0.9)
-				game.sfx.play("big", global_position, 1.0)
-				game.popup(global_position + Vector3.UP * 2.0, "ÉCLATÉ !", Color(1, 0.7, 0.3))
-				game.popup(global_position + Vector3.UP * 1.4, str(int(Moves.GRAB.slam_dmg)), Color.WHITE)
-				hp -= float(Moves.GRAB.slam_dmg)
-				last_hit_t = 0.0
-				if is_instance_valid(slammed_by):
-					slammed_by.slam_landed(self)
-				slammed_by = null
-				if rag.active:
-					rag.kick(Vector3.UP * 6.0, global_position + Vector3.UP * 0.9)
+				_slam_land()
 			return
 		thrown_by = null
 		_go("down")
@@ -634,13 +631,9 @@ func _st_down(dt: float) -> void:
 		_go("getup")
 		juggle = 0
 		if rag.active:
-			# relevé depuis la pose du ragdoll : sur le dos = LayToIdle (Quaternius), à plat ventre = capture CMU 139_16
-			var fit := rig.getup_fit(rag, "getup", 0.0, "cmu/getup_front", 0.0)
-			facing = fit.facing
-			global_position = Vector3(fit.pos.x, global_position.y, fit.pos.z)
-			rig.rotation.y = atan2(facing.x, facing.z)
-			rig.play(fit.anim, 0.0, 1.6 if fit.up else 1.5, fit.from)
-			rag.blend_out(0.22)
+			# relevé : sur le dos = LayToIdle (Quaternius), à plat ventre = capture CMU 139_16, selon le sens du coup ;
+			# le corps glisse d'abord jusqu'au bassin de l'animation (à la place de la capsule), puis elle démarre
+			getup_glide = rig.getup_start(fall_up, "getup", 0.0, "cmu/getup_front", 0.0)
 		else:
 			rig.play("getup", 0.15, 2.0, 0.55)
 		if ko:
@@ -651,6 +644,13 @@ func _st_down(dt: float) -> void:
 func _st_getup(dt: float) -> void:
 	hvel = hvel.move_toward(Vector3.ZERO, 18 * dt)
 	velocity.y = -2.0
+	if not getup_glide.is_empty():
+		if rag.glide(getup_glide.pelvis, dt) or f >= 14:
+			rig.play(getup_glide.anim, 0.0, 1.6 if fall_up else 1.5, getup_glide.from)
+			rag.blend_out(0.22)
+			getup_glide = {}
+			f = 0
+		return
 	if f >= 56:
 		_to_idle()
 
@@ -696,24 +696,73 @@ func grab_by(h: Node) -> void:
 	_drop_token()
 	grabbed_by = h
 	_go("grabbed")
-	rag.stop()
-	rig.play("mx/hit__punch_body", 0.05, 0.0, 0.35)
-	lean_target = Vector3(-20, 0, 0)
+	getup_glide = {}
 	atk = {}
+	if ragdoll_on:
+		# v0.114 : il pend en ragdoll visuel, la tête dans la main du héros (sa capsule reste au sol devant lui)
+		rag.stop()
+		rag.start(Vector3.ZERO, false)
+	else:
+		rig.play("mx/grab__being_strangled", 0.05, 0.0, 2.0)
+		lean_target = Vector3(-20, 0, 0)
 
 
-## Tenu : il se débat de plus en plus (le héros le place chaque image).
-func _st_grabbed() -> void:
+## Tenu : il se débat de plus en plus (le héros place sa capsule chaque image ; le ragdoll pend à sa main).
+func _st_grabbed(dt: float) -> void:
 	velocity = Vector3.ZERO
 	hvel = Vector3.ZERO
 	var k := clampf(float(f) / Moves.GRAB.hold_max, 0.0, 1.0)
 	var per := int(lerpf(26, 9, k))
-	if f % per == 0:
+	if rag.active and is_instance_valid(grabbed_by):
+		rag.pin_bone("Head", grabbed_by.grip_point(), dt)
+		if f % per == 0:
+			rag.struggle(0.6 + k)
+	elif f % per == 0:
 		lean_target = Vector3(-20 + randf_range(-10, 10) * (0.5 + k), randf_range(-25, 25) * (0.4 + k), randf_range(-14, 14) * (0.4 + k))
 		rig.shake(0.08, Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)).normalized())
 
 
+## Animation à deux (v0.114) : il joue la moitié « victime » posée sur le repère de l'attaquant ; on garde la vitesse de son
+## bassin (pour le lâcher dans le bon sens).
+var pair_vel := Vector3.ZERO
+var _pair_prev := Vector3.ZERO
+
+
+func pair_play(anim: String, t: float, speed: float, xform: Transform3D) -> void:
+	_go("paired")
+	paired = true
+	pair_xform = xform
+	rig.global_transform = xform
+	if rag.active:
+		rag.blend_out(0.18)
+	rig.play(anim, 0.1, speed, t)
+	_pair_prev = rig.bone_pos("pelvis")
+	pair_vel = Vector3.ZERO
+
+
+func _st_paired(dt: float) -> void:
+	velocity = Vector3.ZERO
+	hvel = Vector3.ZERO
+	var p := rig.bone_pos("pelvis")
+	if f > 0:
+		pair_vel = (p - _pair_prev) / maxf(dt, 0.001)
+	_pair_prev = p
+
+
+## Fin de l'animation à deux : sa capsule rejoint son bassin (déplacé par l'animation, pas par un ragdoll).
+func pair_end() -> void:
+	if not paired:
+		return
+	var pel := rig.bone_pos("pelvis")
+	paired = false
+	rig.transform = Transform3D.IDENTITY
+	rig.rotation.y = atan2(facing.x, facing.z)
+	global_position = Vector3(pel.x, global_position.y, pel.z)
+
+
 func pummeled(attacker: Node, dmg: float) -> void:
+	if rag.active:
+		rag.kick(attacker.facing * 3.0 + Vector3.UP * 0.5, global_position + Vector3.UP * 1.6)
 	hp -= dmg
 	last_hit_t = 0.0
 	hitstop = 4
@@ -726,6 +775,8 @@ func pummeled(attacker: Node, dmg: float) -> void:
 ## Tenu trop longtemps : il se dégage en repoussant le héros.
 func escape_grab(hero_facing: Vector3) -> void:
 	grabbed_by = null
+	if rag.active:
+		rag.blend_out(0.2)
 	global_position += hero_facing * 0.3
 	_go("hurt")
 	stun = 10
@@ -734,7 +785,7 @@ func escape_grab(hero_facing: Vector3) -> void:
 	game.sfx.play("block", global_position, 0.6)
 
 
-## Chope + Y : soulevé puis écrasé au sol devant le héros (le rebond est géré dans _st_air).
+## Chope + Y (v0.114) : l'animation à deux vient de l'écraser au sol ; impact tout de suite, il rebondit (jonglable).
 func slam_by(h: Node, at: Vector3) -> void:
 	grabbed_by = null
 	slammed_by = h
@@ -743,17 +794,44 @@ func slam_by(h: Node, at: Vector3) -> void:
 	_go("air")
 	juggle = 0
 	hvel = Vector3.ZERO
-	velocity.y = -26.0
 	stun = 60
-	rig.play("knockback", 0.03, 1.2, 0.06)
+	fall_up = true
+	rig.play("knockback", 0.03, 1.2, 0.3)
 	rig.flash(0.1)
-	lean_target = Vector3(50, 0, 0)
-	_rag_hit(Vector3(0, -12, 0))
+	_slam_land()
+
+
+## Éclaté au sol par la chope : gros impact, il rebondit haut (jonglable).
+func _slam_land() -> void:
+	velocity.y = Moves.GRAB.slam_bounce
+	juggle = 0
+	stun = 60
+	hitstop = 10
+	rig.freeze(10 / 60.0)
+	game.fx.shockwave(global_position + Vector3.UP * 0.05, 2.4)
+	game.fx.dust(global_position, 1.8)
+	game.shake(0.6)
+	game.cam.punch(0.9)
+	game.sfx.play("big", global_position, 1.0)
+	game.popup(global_position + Vector3.UP * 2.0, "ÉCLATÉ !", Color(1, 0.7, 0.3))
+	game.popup(global_position + Vector3.UP * 1.4, str(int(Moves.GRAB.slam_dmg)), Color.WHITE)
+	hp -= float(Moves.GRAB.slam_dmg)
+	last_hit_t = 0.0
+	if is_instance_valid(slammed_by):
+		slammed_by.slam_landed(self)
+	slammed_by = null
+	if rag.active:
+		rag.kick(Vector3.UP * 6.0, global_position + Vector3.UP * 0.9)
+	if ragdoll_on and not rag.active:
+		rag.start(Vector3.UP * 6.0, true)
 
 
 func release_grab(v: Vector3) -> void:
 	grabbed_by = null
+	pair_end()
 	if v.length() < 0.1:
+		if rag.active:
+			rag.blend_out(0.2)
 		_to_idle()
 		return
 	thrown_by = game.hero

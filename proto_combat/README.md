@@ -1,4 +1,4 @@
-# Rogue Doll — proto combat (v0.113)
+# Rogue Doll — proto combat (v0.114)
 
 Version à part du jeu : **seulement le terrain d'essai**, avec un système de déplacement / combat refait de zéro pour trouver un
 feeling solide. Pas de ragdoll : des états lisibles comme dans un jeu de baston pro. Godot 4.7 (Jolt), GDScript.
@@ -63,6 +63,19 @@ feeling solide. Pas de ragdoll : des états lisibles comme dans un jeu de baston
 - Déplacements : saut de muret (vault), course + saut sur un mur de 3,6 m max (runup), suspendu / déplacement latéral / remontée
   animés, chutes et réceptions (roulade, réception lourde), demi-tour et arrêt en course, pas de boxe et esquives directionnelles en garde.
 - Armes : coups refaits sur des animations Mixamo (épée, katana, hache, batte), poses repos / course / garde / dégainer par arme.
+
+## v0.114
+- **Coups** : les animations qui partaient dans un autre sens que l'effet ont changé (l'effet reste) : coude (3e X), uppercut
+  Mixamo (lanceur, riposte), coup de talon (fin du combo aérien), coups d'arme qui montent / poussent devant ; impacts recalés
+  sur le passage de l'arme devant. Contrôle : `tools/audit_moves.gd` (direction du membre / de la lame à l'impact vs recul).
+- **Réactions des sbires** selon le sens du geste (`Moves.SWEEP`) et le côté d'où vient le coup (miroirs `_m` des réactions « droite »).
+- **Course au mur** : il garde l'élan du saut, seulement à partir de 0,8 m du sol, 0,7 s et 3 courses max, pieds hors du mur.
+- **Chope** : « Superhuman Choke Lift », le sbire pend en ragdoll visuel, la tête dans la main ; on marche (bras levé gardé par-dessus
+  la marche : `Rig.set_overlay`) ; X = coups de la main libre ; Y = « Hell Slammer », RB = « Shoulder Throw » : **animations à deux**
+  (attaquant + victime enregistrés ensemble, `KEEP_ROOT` dans mixamo_bake, `Hero._pair_start`, `Dummy.pair_play`). Planche : `tools/pair_sheet.gd`.
+- **Ragdoll (règle de Paul)** : purement visuel et local, il ne touche jamais la capsule ; au sol `Ragdoll.tether`, au relevé
+  `Ragdoll.glide` puis l'animation ; dos / ventre = sens du coup (`fall_up`). `Rig.getup_start` remplace `getup_fit`.
+- Coop en tête : rien du gameplay ne lit le ragdoll ; les animations à deux se rejouent à l'identique chez chaque joueur.
 
 ## Règle de travail (Paul, 24/10)
 Pas de coup ni d'animation inventés : on part de ressources existantes. **Quand il faut une animation, Claude la cherche d'abord lui-même**

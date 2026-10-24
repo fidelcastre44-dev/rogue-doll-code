@@ -90,6 +90,9 @@ var combo := 0
 var combo_t := 0.0
 var hurt_count := 0
 var rag: Ragdoll
+var fall_up := true            # v0.114 : se relèvera sur le dos (true) ou à plat ventre, selon le sens du coup
+var getup_glide := {}          # v0.114 : relevé en cours (le ragdoll glisse vers le bassin de l'animation)
+var pair_on := false           # v0.114 : animation à deux en cours (chope : éclater au sol / projection d'épaule)
 var guard_cool := 0.0          # parade pas spammable : re-garder trop vite = pas de fenêtre de parade
 # v0.112
 var weapon := ""               # "" = mains nues ; sinon une clé de Weapons.DEFS
@@ -134,6 +137,7 @@ const WR_MIN_SPEED := 5.0      # vitesse le long du mur pour s'y mettre à couri
 const WR_SPEED := 6.5          # plafond (plus de vitesse gratuite : on garde au plus son élan)
 const WR_MAX := 0.7            # s (1,3 s en v0.112)
 const WR_CHAIN := 3            # courses au mur d'affilée sans toucher le sol
+const WR_MIN_H := 0.8          # m au-dessus du dernier sol pour prendre le mur (v0.114)
 const WJ_OUT := 5.2            # saut de mur : vers l'extérieur (couloir de 2,5 m traversé en ~0,35 s)
 const WJ_UP := 6.0
 
@@ -253,6 +257,8 @@ func _blade_points() -> Array:
 
 
 func _face_rig() -> void:
+	if pair_on:
+		return     # animation à deux : le modèle est posé sur le repère de la paire
 	rig.rotation.y = atan2(facing.x, facing.z)
 
 
@@ -327,8 +333,13 @@ func stick_world() -> Vector3:
 
 
 func _go(st: String) -> void:
+	if pair_on and st != "grab":
+		_pair_end()
+	if state == "grab" and st != "grab":
+		rig.clear_overlay()
 	if state == "wallrun" and st != "wallrun":
 		rig.lean = Vector3.ZERO
+		rig.position = Vector3.ZERO
 	if state == "climb" and st != "climb" and col_shape:
 		col_shape.disabled = false
 	if state in ["hang", "climb"] and not st in ["hang", "climb"]:
@@ -745,6 +756,7 @@ func _check_hits() -> void:
 			hit_list.append(e)
 			var dir := facing
 			var m2 := mv.duplicate()
+			m2.sweep = Moves.SWEEP.get(move_id, 0)
 			if perfect_t > 0.0 or mv.get("crit", false):
 				m2.dmg = int(m2.dmg * 1.5)
 				m2.stun = int(m2.stun * 1.4)
@@ -774,6 +786,7 @@ func _check_blade() -> void:
 					hit_list.append(e)
 					var dir := facing
 					var m2 := mv.duplicate()
+					m2.sweep = Moves.SWEEP.get(move_id, 0)
 					if perfect_t > 0.0 or mv.get("crit", false):
 						m2.dmg = int(m2.dmg * 1.5)
 						m2.stun = int(m2.stun * 1.4)
@@ -1026,6 +1039,8 @@ func receive(attacker, dmg: float, kb: Vector3, heavy: bool) -> String:
 		_go("down")
 		down_f = 0
 		hvel = kb
+		fall_up = kb.dot(facing) <= 0.0      # v0.114 : poussé vers l'arrière = sur le dos (décidé par le coup, pas par la chute)
+		getup_glide = {}
 		velocity.y = 4.0
 		rig.play("knockback", 0.03, 1.4)
 		if game.ragdoll_on:
@@ -1062,24 +1077,25 @@ func _st_down(dt: float) -> void:
 		elif down_f == 14:
 			rag.pinned = false
 			rag.damp(0.4)
+		elif getup_glide.is_empty():
+			rag.tether(global_position, dt)     # au sol : le corps reste près de la capsule (jamais l'inverse)
 	if down_f == 40:
 		invuln = 40
 		if rag.active:
-			var fit := rig.getup_fit(rag, "getup", 0.0, "cmu/getup_front", 0.0)
-			facing = fit.facing
-			global_position = Vector3(fit.pos.x, global_position.y, fit.pos.z)
-			_face_rig()
-			rig.play(fit.anim, 0.0, 2.0 if fit.up else 1.6, fit.from)
-			rag.blend_out(0.2)
+			# relevé (règle de Paul) : le corps glisse vers la capsule, puis l'animation démarre ; dos / ventre = sens du coup
+			getup_glide = rig.getup_start(fall_up, "getup", 0.0, "cmu/getup_front", 0.0)
 		else:
 			rig.play("getup", 0.15, 2.4, 0.5)
+	if not getup_glide.is_empty() and (rag.glide(getup_glide.pelvis, dt) or down_f >= 48):
+		rig.play(getup_glide.anim, 0.0, 2.0 if fall_up else 1.6, getup_glide.from)
+		rag.blend_out(0.2)
+		getup_glide = {}
 	# relevé rapide : B ou A au sol
 	if down_f > 22 and down_f < 40 and (Inputs.buffered("dodge") or Inputs.buffered("jump")):
 		invuln = 20
+		getup_glide = {}
 		if rag.active:
-			var pp := rag.pelvis_pos()
-			global_position = Vector3(pp.x, global_position.y, pp.z)
-			rag.blend_out(0.12)
+			rag.blend_out(0.12)     # la capsule reste où elle est : le corps la rejoint
 		_start_dodge()
 		return
 	if down_f >= 75:
@@ -1119,7 +1135,8 @@ func _st_grab(dt: float) -> void:
 					grab_f = 0
 					pummel_cd = 0
 					f = 0
-					rig.play(GRAB_IDLE, 0.08, 1.0)
+					# v0.114 : « Superhuman Choke Lift » : il le saisit à la gorge et le soulève à bout de bras (le sbire pend en ragdoll)
+					rig.play(GRAB_LIFT, 0.06, LIFT_SPEED, LIFT_FROM)
 					game.sfx.play("grab", global_position, 0.7)
 					game.popup(global_position + Vector3.UP * 2.3, "CHOPE !", Color(1, 0.85, 0.4))
 					hitstop = 4
@@ -1133,10 +1150,28 @@ func _st_grab(dt: float) -> void:
 		"throw": _grab_throw()
 
 
-## Tenu : il est soulevé devant le héros. Le stick tourne le héros (choisir où l'éclater / le lancer).
-const GRAB_IDLE := "mx/grab__carrying_someone_idle"
-const GRAB_WALK_ANIM := "mx/grab__walking_carrying_someone"
+## Tenu (v0.114) : il le saisit à la gorge et le soulève d'une main (Mixamo « Superhuman Choke Lift ») ; le sbire pend en ragdoll
+## visuel, la tête dans la main du héros. On peut marcher (jambes de la marche, bras levé gardé par-dessus : Rig.set_overlay).
+## Y = l'éclater au sol, RB = projection d'épaule : animations à deux (attaquant + victime enregistrés ensemble, Mixamo).
+const GRAB_LIFT := "mx/grab__superhuman_choke_lift"
+const LIFT_FROM := 1.25        # s : il tend la main
+const LIFT_HOLD := 3.05        # s : bras levé, sbire à bout de bras (pose tenue)
+const LIFT_SPEED := 2.4
+const GRAB_WALK_ANIM := "walk"
 const GRAB_WALK := 2.3         # m/s : on peut marcher en le tenant (v0.113)
+const ARM_R: Array[String] = ["clavicle_r", "upperarm_r", "lowerarm_r", "hand_r", "thumb_01_r", "thumb_02_r", "thumb_03_r",
+	"index_01_r", "index_02_r", "index_03_r", "middle_01_r", "middle_02_r", "middle_03_r", "ring_01_r", "ring_02_r", "ring_03_r",
+	"pinky_01_r", "pinky_02_r", "pinky_03_r"]
+# animations à deux : [attaquant, victime, départ (s), instant de l'impact / du lâcher (s), vitesse, calage]
+# calage "front" : la victime au départ est devant le héros ; "back" : la victime au lâcher est pile dans son dos
+const PAIR_SLAM := ["mx/grab__hell_slammer_a", "mx/grab__hell_slammer_b", 4.4, 5.95, 1.7, "front"]
+const PAIR_THROW := ["mx/grab__shoulder_throw_aggressor", "mx/grab__shoulder_throw_victim", 2.0, 3.35, 1.5, "back"]
+var pair_hit_f := 0
+
+
+## Où le sbire tenu a la tête (sa capsule reste au sol devant le héros ; seul son ragdoll pend dans la main).
+func grip_point() -> Vector3:
+	return rig.bone_pos("hand_r") + Vector3.DOWN * 0.08
 
 
 func _grab_hold(dt: float) -> void:
@@ -1149,44 +1184,46 @@ func _grab_hold(dt: float) -> void:
 	if not is_instance_valid(grabbed):
 		_go("move")
 		return
-	grabbed.global_position = global_position + facing * 0.62 + Vector3.UP * 0.22
+	grabbed.global_position = global_position + facing * 0.62
 	grabbed.facing = -facing
-	if pummel_cd <= int(g.pummel_f) - 14:
+	var lifted := rig.current != GRAB_LIFT or rig.pos() >= LIFT_HOLD
+	if rig.current == GRAB_LIFT and rig.pos() >= LIFT_HOLD:
+		rig.set_speed(0.0)
+	if lifted and pummel_cd <= int(g.pummel_f) - 14:
 		if hvel.length() > 0.4:
-			rig.play(GRAB_WALK_ANIM, 0.15, clampf(hvel.length() / 1.6, 0.6, 1.5), 0.0, false)
-		else:
-			rig.play(GRAB_IDLE, 0.15, 1.0, 0.0, false)
+			rig.play(GRAB_WALK_ANIM, 0.15, clampf(hvel.length() / 1.4, 0.6, 1.6), 0.0, false)
+			rig.set_overlay(GRAB_LIFT, LIFT_HOLD, ARM_R)
+		elif rig.current != GRAB_LIFT:
+			rig.clear_overlay()
+			rig.play(GRAB_LIFT, 0.15, 0.0, LIFT_HOLD)
 	if Inputs.buffered("dodge"):
 		grabbed.release_grab(Vector3.ZERO)
 		grabbed = null
 		grab_mode = ""
 		_start_dodge()
 		return
-	if Inputs.buffered("heavy"):
+	if Inputs.buffered("heavy") and lifted:
 		grab_mode = "slam"
-		f = 0
-		hvel = Vector3.ZERO
-		# Mixamo « Grab And Slam » : on joue la fin (il soulève puis écrase), l'impact tombe à l'image slam_f
-		rig.play("mx/grab__grab_and_slam", 0.05, (3.0 - 2.45) / (int(g.slam_f) / 60.0), 2.45)
+		_pair_start(PAIR_SLAM)
 		game.sfx.play("whoosh_heavy", global_position, 0.6)
 		return
-	if Inputs.buffered("grab"):
+	if Inputs.buffered("grab") and lifted:
 		grab_mode = "throw"
-		f = 0
-		hvel = Vector3.ZERO
-		rig.play("mx/grab__throw_object", 0.05, (0.88 - 0.55) / (int(g.throw_f) / 60.0), 0.55)
+		# il le jette par-dessus son épaule (il retombe derrière lui) : avec le stick, le héros tourne le dos à la cible
+		var aim := stick_world()
+		if aim.length() > 0.5:
+			facing = -aim.normalized()
+		_pair_start(PAIR_THROW)
 		return
-	if Inputs.buffered("attack") and pummel_cd <= 0:
+	if Inputs.buffered("attack") and pummel_cd <= 0 and lifted:
 		pummel_cd = int(g.pummel_f)
-		# coup de genou ou coup de tête, en alternance (Mixamo « Illegal Knee », « Headbutt »)
-		if combo % 2 == 0:
-			rig.play("mx/grab__illegal_knee", 0.04, 0.28 / 0.12, 0.3)
-		else:
-			rig.play("mx/grab__headbutt", 0.04, 0.25 / 0.12, 0.3)
+		# coups de poing de la main libre, le bras qui tient reste levé
+		rig.play("jab" if combo % 2 == 0 else "cross", 0.04, 1.8, 0.06)
+		rig.set_overlay(GRAB_LIFT, LIFT_HOLD, ARM_R)
 		grabbed.pummeled(self, float(g.pummel_dmg))
 		_on_hit(grabbed, "pummel", "hit", 4)
 		game.sfx.play("light", grabbed.global_position + Vector3.UP * 1.2, 0.6)
-		game.fx.spark(grabbed.global_position + Vector3.UP * 1.3, facing, 0.4, Color(1, 0.9, 0.55))
+		game.fx.spark(grip_point() + Vector3.DOWN * 0.45, facing, 0.4, Color(1, 0.9, 0.55))
 		return
 	if grab_f >= int(g.hold_max):
 		# trop long : il se dégage (comme la chope de Smash Bros)
@@ -1200,38 +1237,71 @@ func _grab_hold(dt: float) -> void:
 		game.popup(global_position + Vector3.UP * 2.3, "IL SE DÉGAGE", Color(1, 0.6, 0.5))
 
 
-## Y pendant la chope : il le soulève et l'éclate au sol devant lui. Il rebondit (jonglable) ; on peut agir dès l'impact.
+## Animation à deux : les deux modèles jouent leur moitié depuis la même origine. Le repère de la paire est tourné et posé
+## pour que l'attaquant soit sur la capsule du héros et que la victime soit devant lui (là où il la tenait).
+func _pair_start(pr: Array) -> void:
+	var a: String = pr[0]
+	var b: String = pr[1]
+	var t_s: float = pr[2]
+	var pa: Vector3 = (rig.pose_at(a, t_s)["pelvis"] as Transform3D).origin
+	var back: bool = pr[5] == "back"
+	var pb: Vector3 = (rig.pose_at(b, float(pr[3]) if back else t_s)["pelvis"] as Transform3D).origin
+	var d := Vector3(pb.x - pa.x, 0, pb.z - pa.z)
+	var want := -facing if back else facing
+	var yaw := atan2(want.x, want.z) - atan2(d.x, d.z)
+	f = 0
+	hvel = Vector3.ZERO
+	pair_on = true
+	pair_hit_f = int(round((float(pr[3]) - t_s) / float(pr[4]) * 60.0))
+	rig.clear_overlay()
+	rig.rotation = Vector3(0, yaw, 0)
+	rig.position = -(Basis(Vector3.UP, yaw) * Vector3(pa.x, 0, pa.z))
+	rig.play(a, 0.12, float(pr[4]), t_s)
+	if is_instance_valid(grabbed):
+		grabbed.pair_play(b, t_s, float(pr[4]), rig.global_transform)
+
+
+## Fin de l'animation à deux : l'animation (pas le ragdoll) a déplacé l'attaquant, la capsule le rejoint.
+func _pair_end() -> void:
+	if not pair_on:
+		return
+	var pel := rig.bone_pos("pelvis")
+	pair_on = false
+	rig.position = Vector3.ZERO
+	global_position = Vector3(pel.x, global_position.y, pel.z)
+	_face_rig()
+
+
+## Y pendant la chope : Mixamo « Hell Slammer » (attaquant + victime) ; à l'impact il rebondit (jonglable), on peut agir.
 func _grab_slam() -> void:
 	var g := Moves.GRAB
-	if grabbed and is_instance_valid(grabbed) and f < int(g.slam_f):
-		var k := float(f) / float(g.slam_f)
-		grabbed.global_position = global_position + facing * lerpf(0.72, 0.9, k) + Vector3.UP * lerpf(0.22, 1.5, k)
-	if f == int(g.slam_f) and grabbed:
-		grabbed.slam_by(self, global_position + facing * 1.05)
+	if f == pair_hit_f and grabbed and is_instance_valid(grabbed):
+		grabbed.pair_end()
+		grabbed.slam_by(self, grabbed.global_position)
 		grabbed = null
-	if f == int(g.slam_f):
-		rig.set_speed(1.4)
-	if f >= int(g.slam_f) + int(g.slam_recovery) or (f > int(g.slam_f) + 6 and has_hit):
+	if f >= pair_hit_f + int(g.slam_recovery) or (f > pair_hit_f + 6 and has_hit):
 		grab_mode = ""
 		_go("move")
 
 
+## RB pendant la chope : projection d'épaule (Mixamo « Shoulder Throw », attaquant + victime). Au lâcher, il part dans le sens
+## où l'animation l'envoie (par-dessus l'épaule, derrière le héros) et renverse les autres (boule de bowling).
 func _grab_throw() -> void:
 	var g := Moves.GRAB
-	if grabbed and is_instance_valid(grabbed):
-		grabbed.global_position = global_position + facing * 0.72 + Vector3.UP * 0.22
-	if f == int(g.throw_f) and grabbed:
+	if f == pair_hit_f and grabbed and is_instance_valid(grabbed):
+		var v: Vector3 = grabbed.pair_vel
+		grabbed.pair_end()
 		var kb: Array = g.kb
-		var dir := facing
-		var s2 := stick_world()
-		if s2.length() > 0.5:
-			dir = s2.normalized()
+		# l'animation l'envoie derrière le héros, un peu de biais : on garde l'axe (dans le dos du héros, donc là où visait le stick)
+		var dir := -facing
+		if Vector2(v.x, v.z).length() > 0.2 and Vector3(v.x, 0, v.z).normalized().dot(dir) < 0.3:
+			dir = Vector3(v.x, 0, v.z).normalized()
 		grabbed.release_grab(dir * float(kb[0]) + Vector3.UP * float(kb[1]))
 		_on_hit(grabbed, "throw", "hit", 8)
 		game.shake(0.35)
 		game.sfx.play("heavy", global_position, 0.8)
 		grabbed = null
-	if f >= int(g.throw_f) + int(g.recovery):
+	if f >= pair_hit_f + int(g.recovery):
 		grab_mode = ""
 		_go("move")
 
@@ -1515,6 +1585,9 @@ func _st_climb(_dt: float) -> void:
 func _try_wallrun() -> bool:
 	if f < 4 or wall_chain >= WR_CHAIN:
 		return false
+	# v0.114 : pas de course au ras du sol (il prenait le mur à 50 cm et glissait aussitôt jusqu'en bas)
+	if global_position.y - last_ground_y < WR_MIN_H:
+		return false
 	var hv := Vector3(hvel.x, 0, hvel.z)
 	if hv.length() < WR_MIN_SPEED:
 		return false
@@ -1546,7 +1619,7 @@ func _start_wallrun(n: Vector3, dir: Vector3, sp: float, side: float) -> void:
 	wall_n = n
 	wr_dir = dir
 	wr_speed = minf(sp * 0.9, WR_SPEED)
-	velocity.y = clampf(velocity.y * 0.3 + 1.2, 0.5, 2.5)
+	velocity.y = clampf(velocity.y * 0.5 + 2.0, 1.5, 4.5)     # v0.114 : il garde l'élan de son saut (comme en v0.112)
 	facing = dir
 	air_dash_used = false
 	air_attacks = 0
@@ -1573,8 +1646,10 @@ func _st_wallrun(dt: float, on_floor: bool) -> void:
 		return
 	wr_speed = maxf(wr_speed - 4.0 * dt, 3.0)
 	hvel = wr_dir * wr_speed - n * 0.6
-	velocity.y -= (9.0 if t < 0.25 else 22.0) * dt
-	velocity.y = maxf(velocity.y, -6.0)
+	velocity.y -= (5.0 if t < 0.35 else 16.0) * dt
+	velocity.y = maxf(velocity.y, -4.0)
+	# l'animation Mixamo rapproche le bassin du mur d'environ 35 cm : on décale le corps pour que les pieds restent dehors
+	rig.position = rig.position.lerp(n * 0.3, minf(1.0, dt * 12.0))
 	if Inputs.buffered("jump"):
 		last_wall_n = n
 		wall_lock = 0.35
@@ -1665,11 +1740,11 @@ func phase() -> String:
 ## Calculé avec les mêmes règles que les états ci-dessus (une seule vérité). Chaque entrée :
 ## {b: bouton ("X","Y","A","B","L1","R1","Ymaint","stick"), t: ce que ça fait, on: possible tout de suite, wait: images avant que ça s'ouvre}
 const MOVE_NAMES := {
-	"jab": "jab", "cross": "direct", "hook": "crochet", "spin_kick": "coup de pied retourné (renverse)",
+	"jab": "jab", "cross": "direct", "hook": "coup de coude", "spin_kick": "coup de pied retourné (renverse)",
 	"launcher": "uppercut lanceur (envoie en l'air)", "push_kick": "coup de pied poussé (brise la garde)",
 	"haymaker": "gros crochet plongeant (renverse, mur)", "charged": "crochet chargé", "dash_punch": "direct plongeant",
 	"slide": "glissade qui fauche", "flying_hook": "crochet volant", "air_jab": "jab aérien", "air_cross": "coup de pied latéral",
-	"air_kick": "coup de pied circulaire qui écrase (rebond)", "ax_jump": "saut à la hache (renverse)", "air_spike": "piqué (onde au sol)", "riposte": "RIPOSTE (uppercut critique)",
+	"air_kick": "coup de talon qui écrase (rebond)", "ax_jump": "saut à la hache (renverse)", "air_spike": "piqué (onde au sol)", "riposte": "RIPOSTE (uppercut critique)",
 	# armes (v0.112)
 	"sw_a": "taille", "sw_b": "revers", "sw_c": "grand coup (renverse)", "sw_up": "taille montante (envoie en l'air)",
 	"sw_heavy": "grand coup d'épée (brise la garde, renverse)", "sw_dash": "estocade en avançant", "sw_air": "taille aérienne",
@@ -1707,7 +1782,7 @@ func actions() -> Array:
 				out.append({"b": "X", "t": " ▸ ".join(chain), "on": true})
 				out.append({"b": "Y", "t": _mn(_wmove("heavy", "push_kick")), "on": true})
 			else:
-				out.append({"b": "X", "t": "jab ▸ direct ▸ crochet ▸ retourné", "on": true})
+				out.append({"b": "X", "t": "jab ▸ direct ▸ coude ▸ retourné", "on": true})
 				out.append({"b": "Y", "t": MOVE_NAMES.push_kick, "on": true})
 				out.append({"b": "Ymaint", "t": "maintenu : " + MOVE_NAMES.charged, "on": true})
 			out.append({"b": "B", "t": "roulade (invincible au début)" if dodge_ok else "roulade (recharge…)", "on": dodge_ok})
@@ -1720,7 +1795,7 @@ func actions() -> Array:
 				var t = _pick_target(facing, float(Moves.GRAB.reach), 0.9)
 				out.append({"b": "R1", "t": "chope (tenir 3 s)" if t else "chope (personne à portée)", "on": t != null})
 		"air":
-			out.append({"b": "X", "t": "combo aérien : jab ▸ pied latéral ▸ pied circulaire (écrase)" if weapon == "" else _mn(_wmove("air", "air_jab")) + " ▸ …", "on": air_attacks < 4})
+			out.append({"b": "X", "t": "combo aérien : jab ▸ pied latéral ▸ talon (écrase)" if weapon == "" else _mn(_wmove("air", "air_jab")) + " ▸ …", "on": air_attacks < 4})
 			out.append({"b": "Y", "t": MOVE_NAMES.air_spike, "on": true})
 			out.append({"b": "B", "t": "dash aérien", "on": not air_dash_used})
 		"attack":

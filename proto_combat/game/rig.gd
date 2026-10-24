@@ -171,27 +171,49 @@ func pose_at(anim: String, t: float) -> Dictionary:
 	return out
 
 
-## Pour se relever d'un ragdoll : quelle animation, et comment placer / tourner le perso pour que son corps couché
-## au début de l'animation tombe pile sur le corps du ragdoll. Retourne {anim, from, facing, pos}.
-func getup_fit(rag: Ragdoll, from_back: String, back_t: float, from_front: String, front_t: float) -> Dictionary:
-	var up := rag.face_up()
-	var anim := from_back if up else from_front
-	var t0 := back_t if up else front_t
+## Relevé (v0.114, règle de Paul) : le perso garde sa place et son orientation (décidées par le combat) ; sur le dos ou à
+## plat ventre selon `face_up` (sens du coup). Renvoie l'animation et où se trouve le bassin (monde) au début du relevé,
+## pour que le ragdoll y glisse avant que l'animation démarre. {anim, from, pelvis}
+func getup_start(face_up: bool, from_back: String, back_t: float, from_front: String, front_t: float) -> Dictionary:
+	var anim := from_back if face_up else from_front
+	var t0 := back_t if face_up else front_t
 	var key := anim + str(t0)
 	if not _fit_cache.has(key):
-		var p := pose_at(anim, t0)
-		var pel: Vector3 = (p["pelvis"] as Transform3D).origin
-		var hd: Vector3 = (p["Head"] as Transform3D).origin
-		_fit_cache[key] = [Vector3(hd.x - pel.x, 0, hd.z - pel.z), Vector3(pel.x, 0, pel.z)]
-	var d_anim: Vector3 = _fit_cache[key][0]
-	var o_anim: Vector3 = _fit_cache[key][1]
-	var pel_w := rag.pelvis_pos()
-	var d_rag := rag.head_pos() - pel_w
-	d_rag.y = 0
-	if d_rag.length() < 0.05 or d_anim.length() < 0.05:
-		d_rag = Vector3(0, 0, 1)
-		d_anim = Vector3(0, 0, 1)
-	var yaw := atan2(d_rag.x, d_rag.z) - atan2(d_anim.x, d_anim.z)
-	var facing := Vector3(0, 0, 1).rotated(Vector3.UP, yaw)
-	var pos := Vector3(pel_w.x, 0, pel_w.z) - o_anim.rotated(Vector3.UP, yaw)
-	return {"anim": anim, "from": t0, "facing": facing, "pos": pos, "up": up}
+		_fit_cache[key] = (pose_at(anim, t0)["pelvis"] as Transform3D).origin
+	var pel: Vector3 = _fit_cache[key]
+	return {"anim": anim, "from": t0, "pelvis": global_transform * pel}
+
+
+# ------------------------------------------------------------------ v0.114 : bras par-dessus l'animation
+## Pendant la chope, le héros marche (jambes de l'animation de marche) en gardant le bras levé de « Superhuman Choke Lift » :
+## après chaque mise à jour de l'AnimationPlayer, ces os reprennent la rotation de l'animation `overlay_anim` à `overlay_t`.
+var overlay_anim := ""
+var overlay_t := 0.0
+var overlay_bones: Array[String] = []
+var _overlay_hooked := false
+
+
+func set_overlay(anim: String, t: float, bones: Array[String]) -> void:
+	overlay_anim = anim
+	overlay_t = t
+	overlay_bones = bones
+	if not _overlay_hooked:
+		_overlay_hooked = true
+		ap.mixer_applied.connect(_apply_overlay)
+
+
+func clear_overlay() -> void:
+	overlay_anim = ""
+
+
+func _apply_overlay() -> void:
+	if overlay_anim == "" or not ap.has_animation(overlay_anim):
+		return
+	var a := ap.get_animation(overlay_anim)
+	for bn in overlay_bones:
+		var b := skel.find_bone(bn)
+		if b < 0:
+			continue
+		var ti := a.find_track(NodePath("Armature/Skeleton3D:" + bn), Animation.TYPE_ROTATION_3D)
+		if ti >= 0:
+			skel.set_bone_pose_rotation(b, a.rotation_track_interpolate(ti, overlay_t))

@@ -1,6 +1,9 @@
 class_name Ragdoll
 extends RefCounted
 ## Ragdoll VISUEL d'un perso (ne décide jamais du gameplay : la capsule du perso reste la vérité).
+## Règle de Paul (v0.114, pensée pour la coop) : le ragdoll ne touche JAMAIS la capsule ; il est local chez chaque joueur.
+## Au sol un ressort garde le corps près de la capsule (tether) ; au relevé le corps glisse jusqu'à la capsule (glide) puis
+## l'animation démarre ; se relever sur le dos ou le ventre est décidé par le combat (sens du coup), pas par la chute.
 ## Construit exactement comme le bouton « Create Physical Skeleton » de Godot (Skeleton3DEditor::create_physical_bone :
 ## capsule le long de l'os, body_offset = looking_at(os enfant), joint_offset au milieu) et réglé comme la démo officielle
 ## « Ragdoll Physics » (godot-demo-projects/3d/ragdoll_physics, même noms d'os UE) : ConeJoint swing 20° / twist 20°,
@@ -199,6 +202,73 @@ func pin(target: Vector3, dt: float, stiffness := 22.0) -> void:
 		return
 	var want := err * stiffness
 	p.linear_velocity = p.linear_velocity.lerp(want, clampf(dt * 18.0, 0.0, 1.0))
+
+
+## Au sol : ressort horizontal qui garde le bassin à moins de `slack` m de la capsule (cible monde). Le corps suit la
+## capsule, jamais l'inverse.
+func tether(target: Vector3, dt: float, slack := 0.25, stiffness := 9.0) -> void:
+	if not active:
+		return
+	var p: PhysicalBone3D = bones.get("pelvis")
+	if not p:
+		return
+	var err := target - p.global_position
+	err.y = 0
+	var l := err.length()
+	if l > 2.5:
+		for bn in bones:
+			(bones[bn] as PhysicalBone3D).global_position += err
+		return
+	if l > slack:
+		var want := err / l * (l - slack) * stiffness
+		var k := clampf(dt * 12.0, 0.0, 1.0)
+		for bn in ["pelvis", "spine_02", "spine_03"]:
+			var b: PhysicalBone3D = bones.get(bn)
+			if b:
+				b.linear_velocity.x = lerpf(b.linear_velocity.x, want.x, k)
+				b.linear_velocity.z = lerpf(b.linear_velocity.z, want.z, k)
+
+
+## Relevé : tout le corps glisse (en gardant sa forme) pour que le bassin arrive sur `target` (monde). Vrai quand il y est.
+func glide(target: Vector3, dt: float, rate := 16.0) -> bool:
+	if not active:
+		return true
+	var p: PhysicalBone3D = bones.get("pelvis")
+	if not p:
+		return true
+	var err := target - p.global_position
+	var step := err * minf(1.0, dt * rate)
+	for bn in bones:
+		var b: PhysicalBone3D = bones[bn]
+		b.global_position += step
+		b.linear_velocity *= 0.6
+		b.angular_velocity *= 0.6
+	return err.length() < 0.07
+
+
+## Tenir un os (chope : la tête dans la main du héros). Ressort fort ; le reste du corps pend.
+func pin_bone(bn: String, target: Vector3, dt: float, stiffness := 30.0) -> void:
+	if not active:
+		return
+	var b: PhysicalBone3D = bones.get(bn)
+	if not b:
+		return
+	var err := target - b.global_position
+	if err.length() > 1.5:
+		for k in bones:
+			(bones[k] as PhysicalBone3D).global_position += err
+		return
+	b.linear_velocity = b.linear_velocity.lerp(err * stiffness, clampf(dt * 20.0, 0.0, 1.0))
+
+
+## Petits coups de pied dans le vide (il se débat quand on le tient).
+func struggle(power := 1.0) -> void:
+	if not active:
+		return
+	for bn in ["calf_l", "calf_r", "foot_l", "foot_r", "lowerarm_l", "lowerarm_r"]:
+		var b: PhysicalBone3D = bones.get(bn)
+		if b:
+			b.linear_velocity += Vector3(randf_range(-1, 1), randf_range(-0.4, 1), randf_range(-1, 1)) * 2.5 * power
 
 
 ## Retour à l'animation : l'influence du ragdoll descend à 0, puis la simulation s'arrête.
