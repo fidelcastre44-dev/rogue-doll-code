@@ -3,7 +3,7 @@ extends Node3D
 ## Ce nœud monte tout (lumière, terrain, héros, mannequins, caméra, effets, sons, interface, menu) et sert d'arbitre :
 ## figé à l'impact, secousses, ralentis, parade, esquive parfaite, jetons d'attaque des ennemis (2 à la fois au plus).
 
-const VERSION := "0.112"
+const VERSION := "0.113"
 const MAX_ATTACKERS := 2
 
 var arena: Arena
@@ -110,6 +110,7 @@ func _menu_setup() -> void:
 		["Infos des coups (frise)", ["visibles", "cachées"], 0, func(i): hud.show_debug = i == 0],
 		["Aide « possible maintenant »", ["visible", "cachée"], 0, func(i): hud.show_actions = i == 0],
 		["Ragdoll visuel", ["oui", "non"], 0, func(i): set_ragdoll(i == 0)],
+		["Aperçu des animations Mixamo", ["—"] + _mx_names(), 0, func(i): if i > 0: hero.preview("mx/" + _mx_names()[i - 1])],
 		["Quitter le jeu", [], 0, func(_i): get_tree().quit()],
 	])
 	# aide à la visée : refléter la valeur sauvegardée
@@ -119,6 +120,15 @@ func _menu_setup() -> void:
 		if absf(a[i] - hero.assist) < 0.05:
 			best = i
 	menu.opts[5][2] = best
+
+
+var _mx_cache := []
+## Toutes les animations Mixamo reprises (tools/mixamo_bake.gd) : le menu permet de les voir une par une sur le héros.
+func _mx_names() -> Array:
+	if _mx_cache.is_empty() and hero and hero.rig and hero.rig.ap.has_animation_library("mx"):
+		_mx_cache = Array(hero.rig.ap.get_animation_library("mx").get_animation_list())
+		_mx_cache.sort()
+	return _mx_cache
 
 
 func _nearest(vals: Array, v: float) -> int:

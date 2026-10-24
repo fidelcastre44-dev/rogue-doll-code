@@ -1,4 +1,4 @@
-# Rogue Doll — proto combat (v0.112)
+# Rogue Doll — proto combat (v0.113)
 
 Version à part du jeu : **seulement le terrain d'essai**, avec un système de déplacement / combat refait de zéro pour trouver un
 feeling solide. Pas de ragdoll : des états lisibles comme dans un jeu de baston pro. Godot 4.7 (Jolt), GDScript.
@@ -49,6 +49,20 @@ feeling solide. Pas de ragdoll : des états lisibles comme dans un jeu de baston
   D'après **godot-wall-running** (Garbaj, MIT) et les réglages de **Vigilante** (madebynova). Pas encore d'animation dédiée :
   course penchée vers le mur (une animation Mixamo « Wall Run » ferait mieux).
 - Tests : `tests/check.gd` = 70 vérifications (chope tenue / éclatée / dégagée, armes, rebords, course au mur, caméra).
+
+## v0.113
+- **124 animations Mixamo** (téléchargées par Claude depuis le navigateur de Paul) : sources dans `mixamo_src/` (exclues de l'export),
+  reprises sur le squelette type mannequin par `tools/mixamo_bake.gd` -> bibliothèque « mx » (`assets/anims/lib_mx_*.res`,
+  `mx_info.json`). Toutes visibles dans le menu Start → « Aperçu des animations Mixamo ». `tools/mx_times.gd` = instants d'impact.
+- Course au mur bien moins puissante : 0,7 s, pas de vitesse gratuite, gravité qui revient vite, 3 courses max avant le sol, animation « Wall Run ».
+- Combo léger aérien : jab, coup de pied latéral, circulaire qui écrase.
+- Saut de poursuite après le lanceur : le héros monte à la hauteur du sbire éjecté.
+- Sbires : réactions variées (direction / hauteur / force, sans répétition) + réaction physique partielle (buste, tête, bras) ;
+  coups de pied (low kick, circulaire), provocation.
+- Chope : on marche en portant le sbire ; coup de genou / coup de tête, projection et slam animés.
+- Déplacements : saut de muret (vault), course + saut sur un mur de 3,6 m max (runup), suspendu / déplacement latéral / remontée
+  animés, chutes et réceptions (roulade, réception lourde), demi-tour et arrêt en course, pas de boxe et esquives directionnelles en garde.
+- Armes : coups refaits sur des animations Mixamo (épée, katana, hache, batte), poses repos / course / garde / dégainer par arme.
 
 ## Règle de travail (Paul, 24/10)
 Pas de coup ni d'animation inventés : on part de ressources existantes. **Quand il faut une animation, Claude la cherche d'abord lui-même**

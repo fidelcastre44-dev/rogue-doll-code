@@ -15,7 +15,7 @@ func _run() -> void:
 	var names := OS.get_environment("ANIMS").split(",")
 	var model := OS.get_environment("MODEL") if OS.get_environment("MODEL") != "" else "male"
 	var out := OS.get_environment("OUT") if OS.get_environment("OUT") != "" else "/tmp/sheet.png"
-	var cols := 5
+	var cols := int(OS.get_environment("COLS")) if OS.get_environment("COLS") != "" else 5
 	var vp := SubViewport.new()
 	vp.size = Vector2i(cols * 220, names.size() * 260)
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
@@ -40,6 +40,8 @@ func _run() -> void:
 	var lib: AnimationLibrary = load(MODELS[model][1])
 	if OS.get_environment("CMULIB") != "":
 		lib = load(MODELS[model][1].replace("lib_", "lib_cmu_"))
+	if OS.get_environment("MXLIB") != "":
+		lib = load(MODELS[model][1].replace("lib_", "lib_mx_"))
 	var players := []
 	for r in names.size():
 		var a: Animation = lib.get_animation(names[r])

@@ -6,7 +6,7 @@ func _init():
 func _run():
 	var wid := OS.get_environment("WEAPON")
 	var anim := OS.get_environment("ANIM")
-	var cols := 6
+	var cols := int(OS.get_environment("COLS")) if OS.get_environment("COLS") != "" else 6
 	var vp := SubViewport.new(); vp.size = Vector2i(cols * 300, 420); vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS; vp.own_world_3d = true; root.add_child(vp)
 	var env := WorldEnvironment.new(); env.environment = Environment.new(); env.environment.background_mode = Environment.BG_COLOR; env.environment.background_color = Color(0.82,0.84,0.88); env.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR; env.environment.ambient_light_color = Color(0.7,0.7,0.75); vp.add_child(env)
 	var sun := DirectionalLight3D.new(); sun.rotation_degrees = Vector3(-50, 30, 0); vp.add_child(sun)
@@ -16,13 +16,14 @@ func _run():
 	cam.look_at(Vector3(w * 0.5 - 1.3, 0.6, 0))
 	var lib: AnimationLibrary = load("res://assets/anims/lib_male.res")
 	var cmu: AnimationLibrary = load("res://assets/anims/lib_cmu_male.res")
-	var a: Animation = cmu.get_animation(anim.trim_prefix("cmu/")) if anim.begins_with("cmu/") else lib.get_animation(anim)
+	var mxl: AnimationLibrary = load("res://assets/anims/lib_mx_male.res")
+	var a: Animation = cmu.get_animation(anim.trim_prefix("cmu/")) if anim.begins_with("cmu/") else (mxl.get_animation(anim.trim_prefix("mx/")) if anim.begins_with("mx/") else lib.get_animation(anim))
 	for c in cols:
 		var m: Node3D = load("res://assets/hero/male/Superhero_Male_FullBody.gltf").instantiate()
 		vp.add_child(m)
 		m.position = Vector3(c * 2.6, 0, 0)
 		m.rotation.y = PI   # regarde vers -Z (loin de la caméra) : on voit le dos et la lame devant
-		var ap := AnimationPlayer.new(); m.add_child(ap); ap.root_node = NodePath(".."); ap.add_animation_library("", lib); ap.add_animation_library("cmu", cmu)
+		var ap := AnimationPlayer.new(); m.add_child(ap); ap.root_node = NodePath(".."); ap.add_animation_library("", lib); ap.add_animation_library("cmu", cmu); ap.add_animation_library("mx", mxl)
 		ap.play(anim); ap.seek(a.length * c / float(cols - 1) * 0.999, true); ap.pause()
 		var sk: Skeleton3D = m.find_child("Skeleton3D", true, false)
 		if wid != "":

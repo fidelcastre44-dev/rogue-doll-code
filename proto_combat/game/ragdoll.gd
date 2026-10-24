@@ -96,11 +96,59 @@ func setup(sk: Skeleton3D, host: Node) -> void:
 		_fwd_local = (g.basis.inverse() * Vector3(0, 0, 1)).normalized()
 
 
+## v0.113 : réaction physique partielle à un coup (buste, tête, bras simulés un instant, jambes animées), puis retour à
+## l'animation. Méthode des « hit reactions » physiques : PhysicalBoneSimulator3D.physical_bones_start_simulation(liste).
+const REACT_BONES: Array[StringName] = [&"spine_03", &"Head", &"upperarm_l", &"lowerarm_l", &"hand_l", &"upperarm_r", &"lowerarm_r", &"hand_r"]
+var reacting := false
+
+
+func react(vel: Vector3, at: Vector3, power := 0.5) -> void:
+	if active:
+		return
+	if _tween:
+		_tween.kill()
+	if reacting:
+		sim.physical_bones_stop_simulation()
+	reacting = true
+	sim.influence = clampf(0.4 + 0.35 * power, 0.0, 0.85)
+	sim.active = true
+	sim.physical_bones_start_simulation(REACT_BONES)
+	var best: PhysicalBone3D = null
+	var bd := INF
+	for bn in REACT_BONES:
+		var pb: PhysicalBone3D = bones.get(String(bn))
+		if pb == null:
+			continue
+		var d := pb.global_position.distance_to(at)
+		if d < bd:
+			bd = d
+			best = pb
+	for bn in REACT_BONES:
+		var pb: PhysicalBone3D = bones.get(String(bn))
+		if pb:
+			pb.linear_velocity = vel * (1.0 if pb == best else 0.45)
+	_tween = _host.create_tween()
+	_tween.tween_property(sim, "influence", 0.0, 0.32 + 0.15 * power)
+	_tween.tween_callback(_end_react)
+
+
+func _end_react() -> void:
+	if reacting and not active:
+		sim.physical_bones_stop_simulation()
+		sim.active = false
+	reacting = false
+	sim.influence = 1.0
+
+
 ## Passe en ragdoll en gardant la pose actuelle, avec une impulsion (m/s) sur tout le corps.
 func start(vel: Vector3, pin := true) -> void:
 	if _tween:
 		_tween.kill()
 		_tween = null
+	if reacting:
+		sim.physical_bones_stop_simulation()
+		sim.active = false
+		reacting = false
 	sim.influence = 1.0
 	if not active:
 		sim.active = true
@@ -166,9 +214,10 @@ func blend_out(t := 0.3) -> void:
 
 
 func stop() -> void:
-	if active:
+	if active or reacting:
 		sim.physical_bones_stop_simulation()
 		sim.active = false
+	reacting = false
 	active = false
 	pinned = false
 	sim.influence = 1.0

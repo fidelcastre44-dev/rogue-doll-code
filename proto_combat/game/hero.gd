@@ -113,14 +113,29 @@ var wr_speed := 0.0
 var last_wall_n := Vector3.ZERO
 var wall_lock := 0.0
 var wj_t := 0.0                # après un saut de mur : l'élan prime sur le stick (comme dans le jeu principal, v0.23)
+var wall_chain := 0            # courses au mur depuis le dernier appui au sol
+var pursuit := false           # saut de poursuite après un lanceur : gravité de montée jusqu'au sommet
+var climb_kind := ""           # "mantle", "hang", "runup", "vault"
+var climb_end := 0
+var stop_anim := 0             # images restantes de l'animation d'arrêt / de demi-tour
+var guard_step := ""
+var mx_info := {}
+var jump_speed := 0.0          # vitesse au sol au moment du saut (monter un mur en courant : seulement si on courait)
+const HANG_ANIM := "mx/ledge__hanging_idle_against_wall"
 const HANG_REACH := 2.35       # rebord le plus haut qu'on attrape (au-dessus des pieds), en l'air
 const MANTLE_MAX := 1.45       # en dessous : on enjambe directement
+const VAULT_MAX := 1.25        # obstacle franchi en courant (s'il est fin)
+const VAULT_SPEED := 5.0
+const VAULT_DEPTH := 1.1       # épaisseur maxi d'un obstacle qu'on franchit
+const RUNUP_MAX := 3.6         # mur qu'on monte en courant (au-dessus des pieds)
 const SHIMMY := 1.85           # m/s le long du rebord (Climbing Physics Prototype : TRAVERSE_SPEED)
-const WR_MIN_SPEED := 4.0      # vitesse le long du mur pour s'y mettre à courir
-const WR_SPEED := 7.5
-const WR_MAX := 1.3            # s (Vigilante : 1,2 s)
-const WJ_OUT := 6.5            # saut de mur : vitesse vers l'extérieur (couloir de 2,5 m traversé en ~0,3 s)
-const WJ_UP := 7.8
+# v0.113 : course au mur nettement affaiblie (retour de Paul : « ça marche bien, il faut la rendre beaucoup moins puissante »)
+const WR_MIN_SPEED := 5.0      # vitesse le long du mur pour s'y mettre à courir
+const WR_SPEED := 6.5          # plafond (plus de vitesse gratuite : on garde au plus son élan)
+const WR_MAX := 0.7            # s (1,3 s en v0.112)
+const WR_CHAIN := 3            # courses au mur d'affilée sans toucher le sol
+const WJ_OUT := 5.2            # saut de mur : vers l'extérieur (couloir de 2,5 m traversé en ~0,35 s)
+const WJ_UP := 6.0
 
 
 func _ready() -> void:
@@ -150,8 +165,10 @@ func set_look(l: String) -> void:
 	rag.setup(rig.skel, self)
 	rig.play("cmu/guard_idle", 0.0)
 	_face_rig()
-	if rig.has("cmu/hang"):
-		var hp: Dictionary = rig.pose_at("cmu/hang", 1.2)
+	if mx_info.is_empty() and FileAccess.file_exists("res://assets/anims/mx_info.json"):
+		mx_info = JSON.parse_string(FileAccess.get_file_as_string("res://assets/anims/mx_info.json"))
+	if rig.has(HANG_ANIM):
+		var hp: Dictionary = rig.pose_at(HANG_ANIM, 0.5)
 		hang_h = maxf((hp["hand_r"] as Transform3D).origin.y + 0.06, 1.6)
 	weapon_node = null
 	if weapon != "":
@@ -160,11 +177,30 @@ func set_look(l: String) -> void:
 
 # ------------------------------------------------------------------ armes (v0.112)
 
+## Animations de l'arme en main (Mixamo : packs épée-bouclier, hache, épée à deux mains ; v0.113).
+const WEAPON_ANIMS := {
+	"sword": {"idle": "mx/sword__idle", "run": "mx/sword__run", "block": "block"},
+	"katana": {"idle": "mx/sword__idle", "run": "mx/katana__running_with_sword", "block": "block", "equip": ["mx/katana__draw_sword", 0.0, 1.2]},
+	"axe": {"idle": "mx/axe__idle", "run": "mx/axe__run", "block": "mx/axe__block", "equip": ["mx/axe__equip_over_shoulder", 0.3, 1.6]},
+	"bat": {"idle": "mx/bat__batter_idle", "run": "mx/axe__run", "block": "mx/greatsword__blocking_idle"},
+}
+
+
+func _wanim(slot: String, default: String) -> String:
+	if weapon != "" and WEAPON_ANIMS[weapon].has(slot) and rig.has(WEAPON_ANIMS[weapon][slot]):
+		return WEAPON_ANIMS[weapon][slot]
+	return default
+
+
 func equip(id: String) -> void:
 	unequip()
 	weapon = id
 	_attach_weapon()
 	in_combat_t = 4.0
+	if WEAPON_ANIMS[id].has("equip") and state == "move":
+		var e: Array = WEAPON_ANIMS[id].equip
+		rig.play(e[0], 0.08, e[2], e[1])
+		stop_anim = 30
 	rig.flash(0.12, Weapons.DEFS[id].col)
 	game.popup(global_position + Vector3.UP * 2.3, Weapons.DEFS[id].name.to_upper(), Weapons.DEFS[id].col)
 	game.sfx.play("whoosh", global_position, 0.6)
@@ -266,6 +302,7 @@ func _physics_process(dt: float) -> void:
 		"hang": _st_hang(dt)
 		"climb": _st_climb(dt)
 		"wallrun": _st_wallrun(dt, on_floor)
+		"preview": _st_preview(dt)
 		"hurt": _st_hurt(dt)
 		"down": _st_down(dt)
 	velocity.x = hvel.x
@@ -303,7 +340,9 @@ func _go(st: String) -> void:
 
 func _gravity(dt: float, mult := 1.0) -> void:
 	# montée : gravité douce si A est tenu (ou au tout début du saut : un appui bref donne quand même un vrai saut)
-	var g := GRAV_UP if velocity.y > 0.0 and (Inputs.held("jump") or (state == "air" and f < 12)) else GRAV_DOWN
+	var g := GRAV_UP if velocity.y > 0.0 and (pursuit or Inputs.held("jump") or (state == "air" and f < 12)) else GRAV_DOWN
+	if velocity.y <= 0.0:
+		pursuit = false
 	velocity.y -= g * mult * dt
 	velocity.y = maxf(velocity.y, -30.0)
 
@@ -337,10 +376,20 @@ func _st_move(dt: float, on_floor: bool) -> void:
 	var rate := ACCEL if target.length() > hvel.length() else DECEL
 	# demi-tour net : on garde la vitesse acquise, seulement réorientée
 	if target.length() > 0.1 and hvel.length() > 0.5 and hvel.normalized().dot(target.normalized()) < -0.2:
+		if hvel.length() > 6.0 and weapon == "":
+			# demi-tour en pleine course (Mixamo « Running Turn 180 »)
+			rig.play("mx/move__turn_180_running", 0.06, 1.6)
+			stop_anim = 14
 		hvel = hvel.normalized().slerp(target.normalized(), 0.6) * hvel.length() * 0.5
+	elif target.length() < 0.05 and hvel.length() > 7.5 and stop_anim <= 0 and weapon == "":
+		# arrêt net après un sprint (Mixamo « Fast Stop From Full Run »)
+		rig.play("mx/move__fast_stop", 0.06, 1.7, 0.1)
+		stop_anim = 22
 	hvel = hvel.move_toward(target, rate * dt)
 	_turn_to(d, dt)
 	velocity.y = -2.0 if on_floor else velocity.y - GRAV_DOWN * dt
+	if on_floor and _try_vault_ground():
+		return
 	_loco_anim()
 	_neutral_actions(on_floor)
 
@@ -397,20 +446,28 @@ func _neutral_actions(on_floor: bool) -> bool:
 
 func _loco_anim() -> void:
 	var sp := Vector2(hvel.x, hvel.z).length()
+	if stop_anim > 0:
+		stop_anim -= 1
+		if sp < 0.35 or stop_anim > 0:
+			return
 	if sp < 0.35:
 		var idle := "cmu/guard_idle" if in_combat_t > 0.0 else "idle"
 		if weapon != "":
-			idle = "sword_idle"
+			idle = _wanim("idle", "sword_idle")
 		rig.play(idle, 0.18, 1.0, 0.0, false)
 	elif sp < 3.2:
 		rig.play("walk", 0.15, clampf(sp / 1.6, 0.8, 1.8), 0.0, false)
 	elif sp < 8.0:
-		rig.play("jog", 0.12, clampf(sp / 4.6, 0.9, 1.6), 0.0, false)
+		if weapon != "":
+			rig.play(_wanim("run", "jog"), 0.12, clampf(sp / 5.0, 0.9, 1.6), 0.0, false)
+		else:
+			rig.play("jog", 0.12, clampf(sp / 4.6, 0.9, 1.6), 0.0, false)
 	else:
-		rig.play("sprint", 0.12, clampf(sp / 7.2, 1.0, 1.6), 0.0, false)
+		rig.play("mx/move__running_fast" if weapon == "" else _wanim("run", "sprint"), 0.12, clampf(sp / 8.5, 1.0, 1.5), 0.0, false)
 
 
 func _jump() -> void:
+	jump_speed = Vector2(hvel.x, hvel.z).length()
 	velocity.y = JUMP_V
 	coyote = 0
 	land_lag = 0
@@ -434,6 +491,8 @@ func _st_air(dt: float, on_floor: bool) -> void:
 	fall_peak = maxf(fall_peak, global_position.y)
 	if f > 12 and rig.current == "ninja_start":
 		rig.play("ninja_loop", 0.2)
+	if velocity.y < -3.0 and rig.current in ["ninja_loop", "ninja_start"]:
+		rig.play("mx/move__falling_idle", 0.25)
 	if coyote > 0 and Inputs.buffered("jump"):
 		_jump()
 		return
@@ -455,6 +514,10 @@ func _st_air(dt: float, on_floor: bool) -> void:
 		pass
 
 
+func _ground_t(nm: String) -> float:
+	return float(mx_info.get(nm, {}).get("ground_t", 0.0))
+
+
 func _land() -> void:
 	var drop := fall_peak - global_position.y
 	fall_peak = global_position.y
@@ -462,7 +525,21 @@ func _land() -> void:
 	land_lag = HEAVY_LAND_LAG if drop > 3.5 else LAND_LAG
 	if hvel.length() > 3.0:
 		land_lag = 1
-	rig.play("ninja_land", 0.06, 1.8, 0.12)
+	pursuit = false
+	wall_chain = 0
+	if drop > 2.5 and hvel.length() > 5.0:
+		# grande chute en courant : roulade de réception (Mixamo « Falling Into A Roll »)
+		rig.play("mx/move__falling_to_roll", 0.05, 1.8, _ground_t("move__falling_to_roll"))
+		land_lag = 0
+		stop_anim = 30
+	elif drop > 3.5:
+		rig.play("mx/move__hard_landing", 0.05, 1.7, _ground_t("move__hard_landing"))
+		stop_anim = HEAVY_LAND_LAG + 6
+	elif drop > 1.2:
+		rig.play("mx/move__landing", 0.05, 1.6, _ground_t("move__landing"))
+		stop_anim = 10
+	else:
+		rig.play("ninja_land", 0.06, 1.8, 0.12)
 	game.fx.dust(global_position, 0.8 if drop < 3.5 else 1.4)
 	game.sfx.play("land", global_position, 0.5)
 	if drop > 3.5:
@@ -562,7 +639,7 @@ func _st_attack(dt: float, on_floor: bool) -> void:
 	else:
 		velocity.y = -2.0 if on_floor else velocity.y - GRAV_DOWN * dt
 	# frappe
-	if f == su - 1 and mv.get("blade", false) and weapon != "":
+	if f == su - 2 and mv.get("blade", false) and weapon != "":
 		_blade_prev = _blade_points()
 	if f >= su and f < su + ac:
 		_check_hits()
@@ -599,6 +676,15 @@ func _st_attack(dt: float, on_floor: bool) -> void:
 		var tgt: Node = hit_list[0] if hit_list.size() else null
 		_jump()
 		velocity.y = JUMP_V * 1.12
+		# v0.113 : le saut monte aussi haut que l'ennemi envoyé en l'air (sommet de sa trajectoire, un peu en dessous)
+		if tgt and is_instance_valid(tgt) and tgt.get("state") == "air":
+			var vy: float = maxf(tgt.velocity.y, 0.0)
+			var gj: float = tgt.JUGGLE_GRAV * (1.0 + 0.12 * tgt.juggle)
+			var apex: float = tgt.global_position.y + vy * vy / (2.0 * gj)
+			var h := apex - 0.35 - global_position.y
+			if h > 0.5:
+				velocity.y = clampf(sqrt(2.0 * GRAV_UP * h), JUMP_V, 15.0)
+				pursuit = true
 		if tgt and is_instance_valid(tgt):
 			var to: Vector3 = tgt.global_position - global_position
 			to.y = 0
@@ -757,18 +843,30 @@ func _st_charge(dt: float) -> void:
 
 # ------------------------------------------------------------------ esquive
 
-func _start_dodge() -> bool:
+func _start_dodge(keep_facing := false) -> bool:
 	if dodges >= DODGE_CHAIN and dodge_cool > 0.0:
 		return false
 	dodges += 1
 	dodge_cool = DODGE_COOL + 0.3
 	var d := stick_world()
-	dodge_dir = d.normalized() if d.length() > 0.2 else facing
-	facing = dodge_dir
 	sprinting = false
-	_go("dodge")
-	invuln = 0
-	rig.play("roll", 0.03, 2.9, 0.16)
+	if keep_facing:
+		# esquive en garde : on reste face à l'ennemi, l'animation dépend de la direction
+		dodge_dir = d.normalized() if d.length() > 0.2 else -facing
+		var fw := dodge_dir.dot(facing)
+		var rt := dodge_dir.dot(facing.cross(Vector3.UP))
+		var nm := ("forward" if fw > 0 else "backward") if absf(fw) >= absf(rt) else ("right" if rt > 0 else "left")
+		_go("dodge")
+		invuln = 0
+		var a := "mx/move__dodge_" + nm
+		var L: float = float(mx_info.get("move__dodge_" + nm, {}).get("length", 1.0))
+		rig.play(a, 0.03, L * 0.7 / (DODGE_F / 60.0), 0.05)
+	else:
+		dodge_dir = d.normalized() if d.length() > 0.2 else facing
+		facing = dodge_dir
+		_go("dodge")
+		invuln = 0
+		rig.play("roll", 0.03, 2.9, 0.16)
 	game.sfx.play("roll", global_position, 0.5)
 	game.fx.dust(global_position, 0.7)
 	# esquive parfaite : un coup ennemi allait toucher
@@ -842,10 +940,11 @@ func _start_guard() -> void:
 	_go("guard")
 	guard_f = 0 if guard_cool <= 0.0 else PARRY_F + 1
 	in_combat_t = 4.0
+	guard_step = ""
 	if weapon != "":
-		rig.play("block", 0.06, 1.0, 0.25)
+		rig.play(_wanim("block", "block"), 0.06, 1.0, 0.25)
 	else:
-		rig.play("cmu/guard_idle", 0.06, 1.3)
+		rig.play("mx/guard__to_block_idle", 0.06, 1.0)
 	rig.flash(0.06, Color(0.4, 0.7, 1.0))
 
 
@@ -855,17 +954,31 @@ func parrying() -> bool:
 
 func _st_guard(dt: float) -> void:
 	guard_f += 1
-	if weapon != "" and f == 8:
+	if weapon != "" and f == 8 and _wanim("block", "block") == "block":
 		rig.set_speed(0.0)
 	var d := stick_world()
 	hvel = hvel.move_toward(d * GUARD_WALK, ACCEL * dt)
 	velocity.y = -2.0
+	# pas de boxe en garde (Mixamo « Boxing Step ») selon la direction, sans se retourner
+	if weapon == "" and f > 8:
+		var st := ""
+		if d.length() > 0.3:
+			var fw := d.dot(facing)
+			var rt := d.dot(facing.cross(Vector3.UP))
+			st = ("forward" if fw > 0 else "back") if absf(fw) >= absf(rt) else ("right" if rt > 0 else "left")
+		if st != guard_step or (st != "" and rig.pos() >= rig.length() - 0.05):
+			guard_step = st
+			if st == "":
+				rig.play("mx/guard__to_block_idle", 0.12, 1.0, 0.3)
+			else:
+				rig.play("mx/move__boxing_step_" + st, 0.1, 1.5, 0.05)
 	if not Inputs.held("guard"):
 		guard_cool = 0.35
 		_go("move")
 		return
 	if Inputs.buffered("dodge"):
-		_start_dodge()
+		# en garde : esquive dans la direction du stick sans se retourner (Mixamo « Dodge » 4 directions)
+		_start_dodge(true)
 		return
 	if riposte_t > 0.0 and (Inputs.buffered("attack") or Inputs.buffered("heavy")):
 		_start_attack("riposte")
@@ -882,10 +995,16 @@ func receive(attacker, dmg: float, kb: Vector3, heavy: bool) -> String:
 	if state == "guard" and front:
 		if parrying():
 			riposte_t = RIPOSTE_WIN
+			if weapon == "":
+				rig.play("mx/guard__high_center_block", 0.03, 2.2, 0.2)
+				guard_step = "hit"
 			game.parry(self, attacker)
 			return "parry"
 		hvel = kb.normalized() * 4.0
 		hitstop = 5
+		if weapon == "":
+			rig.play("mx/guard__block_reaction", 0.03, 2.0, 0.1)
+			guard_step = "hit"
 		rig.freeze(5 / 60.0)
 		rig.flash(0.08, Color(0.4, 0.7, 1.0))
 		game.sfx.play("block", global_position, 0.7)
@@ -983,7 +1102,8 @@ func _start_grab() -> void:
 
 func _st_grab(dt: float) -> void:
 	var g := Moves.GRAB
-	hvel = hvel.move_toward(Vector3.ZERO, DECEL * dt)
+	if grab_mode != "hold":
+		hvel = hvel.move_toward(Vector3.ZERO, DECEL * dt)
 	velocity.y = -2.0
 	if grabbed == null and grab_mode == "":
 		if f == int(g.startup):
@@ -999,7 +1119,7 @@ func _st_grab(dt: float) -> void:
 					grab_f = 0
 					pummel_cd = 0
 					f = 0
-					rig.play("carry", 0.08, 0.0, 0.3)
+					rig.play(GRAB_IDLE, 0.08, 1.0)
 					game.sfx.play("grab", global_position, 0.7)
 					game.popup(global_position + Vector3.UP * 2.3, "CHOPE !", Color(1, 0.85, 0.4))
 					hitstop = 4
@@ -1014,18 +1134,28 @@ func _st_grab(dt: float) -> void:
 
 
 ## Tenu : il est soulevé devant le héros. Le stick tourne le héros (choisir où l'éclater / le lancer).
+const GRAB_IDLE := "mx/grab__carrying_someone_idle"
+const GRAB_WALK_ANIM := "mx/grab__walking_carrying_someone"
+const GRAB_WALK := 2.3         # m/s : on peut marcher en le tenant (v0.113)
+
+
 func _grab_hold(dt: float) -> void:
 	var g := Moves.GRAB
 	grab_f += 1
 	pummel_cd -= 1
-	_turn_to(stick_world(), dt, 6.0)
+	var d := stick_world()
+	_turn_to(d, dt, 5.0)
+	hvel = hvel.move_toward(d * GRAB_WALK, 20.0 * dt)
 	if not is_instance_valid(grabbed):
 		_go("move")
 		return
-	grabbed.global_position = global_position + facing * 0.72 + Vector3.UP * 0.22
+	grabbed.global_position = global_position + facing * 0.62 + Vector3.UP * 0.22
 	grabbed.facing = -facing
-	if pummel_cd == int(g.pummel_f) - 10:
-		rig.play("carry", 0.1, 0.0, 0.3)
+	if pummel_cd <= int(g.pummel_f) - 14:
+		if hvel.length() > 0.4:
+			rig.play(GRAB_WALK_ANIM, 0.15, clampf(hvel.length() / 1.6, 0.6, 1.5), 0.0, false)
+		else:
+			rig.play(GRAB_IDLE, 0.15, 1.0, 0.0, false)
 	if Inputs.buffered("dodge"):
 		grabbed.release_grab(Vector3.ZERO)
 		grabbed = null
@@ -1035,17 +1165,24 @@ func _grab_hold(dt: float) -> void:
 	if Inputs.buffered("heavy"):
 		grab_mode = "slam"
 		f = 0
-		rig.play("throw", 0.04, 1.9, 0.08)
+		hvel = Vector3.ZERO
+		# Mixamo « Grab And Slam » : on joue la fin (il soulève puis écrase), l'impact tombe à l'image slam_f
+		rig.play("mx/grab__grab_and_slam", 0.05, (3.0 - 2.45) / (int(g.slam_f) / 60.0), 2.45)
 		game.sfx.play("whoosh_heavy", global_position, 0.6)
 		return
 	if Inputs.buffered("grab"):
 		grab_mode = "throw"
 		f = 0
-		rig.play("throw", 0.05, 1.5, 0.12)
+		hvel = Vector3.ZERO
+		rig.play("mx/grab__throw_object", 0.05, (0.88 - 0.55) / (int(g.throw_f) / 60.0), 0.55)
 		return
 	if Inputs.buffered("attack") and pummel_cd <= 0:
 		pummel_cd = int(g.pummel_f)
-		rig.play("jab", 0.03, 1.8, 0.05)
+		# coup de genou ou coup de tête, en alternance (Mixamo « Illegal Knee », « Headbutt »)
+		if combo % 2 == 0:
+			rig.play("mx/grab__illegal_knee", 0.04, 0.28 / 0.12, 0.3)
+		else:
+			rig.play("mx/grab__headbutt", 0.04, 0.25 / 0.12, 0.3)
 		grabbed.pummeled(self, float(g.pummel_dmg))
 		_on_hit(grabbed, "pummel", "hit", 4)
 		game.sfx.play("light", grabbed.global_position + Vector3.UP * 1.2, 0.6)
@@ -1072,6 +1209,8 @@ func _grab_slam() -> void:
 	if f == int(g.slam_f) and grabbed:
 		grabbed.slam_by(self, global_position + facing * 1.05)
 		grabbed = null
+	if f == int(g.slam_f):
+		rig.set_speed(1.4)
 	if f >= int(g.slam_f) + int(g.slam_recovery) or (f > int(g.slam_f) + 6 and has_hit):
 		grab_mode = ""
 		_go("move")
@@ -1159,18 +1298,60 @@ func _try_ledge() -> bool:
 	var L := find_ledge(s, global_position)
 	if L.is_empty() or s.normalized().dot(-L.n) < 0.5:
 		return false
+	var hs := Vector2(hvel.x, hvel.z).length()
+	if L.rel >= 0.2 and L.rel <= VAULT_MAX and hs >= VAULT_SPEED:
+		var V := _vault_land(L)
+		if not V.is_empty():
+			_start_climb(L, "vault", V)
+			return true
+	# v0.113 : avec de l'élan, un mur de 2 à 3,6 m se monte en courant (Mixamo « Runs Up A Wall Onto A Platform »)
+	var wall_h: float = L.top - last_ground_y
+	if jump_speed >= 5.0 and hs >= 4.0 and wall_h >= 2.0 and wall_h <= RUNUP_MAX and L.can_stand:
+		_start_climb(L, "runup")
+		return true
 	if L.rel >= 0.2 and L.rel <= MANTLE_MAX and L.can_stand:
-		_start_climb(L, false)
+		_start_climb(L, "mantle")
 		return true
 	if L.rel > MANTLE_MAX and L.rel <= HANG_REACH:
 		if L.top - hang_h > last_ground_y + 0.15:
 			_start_hang(L)
 		elif L.can_stand:
-			_start_climb(L, false)
+			_start_climb(L, "mantle")
 		else:
 			return false
 		return true
 	return false
+
+
+## Obstacle bas et fin, franchi en courant : point de réception de l'autre côté, ou {} s'il est trop épais.
+func _vault_land(L: Dictionary) -> Dictionary:
+	var n: Vector3 = L.n
+	var beyond: Vector3 = L.wall - n * VAULT_DEPTH
+	var r := _ray(Vector3(beyond.x, L.top + 0.4, beyond.z), Vector3(beyond.x, global_position.y - 1.5, beyond.z))
+	if r.is_empty() or r.position.y > L.top - 0.3:
+		return {}
+	var land := Vector3(L.wall.x - n.x * (VAULT_DEPTH + 0.6), r.position.y, L.wall.z - n.z * (VAULT_DEPTH + 0.6))
+	if not _free_at(land + Vector3.UP * 0.05):
+		return {}
+	return {"land": land}
+
+
+## En courant contre un obstacle bas et fin, on le franchit sans sauter (Mixamo « Jumping Over An Obstacle With 2 Hands »).
+func _try_vault_ground() -> bool:
+	var hs := Vector2(hvel.x, hvel.z).length()
+	if hs < VAULT_SPEED:
+		return false
+	var dir := Vector3(hvel.x, 0, hvel.z).normalized()
+	var L := find_ledge(dir, global_position)
+	if L.is_empty() or L.rel < 0.4 or L.rel > VAULT_MAX or dir.dot(-L.n) < 0.6:
+		return false
+	if (L.wall - global_position).length() > 1.2:
+		return false
+	var V := _vault_land(L)
+	if V.is_empty():
+		return false
+	_start_climb(L, "vault", V)
+	return true
 
 
 func _start_hang(L: Dictionary) -> void:
@@ -1183,10 +1364,9 @@ func _start_hang(L: Dictionary) -> void:
 	air_dash_used = false
 	air_attacks = 0
 	global_position = Vector3(L.wall.x + L.n.x * 0.36, L.top - hang_h, L.wall.z + L.n.z * 0.36)
-	# pose d'agrippe figée (la capture se balance sous une barre : contre un mur, les jambes rentreraient dedans) ;
-	# le modèle avance un peu vers le mur pour que les mains soient sur le rebord
-	rig.play("cmu/hang", 0.08, 0.0, 1.2)
-	rig.position = facing * 0.22
+	# Mixamo « Hanging By Hands Against Wall » (pieds contre le mur) ; le modèle avance pour que les mains soient au bord
+	rig.play(HANG_ANIM, 0.1, 1.0)
+	rig.position = facing * 0.2
 	game.sfx.play("land", global_position + Vector3.UP * 2.0, 0.4)
 
 
@@ -1197,6 +1377,7 @@ func _st_hang(_dt: float) -> void:
 	var s := stick_world()
 	var right := facing.cross(Vector3.UP).normalized()
 	var lat := s.dot(right)
+	var moving := false
 	if absf(lat) > 0.3:
 		var step := right * signf(lat) * SHIMMY / 60.0 * absf(lat)
 		var probe := global_position + right * signf(lat) * 0.3 + Vector3.UP * (hang_h - 1.4)
@@ -1204,25 +1385,25 @@ func _st_hang(_dt: float) -> void:
 		if not L2.is_empty() and absf(L2.top - ledge.top) < 0.3 and L2.n.dot(n) > 0.8:
 			global_position += step
 			ledge.top = L2.top
-			ledge.wall = L2.wall + step * 0.0
-			ledge.stand = L2.stand
+			ledge.wall = Vector3(global_position.x - n.x * 0.36, L2.wall.y, global_position.z - n.z * 0.36)
+			ledge.stand = L2.stand - right * signf(lat) * 0.3
 			ledge.can_stand = L2.can_stand
-			rig.lean = Vector3(0, 0, 6.0 * sin(f * 0.3) * signf(lat))
-		else:
-			rig.lean = Vector3.ZERO
-	else:
-		rig.lean = Vector3.ZERO
+			moving = true
+			# Mixamo « Braced Hang Shimmy » gauche / droite
+			rig.play("mx/ledge__braced_shimmy_" + ("right" if lat > 0 else "left"), 0.12, absf(lat) * 1.3, 0.0, false)
+	if not moving and rig.current != HANG_ANIM and f > 6:
+		rig.play(HANG_ANIM, 0.15, 1.0, 0.0, false)
 	if Inputs.buffered("jump"):
 		if s.dot(n) > 0.5:
-			# saut en arrière, dos au mur
+			# saut en arrière, dos au mur (Mixamo « Hanging On Wall To Jump Off »)
 			velocity = n * 5.5 + Vector3.UP * 7.0
 			hvel = Vector3(velocity.x, 0, velocity.z)
 			facing = n
 			drop_lock = 0.3
 			_go("air")
-			rig.play("ninja_start", 0.05, 1.6, 0.22)
+			rig.play("mx/ledge__jump_from_wall", 0.05, 1.8, 0.35)
 		elif ledge.can_stand:
-			_start_climb(ledge, true)
+			_start_climb(ledge, "hang")
 		else:
 			velocity = Vector3.UP * 5.0
 			drop_lock = 0.3
@@ -1231,7 +1412,7 @@ func _st_hang(_dt: float) -> void:
 	if s.dot(-n) > 0.6:
 		hang_push += 1
 		if hang_push > 12 and ledge.can_stand and f > 10:
-			_start_climb(ledge, true)
+			_start_climb(ledge, "hang")
 			return
 	else:
 		hang_push = 0
@@ -1240,28 +1421,42 @@ func _st_hang(_dt: float) -> void:
 		velocity = Vector3(hvel.x, -0.5, hvel.z)
 		drop_lock = 0.35
 		_go("air")
-		rig.play("ninja_loop", 0.15)
+		rig.play("mx/move__falling_idle", 0.15)
 
 
-## Se hisser : depuis l'agrippe, traction (capture CMU 01_12) puis enjambée (Quaternius ClimbUp_1m) ; depuis le sol ou
-## en l'air devant un rebord bas : enjambée seule. La capsule suit un chemin départ -> bord -> debout (collision coupée).
-func _start_climb(L: Dictionary, from_hang: bool) -> void:
-	ledge = L
+## Se hisser / franchir (la capsule suit un chemin, collision coupée) :
+##  - "hang" : depuis l'agrippe, Mixamo « Climb Wall From Braced Hang To Crouch » (le corps monte dans l'animation, la capsule
+##    avance vers le haut du rebord puis s'y pose à la fin) ;
+##  - "mantle" : rebord bas, Quaternius ClimbUp_1m ;
+##  - "runup" : mur un peu trop haut pour s'agripper, avec de l'élan : Mixamo « Runs Up A Wall Onto A Platform » ;
+##  - "vault" : obstacle bas et fin en courant : Mixamo « Jumping Over An Obstacle With 2 Hands Planted ».
+func _start_climb(L: Dictionary, kind: String, V := {}) -> void:
+	ledge = L.duplicate()
+	if not V.is_empty():
+		ledge.land = V.land
+	climb_kind = kind
 	_go("climb")
 	climb_f = 0
 	facing = -L.n
+	var keep := Vector3(hvel.x, 0, hvel.z)
 	hvel = Vector3.ZERO
 	velocity = Vector3.ZERO
 	col_shape.disabled = true
 	climb_start = global_position
-	if from_hang:
-		climb_p1 = 34
-		climb_p2 = 26
-		rig.play("cmu/hang_pull", 0.06, 1.25 / (climb_p1 / 60.0))
-	else:
-		climb_p1 = 0
-		climb_p2 = int(lerpf(20, 30, clampf((L.rel - 0.45) / 1.4, 0, 1)))
-		rig.play("climb_up", 0.06, 0.667 / (climb_p2 / 60.0))
+	match kind:
+		"hang":
+			climb_end = 50
+			rig.play("mx/ledge__braced_hang_to_crouch", 0.08, 1.13 / (climb_end / 60.0))
+		"runup":
+			climb_end = 46
+			rig.play("mx/wall__wall_run_up_platform", 0.06, (2.0 - 0.35) / (climb_end / 60.0), 0.35)
+		"vault":
+			climb_end = 34
+			ledge.keep = keep.length()
+			rig.play("mx/wall__vault_two_hands", 0.05, (1.15 - 0.15) / (climb_end / 60.0), 0.15)
+		_:
+			climb_end = int(lerpf(20, 30, clampf((L.rel - 0.45) / 1.4, 0, 1)))
+			rig.play("climb_up", 0.06, 0.667 / (climb_end / 60.0))
 	game.sfx.play("jump", global_position, 0.5)
 
 
@@ -1270,39 +1465,55 @@ func _st_climb(_dt: float) -> void:
 	hvel = Vector3.ZERO
 	velocity = Vector3.ZERO
 	var n: Vector3 = ledge.n
-	var hang_feet := Vector3(ledge.wall.x + n.x * 0.36, ledge.top - 1.0, ledge.wall.z + n.z * 0.36)
-	if climb_f <= climb_p1:
-		var k := float(climb_f) / climb_p1
-		global_position = climb_start.lerp(hang_feet, k * k * (3.0 - 2.0 * k))
-		rig.position = facing * 0.22 * (1.0 - k)
-		rig.lean = Vector3.ZERO
-		if climb_f == climb_p1:
-			climb_start = global_position
-			rig.play("climb_up", 0.08, 0.667 / (climb_p2 / 60.0))
-		return
-	var u := clampf(float(climb_f - climb_p1) / climb_p2, 0.0, 1.0)
+	var u := clampf(float(climb_f) / climb_end, 0.0, 1.0)
 	var sm := u * u * (3.0 - 2.0 * u)
-	var mid := Vector3(ledge.wall.x + n.x * 0.12, ledge.top + 0.05, ledge.wall.z + n.z * 0.12)
-	if sm < 0.55:
-		global_position = climb_start.lerp(mid, sm / 0.55)
-	else:
-		global_position = mid.lerp(ledge.stand, (sm - 0.55) / 0.45)
+	match climb_kind:
+		"hang":
+			rig.position = facing * 0.2 * (1.0 - u)
+			var k := clampf((u - 0.35) / 0.6, 0.0, 1.0)
+			var p := climb_start.lerp(ledge.stand, k)
+			global_position = Vector3(p.x, climb_start.y, p.z)
+		"runup":
+			var base := Vector3(ledge.wall.x + n.x * 0.35, climb_start.y, ledge.wall.z + n.z * 0.35)
+			var up := Vector3(ledge.wall.x + n.x * 0.3, ledge.top, ledge.wall.z + n.z * 0.3)
+			if u < 0.25:
+				global_position = climb_start.lerp(base, u / 0.25)
+			elif u < 0.75:
+				global_position = base.lerp(up, (u - 0.25) / 0.5)
+			else:
+				global_position = up.lerp(ledge.stand, (u - 0.75) / 0.25)
+		"vault":
+			var over := Vector3(ledge.wall.x - n.x * VAULT_DEPTH * 0.5, ledge.top + 0.3, ledge.wall.z - n.z * VAULT_DEPTH * 0.5)
+			if u < 0.5:
+				global_position = climb_start.lerp(over, sm / 0.5 if sm < 0.5 else 1.0)
+			else:
+				global_position = over.lerp(ledge.land, (u - 0.5) / 0.5)
+		_:
+			var mid := Vector3(ledge.wall.x + n.x * 0.12, ledge.top + 0.05, ledge.wall.z + n.z * 0.12)
+			if sm < 0.55:
+				global_position = climb_start.lerp(mid, sm / 0.55)
+			else:
+				global_position = mid.lerp(ledge.stand, (sm - 0.55) / 0.45)
 	if u >= 1.0:
-		global_position = ledge.stand
+		global_position = ledge.land if climb_kind == "vault" else ledge.stand
 		col_shape.disabled = false
+		rig.position = Vector3.ZERO
 		_go("move")
-		land_lag = 2
+		land_lag = 2 if climb_kind != "vault" else 0
+		if climb_kind == "vault":
+			hvel = facing * maxf(float(ledge.get("keep", RUN)), RUN)
 		last_ground_y = global_position.y
 		fall_peak = global_position.y
 
 
-# ------------------------------------------------------------------ course au mur (v0.112)
-## d'après godot-wall-running (Garbaj, MIT) : en l'air, un mur juste à côté et de l'élan le long du mur = on court dessus
-## (gravité presque coupée) ; réglages de Vigilante (madebynova) : ~1,2 s, A = saut de mur qui traverse un couloir de 2-3,5 m
-## et reprend la course sur le mur d'en face ; B = lâcher.
+# ------------------------------------------------------------------ course au mur (v0.112, affaiblie en v0.113)
+## d'après godot-wall-running (Garbaj, MIT) : en l'air, un mur juste à côté et de l'élan le long du mur = on court dessus ;
+## réglages de départ de Vigilante (madebynova), puis réduits sur demande de Paul : 0,7 s, pas de vitesse gratuite, gravité
+## qui revient vite, saut de mur plus court, 3 courses au plus avant de retoucher le sol. Animation Mixamo « Wall Run »
+## (et son miroir pour l'autre côté).
 
 func _try_wallrun() -> bool:
-	if f < 4:
+	if f < 4 or wall_chain >= WR_CHAIN:
 		return false
 	var hv := Vector3(hvel.x, 0, hvel.z)
 	if hv.length() < WR_MIN_SPEED:
@@ -1331,15 +1542,16 @@ func _try_wallrun() -> bool:
 
 func _start_wallrun(n: Vector3, dir: Vector3, sp: float, side: float) -> void:
 	_go("wallrun")
+	wall_chain += 1
 	wall_n = n
 	wr_dir = dir
-	wr_speed = maxf(sp, WR_SPEED)
-	velocity.y = clampf(velocity.y * 0.5 + 2.0, 1.5, 5.0)
+	wr_speed = minf(sp * 0.9, WR_SPEED)
+	velocity.y = clampf(velocity.y * 0.3 + 1.2, 0.5, 2.5)
 	facing = dir
 	air_dash_used = false
 	air_attacks = 0
-	rig.play("sprint", 0.1, 1.3)
-	rig.lean = Vector3(0, 0, -24.0 * side)
+	# « Wall Run » de Mixamo a le mur à gauche (pieds côté +X du modèle) ; mur à droite : son miroir
+	rig.play("mx/wall__wall_run" + ("_m" if side > 0 else ""), 0.08, (0.9 - 0.2) / WR_MAX, 0.2)
 	game.fx.dust(global_position + Vector3.UP * 1.0 - n * 0.3, 0.5)
 	game.sfx.play("land", global_position, 0.4)
 
@@ -1355,20 +1567,20 @@ func _st_wallrun(dt: float, on_floor: bool) -> void:
 	if still.is_empty() or t > WR_MAX:
 		last_wall_n = n
 		wall_lock = 0.3
-		hvel = wr_dir * wr_speed * 0.8 + n * 1.5
+		hvel = wr_dir * wr_speed * 0.7 + n * 1.5
 		_go("air")
-		rig.play("ninja_loop", 0.15)
+		rig.play("mx/move__falling_idle", 0.15)
 		return
+	wr_speed = maxf(wr_speed - 4.0 * dt, 3.0)
 	hvel = wr_dir * wr_speed - n * 0.6
-	# presque pas de gravité au début, puis il glisse doucement
-	velocity.y -= (4.0 if t < 0.5 else 14.0) * dt
-	velocity.y = maxf(velocity.y, -4.0)
+	velocity.y -= (9.0 if t < 0.25 else 22.0) * dt
+	velocity.y = maxf(velocity.y, -6.0)
 	if Inputs.buffered("jump"):
 		last_wall_n = n
 		wall_lock = 0.35
-		hvel = wr_dir * wr_speed * 0.8 + n * WJ_OUT
+		hvel = wr_dir * wr_speed * 0.7 + n * WJ_OUT
 		velocity.y = WJ_UP
-		wj_t = 0.4
+		wj_t = 0.3
 		facing = Vector3(hvel.x, 0, hvel.z).normalized()
 		_go("air")
 		rig.play("ninja_start", 0.05, 1.6, 0.22)
@@ -1380,7 +1592,7 @@ func _st_wallrun(dt: float, on_floor: bool) -> void:
 		wall_lock = 0.4
 		hvel = wr_dir * wr_speed * 0.6 + n * 3.0
 		_go("air")
-		rig.play("ninja_loop", 0.15)
+		rig.play("mx/move__falling_idle", 0.15)
 		return
 	if Inputs.buffered("attack"):
 		last_wall_n = n
@@ -1394,6 +1606,23 @@ func _st_wallrun(dt: float, on_floor: bool) -> void:
 		_go("air")
 		_start_attack("air_spike")
 		return
+
+
+# ------------------------------------------------------------------ aperçu (menu) : joue une animation sur place
+
+func preview(anim: String) -> void:
+	_go("preview")
+	hvel = Vector3.ZERO
+	rig.play(anim, 0.1, 1.0)
+
+
+func _st_preview(_dt: float) -> void:
+	hvel = Vector3.ZERO
+	velocity.y = -2.0
+	if f > 20 and (stick_world().length() > 0.3 or Inputs.buffered("attack") or Inputs.buffered("jump") or Inputs.buffered("dodge")):
+		_go("move")
+	elif rig.pos() >= rig.length() - 0.02 and rig.length() > 0.0:
+		rig.play(rig.current, 0.0, 1.0, 0.0, true)
 
 
 # ------------------------------------------------------------------ cibles
@@ -1439,8 +1668,8 @@ const MOVE_NAMES := {
 	"jab": "jab", "cross": "direct", "hook": "crochet", "spin_kick": "coup de pied retourné (renverse)",
 	"launcher": "uppercut lanceur (envoie en l'air)", "push_kick": "coup de pied poussé (brise la garde)",
 	"haymaker": "gros crochet plongeant (renverse, mur)", "charged": "crochet chargé", "dash_punch": "direct plongeant",
-	"slide": "glissade qui fauche", "flying_hook": "crochet volant", "air_jab": "jab aérien", "air_cross": "direct aérien",
-	"air_kick": "coup de pied qui écrase (rebond)", "air_spike": "piqué (onde au sol)", "riposte": "RIPOSTE (uppercut critique)",
+	"slide": "glissade qui fauche", "flying_hook": "crochet volant", "air_jab": "jab aérien", "air_cross": "coup de pied latéral",
+	"air_kick": "coup de pied circulaire qui écrase (rebond)", "ax_jump": "saut à la hache (renverse)", "air_spike": "piqué (onde au sol)", "riposte": "RIPOSTE (uppercut critique)",
 	# armes (v0.112)
 	"sw_a": "taille", "sw_b": "revers", "sw_c": "grand coup (renverse)", "sw_up": "taille montante (envoie en l'air)",
 	"sw_heavy": "grand coup d'épée (brise la garde, renverse)", "sw_dash": "estocade en avançant", "sw_air": "taille aérienne",
@@ -1491,7 +1720,7 @@ func actions() -> Array:
 				var t = _pick_target(facing, float(Moves.GRAB.reach), 0.9)
 				out.append({"b": "R1", "t": "chope (tenir 3 s)" if t else "chope (personne à portée)", "on": t != null})
 		"air":
-			out.append({"b": "X", "t": "combo aérien : jab ▸ direct ▸ écrasé" if weapon == "" else _mn(_wmove("air", "air_jab")) + " ▸ …", "on": air_attacks < 4})
+			out.append({"b": "X", "t": "combo aérien : jab ▸ pied latéral ▸ pied circulaire (écrase)" if weapon == "" else _mn(_wmove("air", "air_jab")) + " ▸ …", "on": air_attacks < 4})
 			out.append({"b": "Y", "t": MOVE_NAMES.air_spike, "on": true})
 			out.append({"b": "B", "t": "dash aérien", "on": not air_dash_used})
 		"attack":

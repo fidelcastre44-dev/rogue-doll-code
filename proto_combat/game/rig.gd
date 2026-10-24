@@ -41,6 +41,10 @@ func setup(which: String) -> void:
 	var cmu := "res://assets/anims/lib_cmu_%s.res" % MODELS[which][1]
 	if ResourceLoader.exists(cmu):
 		ap.add_animation_library("cmu", load(cmu))
+	# v0.113 : animations Mixamo (tools/mixamo_bake.gd)
+	var mx := "res://assets/anims/lib_mx_%s.res" % MODELS[which][1]
+	if ResourceLoader.exists(mx):
+		ap.add_animation_library("mx", load(mx))
 	for m in model.find_children("*", "MeshInstance3D", true, false):
 		meshes.append(m)
 		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON

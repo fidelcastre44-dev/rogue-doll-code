@@ -49,7 +49,22 @@ var slammed_by: Node = null     # v0.112 : éclaté au sol par une chope (rebond
 const ATTACKS := {
 	"light": {"anim": "cross", "from": 0.0, "hit": 0.283, "end": 0.7, "windup": 26, "active": 4, "recovery": 26, "reach": 1.5, "dmg": 8, "kb": 5.0, "heavy": false, "flash": Color(1, 0.15, 0.1)},
 	"heavy": {"anim": "hook", "from": 0.0, "hit": 0.267, "end": 0.467, "windup": 38, "active": 5, "recovery": 34, "reach": 2.4, "dmg": 16, "kb": 9.0, "heavy": true, "lunge": 2.2, "flash": Color(1, 0.55, 0.0)},
+	# v0.113 : coups de pied Mixamo (« Mma Low Kick » normal, « Mma Roundhouse Kick » lourd)
+	"kick": {"anim": "mx/enemy__mma_low_kick", "from": 0.2, "hit": 0.5, "end": 0.9, "windup": 24, "active": 4, "recovery": 26, "reach": 1.7, "dmg": 9, "kb": 5.0, "heavy": false, "flash": Color(1, 0.15, 0.1)},
+	"round": {"anim": "mx/enemy__mma_roundhouse", "from": 0.35, "hit": 0.75, "end": 1.1, "windup": 34, "active": 5, "recovery": 32, "reach": 2.0, "dmg": 15, "kb": 9.0, "heavy": true, "flash": Color(1, 0.55, 0.0)},
 }
+
+## Réactions aux coups (Mixamo, v0.113) : choisies selon le côté d'où vient le coup, sa hauteur et sa force, au hasard sans
+## rejouer la même deux fois de suite.
+const HIT_ANIMS := {
+	"front_high": ["mx/hit__head_light_left", "mx/hit__head_light_right", "mx/hit__head_medium_straight"],
+	"front_high_big": ["mx/hit__head_big_left", "mx/hit__head_big_right", "mx/hit__head_big_straight"],
+	"front_low": ["mx/hit__stomach_hit", "mx/hit__punch_body"],
+	"front_low_big": ["mx/hit__stomach_big", "mx/hit__punch_body"],
+	"back": ["mx/hit__back_small"], "back_big": ["mx/hit__back_large", "mx/hit__back_small"],
+	"left": ["mx/hit__side_left"], "right": ["mx/hit__side_right"],
+}
+var last_hit_anim := ""
 
 
 func _ready() -> void:
@@ -153,6 +168,11 @@ func _physics_process(dt: float) -> void:
 		"down": _st_down(dt)
 		"getup": _st_getup(dt)
 		"grabbed": _st_grabbed()
+		"taunt":
+			hvel = hvel.move_toward(Vector3.ZERO, 20 * dt)
+			velocity.y = -2.0
+			if f >= 70:
+				_to_idle()
 		"splat": _st_splat(dt)
 	if state != "grabbed":
 		velocity.x = hvel.x
@@ -264,10 +284,16 @@ func _st_idle(dt: float, on_floor: bool) -> void:
 		want = -to.normalized() * 2.0
 	else:
 		want = side * 1.6
+	if not has_token and dist > 2.5 and dist < 6.0 and randf() < 0.004:
+		# provocation de temps en temps (Mixamo « Boxing Taunt »)
+		_go("taunt")
+		rig.play("mx/enemy__boxing_taunt", 0.15, 1.3)
+		return
 	if atk_cool <= 0.0 and dist < 4.5 and game.take_token(self):
 		has_token = true
-		var kind := "heavy" if randf() < 0.3 else "light"
-		if dist > 2.2 and kind == "light":
+		var r := randf()
+		var kind := "light" if r < 0.4 else ("kick" if r < 0.65 else ("heavy" if r < 0.85 else "round"))
+		if dist > 2.2 and not ATTACKS[kind].heavy:
 			want = to.normalized() * 4.0
 		else:
 			_start_attack(kind)
@@ -285,7 +311,7 @@ func _start_attack(kind: String) -> void:
 	atk.kind = kind
 	_go("windup")
 	var hit_t := float(atk.hit)
-	rig.play(atk.anim, 0.1, hit_t / (int(atk.windup) / 60.0), float(atk.from))
+	rig.play(atk.anim, 0.1, (hit_t - float(atk.from)) / (int(atk.windup) / 60.0), float(atk.from))
 	game.sfx.play("warn", global_position, 0.4)
 
 
@@ -429,19 +455,44 @@ func take_hit(attacker: Node, m: Dictionary, dir: Vector3) -> String:
 			_go("hurt")
 			stun = stun_f
 			hvel = dir * float(kb[0])
-			rig.play("hit_chest", 0.02, 0.8, 0.05)
+			rig.play(_pick_hit_anim(dir, {"dmg": 14, "box": m.get("box", [0, 1.3])}), 0.02, 1.1, 0.05)
 			lean_target = Vector3(-35, 0, 0)
 		_:
 			_go("hurt")
 			stun = stun_f
 			hvel = dir * float(kb[0])
-			var a := "hit_head" if randf() < 0.5 else "hit_chest"
-			rig.play(a, 0.02, 1.7, 0.08)
-			lean_target = Vector3(-22, randf_range(-10, 10), randf_range(-8, 8))
+			rig.play(_pick_hit_anim(dir, m), 0.03, 1.5, 0.08)
+			lean_target = Vector3(-14, randf_range(-8, 8), randf_range(-6, 6))
 	facing = -dir if not effect in ["juggle"] else facing
 	rig.shake(0.15, dir)
+	# réaction physique partielle (buste, tête, bras) par-dessus l'animation, dans le sens du coup
+	if ragdoll_on and state in ["hurt"] and not rag.active:
+		var pw := clampf(float(m.get("dmg", 5)) / 14.0, 0.2, 1.0)
+		rag.react(dir * (2.5 + 3.5 * pw) + Vector3.UP * 0.6, global_position + Vector3.UP * float((m.get("box", [0, 1.3]) as Array)[1]), pw)
 	game.hit_fx(self, attacker, m, res)
 	return res
+
+
+func _pick_hit_anim(dir: Vector3, m: Dictionary) -> String:
+	var from := -dir      # d'où vient le coup, vu du mannequin
+	var fw := facing.dot(from)
+	var rt := facing.cross(Vector3.UP).dot(from)
+	var big := float(m.get("dmg", 5)) >= 8.0
+	var high := float((m.get("box", [0, 1.3]) as Array)[1]) >= 1.2
+	var key := ""
+	if fw > 0.45:
+		key = ("front_high" if high else "front_low") + ("_big" if big else "")
+	elif fw < -0.45:
+		key = "back_big" if big else "back"
+	else:
+		key = "right" if rt > 0 else "left"
+	var pool: Array = HIT_ANIMS[key].filter(func(a): return a != last_hit_anim and rig.has(a))
+	if pool.is_empty():
+		pool = HIT_ANIMS[key].filter(func(a): return rig.has(a))
+	if pool.is_empty():
+		return "hit_chest"
+	last_hit_anim = pool[randi() % pool.size()]
+	return last_hit_anim
 
 
 func _launch(dir: Vector3, kb: Array, effect: String, stun_f: int) -> void:
@@ -480,7 +531,7 @@ func _guard_break(dir: Vector3) -> void:
 	hvel = dir * 4.0
 	hitstop = 12
 	rig.freeze(0.2)
-	rig.play("shield_break", 0.03, 1.2)
+	rig.play("mx/hit__rocked_uppercut", 0.03, 1.3, 0.1)
 	game.sfx.play("break", global_position, 0.9)
 	game.popup(global_position + Vector3.UP * 2.2, "GARDE BRISÉE", Color(1, 0.8, 0.2))
 
@@ -491,7 +542,7 @@ func parried() -> void:
 	_go("stagger")
 	stun = 75
 	hvel = facing * -3.5
-	rig.play("shield_break", 0.03, 1.3)
+	rig.play("mx/hit__rocked_uppercut", 0.03, 1.2, 0.1)
 	atk = {}
 
 
@@ -646,7 +697,7 @@ func grab_by(h: Node) -> void:
 	grabbed_by = h
 	_go("grabbed")
 	rag.stop()
-	rig.play("hit_chest", 0.05, 0.0, 0.15)
+	rig.play("mx/hit__punch_body", 0.05, 0.0, 0.35)
 	lean_target = Vector3(-20, 0, 0)
 	atk = {}
 

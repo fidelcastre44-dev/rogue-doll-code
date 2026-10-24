@@ -18,7 +18,7 @@ const DEFS := {
 		"moves": {"attack": "ka_a", "heavy": "ka_iai", "dodge_attack": "ka_iai", "dodge_heavy": "ka_rise", "air": "ka_air", "sprint_attack": "ka_iai", "sprint_heavy": "ka_rise"}},
 	"axe": {"name": "Hache", "mesh": "res://assets/weapons/Axe.obj", "scale": 0.17, "rot": Vector3.ZERO,
 		"blade": Vector2(0.3, 0.62), "radius": 0.24, "col": Color(1.0, 0.75, 0.5),
-		"moves": {"attack": "ax_chop", "heavy": "ax_sweep", "dodge_attack": "ax_chop", "dodge_heavy": "ax_up", "air": "ax_air", "sprint_attack": "ax_chop", "sprint_heavy": "ax_sweep"}},
+		"moves": {"attack": "ax_chop", "heavy": "ax_sweep", "dodge_attack": "ax_jump", "dodge_heavy": "ax_up", "air": "ax_air", "sprint_attack": "ax_jump", "sprint_heavy": "ax_sweep"}},
 	"bat": {"name": "Batte", "mesh": "res://assets/weapons/baseball_bat.glb", "scale": 1.0, "rot": Vector3.ZERO,
 		"blade": Vector2(0.2, 0.67), "radius": 0.17, "col": Color(1.0, 0.9, 0.6),
 		"moves": {"attack": "bt_a", "heavy": "bt_smash", "dodge_attack": "bt_swing", "dodge_heavy": "bt_up", "air": "bt_air", "sprint_attack": "bt_swing", "sprint_heavy": "bt_smash"}},

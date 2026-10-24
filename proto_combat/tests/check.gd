@@ -91,6 +91,7 @@ func _run() -> void:
 	await t_climb()
 	await t_wallrun()
 	await t_camera()
+	await t_v113()
 	print("")
 	if fails.is_empty():
 		print("RESULTAT: OK")
@@ -512,3 +513,111 @@ func t_camera() -> void:
 	game.set_cam("yaw", 0.0)
 	game.set_cam("pitch", 40.0)
 	game.set_cam("zoom", 1.0)
+
+
+
+# ------------------------------------------------------------------ v0.113
+
+func t_v113() -> void:
+	print("v0.113")
+	# saut de poursuite aussi haut que l'ennemi envoyé en l'air
+	await setup("centre", 1)
+	await tap("attack", 7)
+	await tap("heavy", 1)
+	for i in 30:
+		await wait(1)
+		if game.hero.has_hit and game.hero.move_id == "launcher" and game.hero.phase() == "recovery":
+			break
+	await tap("jump", 1)
+	var top_e := 0.0
+	var top_h := 0.0
+	for i in 50:
+		await wait(1)
+		top_e = maxf(top_e, foe().global_position.y)
+		top_h = maxf(top_h, game.hero.global_position.y)
+	ok(top_h > top_e - 0.9 and top_h > 1.8, "saut de poursuite : héros %.2f m, ennemi %.2f m" % [top_h, top_e])
+	await wait(60)
+	# combo aérien : jab puis coups de pied latéraux (animations Mixamo)
+	ok(str(Moves.M.air_cross.anim).contains("side_kick") and str(Moves.M.air_kick.anim).contains("roundhouse"), "combo aérien : jab, pied latéral, pied circulaire")
+	# chope : on marche en le tenant
+	await setup("centre", 1, "passive", 1.0)
+	game.hero.facing = Vector3(0, 0, -1)
+	await tap("grab", 10)
+	var p0: Vector3 = game.hero.global_position
+	inp.fake_stick = Vector2(1, 0)
+	await wait(40)
+	inp.fake_stick = Vector2.ZERO
+	ok(foe().state == "grabbed" and (game.hero.global_position - p0).length() > 1.0, "on marche en tenant l'ennemi (%.2f m)" % (game.hero.global_position - p0).length())
+	ok(game.hero.rig.current.begins_with("mx/grab__"), "animation de chope Mixamo (%s)" % game.hero.rig.current)
+	await tap("dodge", 30)
+	# réactions variées des ennemis + réaction physique partielle
+	await setup("centre", 1, "passive", 1.2)
+	game.hero.facing = Vector3(0, 0, -1)
+	var anims := {}
+	var reacted := false
+	for k in 4:
+		await tap("attack", 3)
+		for i in 10:
+			await wait(1)
+			if foe().state == "hurt":
+				anims[foe().rig.current] = true
+			if foe().rag.reacting:
+				reacted = true
+		await wait(26)
+	ok(anims.size() >= 2, "réactions variées (%s)" % ", ".join(anims.keys()))
+	ok(reacted, "réaction physique partielle (buste, tête, bras)")
+	# esquive en garde : directionnelle, le héros reste face à l'ennemi
+	await setup("centre", 1, "passive", 2.0)
+	game.hero.facing = Vector3(0, 0, -1)
+	hold("guard")
+	await wait(6)
+	inp.fake_stick = Vector2(1, 0)
+	await tap("dodge", 8)
+	ok(game.hero.state == "dodge" and game.hero.facing.dot(Vector3(0, 0, -1)) > 0.9 and game.hero.rig.current.contains("dodge_"), "esquive en garde : de côté, toujours face à l'ennemi (%s)" % game.hero.rig.current)
+	inp.fake_stick = Vector2.ZERO
+	let_go("guard")
+	await wait(30)
+	# course au mur affaiblie
+	await setup("parcours", 1, "passive")
+	game.hero.global_position = Vector3(22.9, 0.05, 33.0)
+	game.hero.facing = Vector3(0, 0, -1)
+	inp.fake_stick = Vector2(0, -1)
+	await wait(30)
+	await tap("jump", 1)
+	var wr := 0
+	for i in 120:
+		await wait(1)
+		if game.hero.state == "wallrun":
+			wr += 1
+	inp.fake_stick = Vector2.ZERO
+	ok(wr > 10 and wr <= int(game.hero.WR_MAX * 60) + 2, "course au mur courte (%d images)" % wr)
+	# franchir un muret en courant
+	await setup("centre", 1, "passive")
+	game.hero.global_position = Vector3(-14, 0.05, 9.5)
+	game.hero.facing = Vector3(0, 0, -1)
+	inp.fake_stick = Vector2(0, -1)
+	var vaulted := false
+	for i in 80:
+		await wait(1)
+		if game.hero.state == "climb" and game.hero.climb_kind == "vault":
+			vaulted = true
+	inp.fake_stick = Vector2.ZERO
+	ok(vaulted and game.hero.global_position.z < 5.5, "muret franchi en courant (z %.2f)" % game.hero.global_position.z)
+	# monter en courant sur le bloc de 3,2 m
+	await setup("parcours", 1, "passive")
+	game.hero.global_position = Vector3(29.5, 0.05, 11.0)
+	game.hero.facing = Vector3(0, 0, -1)
+	inp.fake_stick = Vector2(0, -1)
+	await wait(28)
+	await tap("jump", 1)
+	var ran_up := false
+	for i in 80:
+		await wait(1)
+		if game.hero.state == "climb" and game.hero.climb_kind == "runup":
+			ran_up = true
+			inp.fake_stick = Vector2.ZERO
+	inp.fake_stick = Vector2.ZERO
+	await wait(10)
+	ok(ran_up and game.hero.global_position.y > 3.0, "mur de 3,2 m monté en courant (y %.2f)" % game.hero.global_position.y)
+	# aperçu des animations Mixamo
+	ok(game._mx_names().size() >= 120, "%d animations Mixamo dans le jeu" % game._mx_names().size())
