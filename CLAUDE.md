@@ -1,5 +1,8 @@
 # Rogue Doll — notes pour Claude
 
+> **Tu travailles sur le proto combat v2 (`proto_combat_v2/`) ? Ignore entièrement ce fichier** : il décrit le jeu principal.
+> Lis `proto_combat_v2/CLAUDE.md` et le cahier des charges https://claude.ai/artifact/AVS5q1UjX7h58zZ6hj1W1Y.
+
 Roguelite de baston 3D vue du dessus (caméra façon Death's Door, nervosité façon Street Fighter), ennemis en vrais ragdolls.
 Godot 4.7 + Jolt. Équipe : Paul (code avec Claude, son), Thibaud (visuels, game design). On écrit en français, réponses courtes.
 
