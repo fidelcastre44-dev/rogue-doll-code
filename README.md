@@ -10,3 +10,7 @@ Godot 4.7 + Jolt. Paul (code, avec Claude) et Thibaud (visuels, game design).
 - Versions jouables (Windows, Mac) : dépôt `fidelcastre44-dev/rogue-doll`, dossier `versions/`.
 
 Version du code : voir `version.gd` (`GameVersion.NUM`).
+
+## Proto combat (version alternative)
+Le dossier `proto_combat/` est un projet Godot 4.7 séparé : seulement le terrain d'essai, avec un déplacement / combat refaits de zéro
+(vraies animations, logique en images façon jeu de combat, pas de ragdoll). Ouvrir `proto_combat/project.godot`. Notes : `proto_combat/README.md`.
