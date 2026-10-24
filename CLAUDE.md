@@ -37,6 +37,13 @@ Godot 4.7 + Jolt. Équipe : Paul (code avec Claude, son), Thibaud (visuels, game
   `RAG_GRAV` / `RAG_ANG_DAMP` (corps plus lourds), relevé vulnérable (`_finish_rise`, `_to_ragdoll`), réaction au coup (`_react_offsets`),
   `enemy.thrown()` / `_impact_tick` (chocs du sbire lancé), `knockdown` (uppercut de fin de combo), combo Y `HEAVY_COMBO` (kick, kick2, kick3),
   `Locomotion._yank_pull` (cheville puis se hisser), `CLIMB_PUSH`, `room._steady` (objets lourds). Test : `v0218check.gd`.
+- **v0.22 : habillage 3D du héros** (`combat/hero_skin.gd`, `HeroSkin`) : modèles riggés `hero/male` et `hero/female` (glTF Superhero
+  fournis par Paul, squelette type mannequin UE : pelvis, spine_01-03, clavicle, upperarm, lowerarm, hand, thigh, calf, foot).
+  **Les cubes restent la vérité du jeu** (coups, zones de frappe, IK, ragdoll, éditeur) : ils sont seulement cachés (`player.skin`).
+  À chaque image, chaque os copie la rotation d'un bloc (`MAP`) × la « pose zéro » du modèle (os alignés sur les blocs au repos,
+  bassin recalé sur le milieu des hanches, clavicules visées vers les épaules des cubes, doigts repliés en poing). Pantin : suit `player.rag`.
+  F4 (partout) : homme -> femme -> cubes (`user://hero.cfg`). `player.skin_on = false` = toujours en cubes (éditeur d'animation).
+  Sourcils cachés (textures sans transparence). Test : `skincheck.gd`. Rendu : `tools/skin_shot.gd`.
 - `main.tscn` / `main.gd` : arène, caméra, hitstop (`impact()`, `base_time_scale`), barres, menu pause, sbires.
 - `player.gd` : le héros (squelette en blocs animé par poses clés, IK des pieds, tous les états de combat).
 - `enemy.gd` : sbire ragdoll (debout animé ↔ ragdoll physique), IA, garde, chopes, rebonds. `ai_on = false` = sac de frappe.
@@ -107,7 +114,7 @@ Décisions à respecter : pas de différence arrêt / marche (« basique ») ; p
 
 ## Tests (obligatoires avant de livrer)
 Depuis `/home/claude/godot/ragdoll_proto` : `../godot --headless --path . -s <x>check.gd --fixed-fps 120`.
-30 suites (`*check.gd`), chacune finit par `RESULTAT: OK` (`correctcheck.gd` = correctifs 0.11, `editorcheck.gd` = éditeur d'animation, `v021check.gd` = version 0.21, `hubcheck.gd` = salon, `mapcheck.gd` = carte et déplacements, `v0212check.gd` = formes, améliorations, états, coups v0.212, `v0216check.gd` = retours du 23/10, `v0217check.gd` = retours du 23/10 au soir, `v0218check.gd` = bilans de la nuit du 23/10). `varietycheck` et `runcheck` sont
+31 suites (`*check.gd`, dont `skincheck.gd` = habillage v0.22), chacune finit par `RESULTAT: OK` (`correctcheck.gd` = correctifs 0.11, `editorcheck.gd` = éditeur d'animation, `v021check.gd` = version 0.21, `hubcheck.gd` = salon, `mapcheck.gd` = carte et déplacements, `v0212check.gd` = formes, améliorations, états, coups v0.212, `v0216check.gd` = retours du 23/10, `v0217check.gd` = retours du 23/10 au soir, `v0218check.gd` = bilans de la nuit du 23/10). `varietycheck` et `runcheck` sont
 un peu aléatoires : un échec isolé se relance. Lancer les suites 2 par 2 au plus (machine à 2 cœurs). `labcheck.gd` vérifie l'ancienne salle de test, `labocheck.gd` le labo (chaque coup part dans sa situation).
 Rendu d'images : xvfb-run + `--rendering-driver opengl3 --rendering-method gl_compatibility`.
 

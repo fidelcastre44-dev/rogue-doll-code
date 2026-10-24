@@ -263,6 +263,8 @@ var btn_ups := {}    # améliorations de bouton : {id: [boutons]} (impact, tripl
 @export var terrain := false
 @export var trampoline := true       # coup « fun » (v0.212) : presque inutile, donné gratuitement, pour rire         # déplacements avec le décor (carte de test : labo, salle des paliers)
 @export_enum("suplex", "tomoe") var collar_b := "suplex"   # chope + B
+var skin: HeroSkin = null   # habillage 3D (v0.22) : suit les cubes, qui sont alors cachés
+var skin_on := true          # false = toujours en cubes (éditeur d'animation, outils)
 var lc: Locomotion   # déplacements avec le décor (v0.212) : enjamber, se hisser, rebord, glissades, réception, rebond mural
 
 
@@ -293,6 +295,7 @@ func _ready() -> void:
 		if s[3] == Vector3.ZERO and not s[0].begins_with("fist"):
 			continue
 		pivot.add_child(_cube(s[0], s[4]))
+	_refresh_look()
 	_overlay(self)
 	wind_key = j.spine.find_child("key", true, false)
 	_animate(0.0)
@@ -1226,7 +1229,34 @@ func _cube(name: String, center: Vector3) -> MeshInstance3D:
 		mi.mesh.size = size
 	mi.position = center
 	mi.material_override = mat
+	mi.visible = skin == null
 	return mi
+
+
+## Habillage du héros (F4 : homme -> femme -> cubes, gardé dans user://hero.cfg).
+func _refresh_look() -> void:
+	if skin:
+		skin.queue_free()
+		remove_child(skin)
+		skin = null
+	if skin_on:
+		skin = HeroSkin.attach(self)
+		if skin:
+			skin.set_overlay(flash_mat)
+	for n in j:
+		for c in j[n].get_children():
+			if c is MeshInstance3D:
+				c.visible = skin == null
+	for b in rag.values():
+		for c in b.get_children():
+			if c is MeshInstance3D:
+				c.visible = skin == null
+
+
+func _input(ev: InputEvent) -> void:
+	if skin_on and ev is InputEventKey and ev.pressed and not ev.echo and ev.physical_keycode == KEY_F4:
+		HeroSkin.cycle()
+		_refresh_look()
 
 
 ## Calque de flash posé sur tous les morceaux du héros (coups reçus, parade, charge...).

@@ -181,6 +181,7 @@ func _build_world() -> void:
 ## Un héros en cubes, figé (pas de physique, pas de commandes) : on lui donne des poses.
 func _puppet(c: Color) -> CharacterBody3D:
 	var p: CharacterBody3D = PLAYER.new()
+	p.skin_on = false   # l'éditeur montre les cubes (on attrape les membres)
 	p.set_physics_process(false)
 	add_child(p)
 	p.set_physics_process(false)

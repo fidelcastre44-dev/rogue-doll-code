@@ -52,7 +52,7 @@ func _ready() -> void:
 		e.process_mode = Node.PROCESS_MODE_DISABLED
 	for b in [main.hp_bar, main.player_bar, main.special_bar]:
 		b.visible = false
-	main.hint.text = "Stick : se déplacer   ·   approche-toi d'un objet puis RB (L au clavier)   ·   F2 : labo   ·   F3 : éditeur d'animation"
+	main.hint.text = "Stick : se déplacer   ·   approche-toi d'un objet puis RB (L au clavier)   ·   F2 : labo   ·   F3 : éditeur d'animation   ·   F4 : look du héros"
 	player.global_position = START
 	player.rotation.y = 0.0
 	main.cam_base = player.global_position + main.CAM_OFFSET * main.cam_zoom
