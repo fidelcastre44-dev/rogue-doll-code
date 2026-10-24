@@ -8,6 +8,7 @@ const WALL := Color(0.86, 0.84, 0.8)
 const ACCENT := Color(0.95, 0.55, 0.35)
 var mats := {}
 var spots := {}      # nom -> {hero: Vector3, face: Vector3, foes: [Vector3...]}
+var racks := {}      # arme -> {"at": point au sol devant le crochet, "node": modèle accroché}
 
 
 func _ready() -> void:
@@ -195,9 +196,92 @@ func _build() -> void:
 		block(Vector3(82, 2, 1), s, Color(0.6, 0.62, 0.66))
 	for s in [Vector3(-40, 1, 0), Vector3(40, 1, 0)]:
 		block(Vector3(1, 2, 82), s, Color(0.6, 0.62, 0.66))
+	_weapon_wall()
+	_parkour()
 	# Situations
 	spots["centre"] = {"hero": Vector3(0, 0, 1.6), "face": Vector3(0, 0, -1), "foes": [Vector3(0, 0, -0.5), Vector3(-2.5, 0, -2.0), Vector3(2.5, 0, -2.0)]}
 	spots["mur"] = {"hero": Vector3(8.5, 0, -2), "face": Vector3(1, 0, 0), "foes": [Vector3(11.5, 0, -2), Vector3(11.5, 0, 1.5), Vector3(11.5, 0, -5.5)]}
 	spots["plateforme"] = {"hero": Vector3(-12, 1.65, -13.5), "face": Vector3(0, 0, 1), "foes": [Vector3(-12, 0, -6.5), Vector3(-9.5, 0, -6.5), Vector3(-14.5, 0, -6.5)]}
 	spots["ligne"] = {"hero": Vector3(0, 0, 12), "face": Vector3(1, 0, 0), "foes": [Vector3(2.5, 0, 12), Vector3(4.0, 0, 12), Vector3(5.5, 0, 12), Vector3(7.0, 0, 12), Vector3(8.5, 0, 12)]}
+	spots["armes"] = {"hero": Vector3(-24, 0, 18.6), "face": Vector3(0, 0, -1), "foes": [Vector3(-24, 0, 23), Vector3(-27, 0, 22.5), Vector3(-21, 0, 22.5)]}
+	spots["parcours"] = {"hero": Vector3(23.5, 0, 33.5), "face": Vector3(0, 0, -1), "foes": [Vector3(18, 0, 30), Vector3(18, 0, 26), Vector3(18, 0, 22)]}
 	spots["foule"] = {"hero": Vector3(0, 0, 0), "face": Vector3(0, 0, -1), "foes": [Vector3(0, 0, -4), Vector3(3.5, 0, -2), Vector3(3.5, 0, 2.5), Vector3(-3.5, 0, 2.5), Vector3(-3.5, 0, -2), Vector3(0, 0, 4.5)]}
+
+
+# ------------------------------------------------------------------ v0.112 : mur d'armes
+
+## Ouest : un mur avec les 4 armes accrochées (épée, katana, hache, batte). RB devant une arme = la prendre ;
+## RB devant son crochet vide = la raccrocher. Ce sont des objets : rien ne se casse.
+func _weapon_wall() -> void:
+	# face au sud (la caméra regarde vers le nord : on voit le mur au-dessus du héros)
+	block(Vector3(13, 3.0, 0.5), Vector3(-24, 1.5, 15.75), Color(0.55, 0.42, 0.33))
+	label("ARMES (RB)", Vector3(-24, 0, 20.5))
+	var xs := [-28.5, -25.5, -22.5, -19.5]
+	for i in Weapons.ORDER.size():
+		var id: String = Weapons.ORDER[i]
+		var x: float = xs[i]
+		var peg := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(0.7, 0.08, 0.12)
+		peg.mesh = bm
+		peg.material_override = _mat(Color(0.25, 0.2, 0.18))
+		add_child(peg)
+		peg.position = Vector3(x, 1.05, 16.08)
+		var w := Weapons.make_mesh(id)
+		add_child(w)
+		w.position = Vector3(x, 1.0, 16.1)
+		w.rotation.z = deg_to_rad(-12)
+		var l := Label3D.new()
+		l.text = Weapons.DEFS[id].name.to_upper()
+		l.font_size = 64
+		l.pixel_size = 0.006
+		l.outline_size = 8
+		add_child(l)
+		l.position = Vector3(x, 0.45, 16.05)
+		racks[id] = {"at": Vector3(x, 0, 16.9), "node": w}
+
+
+## La prise d'arme la plus proche (à moins de `reach` m), ou "".
+func rack_near(p: Vector3, reach := 1.4) -> String:
+	var best := ""
+	var bd := reach
+	for id in racks:
+		var d: float = Vector2(p.x - racks[id].at.x, p.z - racks[id].at.z).length()
+		if d < bd and absf(p.y - racks[id].at.y) < 1.0:
+			bd = d
+			best = id
+	return best
+
+
+func rack_show(id: String, on: bool) -> void:
+	if racks.has(id):
+		racks[id].node.visible = on
+
+
+# ------------------------------------------------------------------ v0.112 : parcours (course au mur, rebords)
+
+## Sud-est : un couloir de deux murs parallèles (sauts mur à mur), un zigzag de murs décalés, un mur long
+## (course latérale) et une rangée de rebords de 1 m (enjamber), 1,8 m et 2,4 m (s'agripper), 3,2 m (saut + agrippe).
+func _parkour() -> void:
+	var c := Color(0.62, 0.7, 0.8)
+	var H := 4.5
+	# couloir : murs à x = 22 et x = 25 (2,5 m de vide entre les deux)
+	block(Vector3(0.5, H, 16), Vector3(22, H * 0.5, 22), c)
+	block(Vector3(0.5, H, 16), Vector3(25, H * 0.5, 22), c)
+	label("COULOIR", Vector3(23.5, 0, 31))
+	# zigzag
+	block(Vector3(0.5, H, 5), Vector3(28.5, H * 0.5, 16.5), c.darkened(0.1))
+	block(Vector3(0.5, H, 5), Vector3(31.5, H * 0.5, 21.5), c.darkened(0.1))
+	block(Vector3(0.5, H, 5), Vector3(28.5, H * 0.5, 26.5), c.darkened(0.1))
+	block(Vector3(0.5, H, 5), Vector3(31.5, H * 0.5, 31.5), c.darkened(0.1))
+	label("ZIGZAG", Vector3(30, 0, 36))
+	# mur long
+	block(Vector3(0.5, H, 24), Vector3(35.5, H * 0.5, 22), c.darkened(0.2))
+	label("MUR LONG", Vector3(34, 0, 9))
+	# rebords
+	var hs := [1.0, 1.8, 2.4, 3.2]
+	for i in hs.size():
+		var h: float = hs[i]
+		block(Vector3(2.4, h, 2.4), Vector3(20.5 + i * 3.0, h * 0.5, 5), ACCENT.lerp(Color.WHITE, 0.25 * i))
+		label("%s m" % str(h).replace(".", ","), Vector3(20.5 + i * 3.0, 0, 7))
+	label("REBORDS", Vector3(25, 0, 1.5))

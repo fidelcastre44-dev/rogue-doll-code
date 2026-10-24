@@ -43,6 +43,8 @@ var bar_fill: MeshInstance3D
 var bar_back: MeshInstance3D
 var rag: Ragdoll
 var ragdoll_on := true
+var last_vy := 0.0              # vitesse verticale juste avant le dernier déplacement (le sol la remet à 0)
+var slammed_by: Node = null     # v0.112 : éclaté au sol par une chope (rebond plus haut, impact signalé au héros)
 
 const ATTACKS := {
 	"light": {"anim": "cross", "from": 0.0, "hit": 0.283, "end": 0.7, "windup": 26, "active": 4, "recovery": 26, "reach": 1.5, "dmg": 8, "kb": 5.0, "heavy": false, "flash": Color(1, 0.15, 0.1)},
@@ -112,6 +114,8 @@ func set_mode(m: String) -> void:
 
 
 func reset_at(p: Vector3, face: Vector3) -> void:
+	slammed_by = null
+	grabbed_by = null
 	global_position = p
 	home = p
 	facing = face
@@ -148,12 +152,13 @@ func _physics_process(dt: float) -> void:
 		"air": _st_air(dt, on_floor)
 		"down": _st_down(dt)
 		"getup": _st_getup(dt)
-		"grabbed": velocity = Vector3.ZERO; hvel = Vector3.ZERO
+		"grabbed": _st_grabbed()
 		"splat": _st_splat(dt)
 	if state != "grabbed":
 		velocity.x = hvel.x
 		velocity.z = hvel.z
 		var pre := hvel
+		last_vy = velocity.y
 		move_and_slide()
 		_check_wall(pre)
 		hvel.x = velocity.x
@@ -529,13 +534,34 @@ func _st_air(dt: float, on_floor: bool) -> void:
 	if thrown_by:
 		_bowl()
 	if on_floor and velocity.y <= 0.0 and f > 2:
-		if velocity.y < -14.0 and juggle < 8:
+		if minf(velocity.y, last_vy) < -14.0 and juggle < 8:
 			# rebond au sol (écrasé)
 			velocity.y = 5.5
 			game.fx.dust(global_position, 1.2)
 			game.shake(0.25)
 			game.sfx.play("land", global_position, 0.9)
 			juggle += 2
+			if slammed_by:
+				# éclaté au sol par la chope : gros impact, il rebondit haut (jonglable)
+				velocity.y = Moves.GRAB.slam_bounce
+				juggle = 0
+				stun = 60
+				hitstop = 10
+				rig.freeze(10 / 60.0)
+				game.fx.shockwave(global_position + Vector3.UP * 0.05, 2.4)
+				game.fx.dust(global_position, 1.8)
+				game.shake(0.6)
+				game.cam.punch(0.9)
+				game.sfx.play("big", global_position, 1.0)
+				game.popup(global_position + Vector3.UP * 2.0, "ÉCLATÉ !", Color(1, 0.7, 0.3))
+				game.popup(global_position + Vector3.UP * 1.4, str(int(Moves.GRAB.slam_dmg)), Color.WHITE)
+				hp -= float(Moves.GRAB.slam_dmg)
+				last_hit_t = 0.0
+				if is_instance_valid(slammed_by):
+					slammed_by.slam_landed(self)
+				slammed_by = null
+				if rag.active:
+					rag.kick(Vector3.UP * 6.0, global_position + Vector3.UP * 0.9)
 			return
 		thrown_by = null
 		_go("down")
@@ -623,6 +649,55 @@ func grab_by(h: Node) -> void:
 	rig.play("hit_chest", 0.05, 0.0, 0.15)
 	lean_target = Vector3(-20, 0, 0)
 	atk = {}
+
+
+## Tenu : il se débat de plus en plus (le héros le place chaque image).
+func _st_grabbed() -> void:
+	velocity = Vector3.ZERO
+	hvel = Vector3.ZERO
+	var k := clampf(float(f) / Moves.GRAB.hold_max, 0.0, 1.0)
+	var per := int(lerpf(26, 9, k))
+	if f % per == 0:
+		lean_target = Vector3(-20 + randf_range(-10, 10) * (0.5 + k), randf_range(-25, 25) * (0.4 + k), randf_range(-14, 14) * (0.4 + k))
+		rig.shake(0.08, Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)).normalized())
+
+
+func pummeled(attacker: Node, dmg: float) -> void:
+	hp -= dmg
+	last_hit_t = 0.0
+	hitstop = 4
+	rig.freeze(4 / 60.0)
+	rig.flash(0.08)
+	lean_target = Vector3(-35, 0, 0)
+	game.popup(global_position + Vector3.UP * 2.0, str(int(dmg)), Color.WHITE)
+
+
+## Tenu trop longtemps : il se dégage en repoussant le héros.
+func escape_grab(hero_facing: Vector3) -> void:
+	grabbed_by = null
+	global_position += hero_facing * 0.3
+	_go("hurt")
+	stun = 10
+	hvel = hero_facing * 3.0
+	rig.play("shield_break", 0.05, 1.6)
+	game.sfx.play("block", global_position, 0.6)
+
+
+## Chope + Y : soulevé puis écrasé au sol devant le héros (le rebond est géré dans _st_air).
+func slam_by(h: Node, at: Vector3) -> void:
+	grabbed_by = null
+	slammed_by = h
+	thrown_by = null
+	global_position = Vector3(at.x, global_position.y, at.z)
+	_go("air")
+	juggle = 0
+	hvel = Vector3.ZERO
+	velocity.y = -26.0
+	stun = 60
+	rig.play("knockback", 0.03, 1.2, 0.06)
+	rig.flash(0.1)
+	lean_target = Vector3(50, 0, 0)
+	_rag_hit(Vector3(0, -12, 0))
 
 
 func release_grab(v: Vector3) -> void:

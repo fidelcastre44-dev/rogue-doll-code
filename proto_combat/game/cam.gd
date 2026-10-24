@@ -2,12 +2,12 @@ class_name Cam
 extends Camera3D
 ## Caméra vue de dessus façon Death's Door : angle fixe en diagonale, suit le héros en douceur avec une avance dans le sens
 ## du déplacement, se décale un peu vers le combat (ennemis proches), secousses « trauma » (Eiserloh : décalage = bruit × trauma²)
-## et petit coup de zoom sur les gros impacts. Zoom réglable (menu).
+## et petit coup de zoom sur les gros impacts. Rotation (360°), inclinaison et zoom réglables dans le menu Start (v0.112).
 
 var target: Node3D
 var game: Node
 var yaw := 0.0                # degrés (0 = la caméra regarde vers le nord, -Z = haut de l écran)
-var pitch := 52.0
+var pitch := 40.0             # v0.112 : moins plongeante (52° avant)
 var dist := 16.0
 var zoom := 1.0
 var trauma := 0.0

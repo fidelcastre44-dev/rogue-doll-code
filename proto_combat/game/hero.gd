@@ -2,7 +2,15 @@ class_name Hero
 extends CharacterBody3D
 ## Le héros. Toute la logique est en images (60 / s), à la manière d'un jeu de combat ; l'animation ne fait que suivre.
 ##
-## États : move (au sol, déplacement libre), air (en l'air), attack, dodge, airdash, guard, grab, hurt, down (à terre), charge.
+## États : move (au sol, déplacement libre), air (en l'air), attack, dodge, airdash, guard, grab, hurt, down (à terre), charge,
+##  + v0.112 : hang (agrippé à un rebord), climb (se hisser / enjamber), wallrun (course sur le mur).
+## v0.112 :
+##  - ARMES (game/weapons.gd) : RB devant le mur d'armes = prendre / raccrocher ; chaque arme a ses coups (moves.gd sw_, ka_, ax_, bt_)
+##    et sa zone de frappe suit la lame (balayage entre deux images) ;
+##  - CHOPE tenue jusqu'à 3 s : X = coups, Y = l'éclater au sol (il rebondit, jonglable), R1 = le lancer ; sinon il se dégage ;
+##  - REBORDS d'après Climbing Physics Prototype (teitasan, MIT : détection mur + dessus par rayons, agrippe, déplacement le long,
+##    se hisser en deux temps, lâcher) ; COURSE AU MUR d'après godot-wall-running (Garbaj, MIT : mur détecté sur le côté, gravité
+##    coupée) et les réglages de Vigilante (madebynova : 1,2 s, saut mur à mur de 2 à 3,5 m).
 ## Principes « pro » :
 ##  - tampon d'entrées (Inputs.BUFFER) : un appui un peu en avance part à la première image possible ;
 ##  - annulations : enchaînement ouvert dès `chain_from`, esquive qui coupe selon le coup (dodge = always / active / hit) ;
@@ -83,6 +91,36 @@ var combo_t := 0.0
 var hurt_count := 0
 var rag: Ragdoll
 var guard_cool := 0.0          # parade pas spammable : re-garder trop vite = pas de fenêtre de parade
+# v0.112
+var weapon := ""               # "" = mains nues ; sinon une clé de Weapons.DEFS
+var weapon_node: Node3D
+var _blade_prev := []
+var grab_mode := ""            # "hold" (tenu), "slam" (éclaté au sol), "throw" (lancé)
+var grab_f := 0
+var pummel_cd := 0
+var col_shape: CollisionShape3D
+var hang_h := 2.05             # hauteur des mains au-dessus des pieds, suspendu (mesurée sur l'animation)
+var ledge := {}
+var climb_f := 0
+var climb_p1 := 0
+var climb_p2 := 0
+var climb_start := Vector3.ZERO
+var drop_lock := 0.0
+var hang_push := 0
+var wall_n := Vector3.ZERO
+var wr_dir := Vector3.ZERO
+var wr_speed := 0.0
+var last_wall_n := Vector3.ZERO
+var wall_lock := 0.0
+var wj_t := 0.0                # après un saut de mur : l'élan prime sur le stick (comme dans le jeu principal, v0.23)
+const HANG_REACH := 2.35       # rebord le plus haut qu'on attrape (au-dessus des pieds), en l'air
+const MANTLE_MAX := 1.45       # en dessous : on enjambe directement
+const SHIMMY := 1.85           # m/s le long du rebord (Climbing Physics Prototype : TRAVERSE_SPEED)
+const WR_MIN_SPEED := 4.0      # vitesse le long du mur pour s'y mettre à courir
+const WR_SPEED := 7.5
+const WR_MAX := 1.3            # s (Vigilante : 1,2 s)
+const WJ_OUT := 6.5            # saut de mur : vitesse vers l'extérieur (couloir de 2,5 m traversé en ~0,3 s)
+const WJ_UP := 7.8
 
 
 func _ready() -> void:
@@ -97,6 +135,7 @@ func _ready() -> void:
 	cs.shape = cap
 	cs.position.y = 0.875
 	add_child(cs)
+	col_shape = cs
 	set_look(look)
 
 
@@ -111,6 +150,70 @@ func set_look(l: String) -> void:
 	rag.setup(rig.skel, self)
 	rig.play("cmu/guard_idle", 0.0)
 	_face_rig()
+	if rig.has("cmu/hang"):
+		var hp: Dictionary = rig.pose_at("cmu/hang", 1.2)
+		hang_h = maxf((hp["hand_r"] as Transform3D).origin.y + 0.06, 1.6)
+	weapon_node = null
+	if weapon != "":
+		_attach_weapon()
+
+
+# ------------------------------------------------------------------ armes (v0.112)
+
+func equip(id: String) -> void:
+	unequip()
+	weapon = id
+	_attach_weapon()
+	in_combat_t = 4.0
+	rig.flash(0.12, Weapons.DEFS[id].col)
+	game.popup(global_position + Vector3.UP * 2.3, Weapons.DEFS[id].name.to_upper(), Weapons.DEFS[id].col)
+	game.sfx.play("whoosh", global_position, 0.6)
+
+
+func unequip() -> void:
+	if weapon_node and is_instance_valid(weapon_node):
+		weapon_node.get_parent().queue_free()
+	weapon_node = null
+	weapon = ""
+
+
+func _attach_weapon() -> void:
+	var ba := BoneAttachment3D.new()
+	ba.bone_name = "hand_r"
+	rig.skel.add_child(ba)
+	weapon_node = Weapons.make_model(weapon)
+	ba.add_child(weapon_node)
+
+
+## Coup à jouer pour un « emplacement » (attack, heavy, air…) : celui de l'arme en main, sinon le coup à mains nues.
+func _wmove(slot: String, default: String) -> String:
+	if weapon != "" and Weapons.DEFS[weapon].moves.has(slot):
+		return Weapons.DEFS[weapon].moves[slot]
+	return default
+
+
+## RB devant le mur d'armes : prendre l'arme (on repose celle qu'on avait), ou raccrocher la sienne devant son crochet.
+func _rack_action(id: String) -> void:
+	if weapon == id:
+		game.arena.rack_show(id, true)
+		unequip()
+		game.popup(global_position + Vector3.UP * 2.3, "MAINS NUES", Color(1, 1, 1))
+		return
+	if weapon != "":
+		game.arena.rack_show(weapon, true)
+	game.arena.rack_show(id, false)
+	equip(id)
+
+
+## Points de la lame dans le monde (de la garde à la pointe), d'après l'os de la main et la prise Weapons.GRIP.
+func _blade_points() -> Array:
+	var d: Dictionary = Weapons.DEFS[weapon]
+	var hb := rig.skel.find_bone("hand_r")
+	var g: Transform3D = rig.skel.global_transform * rig.skel.get_bone_global_pose(hb) * Weapons.GRIP
+	var out := []
+	for i in 4:
+		out.append(g * Vector3(0, lerpf(d.blade.x, d.blade.y, i / 3.0), 0))
+	return out
 
 
 func _face_rig() -> void:
@@ -132,6 +235,9 @@ func _physics_process(dt: float) -> void:
 			dodges = 0
 	riposte_t = maxf(riposte_t - dt, 0.0)
 	guard_cool = maxf(guard_cool - dt, 0.0)
+	drop_lock = maxf(drop_lock - dt, 0.0)
+	wall_lock = maxf(wall_lock - dt, 0.0)
+	wj_t = maxf(wj_t - dt, 0.0)
 	perfect_t = maxf(perfect_t - dt, 0.0)
 	in_combat_t = maxf(in_combat_t - dt, 0.0)
 	combo_t -= dt
@@ -157,6 +263,9 @@ func _physics_process(dt: float) -> void:
 		"airdash": _st_airdash(dt)
 		"guard": _st_guard(dt)
 		"grab": _st_grab(dt)
+		"hang": _st_hang(dt)
+		"climb": _st_climb(dt)
+		"wallrun": _st_wallrun(dt, on_floor)
 		"hurt": _st_hurt(dt)
 		"down": _st_down(dt)
 	velocity.x = hvel.x
@@ -181,6 +290,13 @@ func stick_world() -> Vector3:
 
 
 func _go(st: String) -> void:
+	if state == "wallrun" and st != "wallrun":
+		rig.lean = Vector3.ZERO
+	if state == "climb" and st != "climb" and col_shape:
+		col_shape.disabled = false
+	if state in ["hang", "climb"] and not st in ["hang", "climb"]:
+		rig.position = Vector3.ZERO
+		rig.lean = Vector3.ZERO
 	state = st
 	f = 0
 
@@ -240,24 +356,33 @@ func _neutral_actions(on_floor: bool) -> bool:
 		_start_guard()
 		return true
 	if Inputs.buffered("grab"):
-		_start_grab()
+		var rk: String = game.arena.rack_near(global_position)
+		if rk != "":
+			_rack_action(rk)
+		else:
+			_start_grab()
 		return true
 	if Inputs.buffered("attack"):
 		if riposte_t > 0.0:
 			_start_attack("riposte")
 		elif sprinting:
-			_start_attack("slide")
+			_start_attack(_wmove("sprint_attack", "slide"))
 		else:
-			_start_attack("jab")
+			_start_attack(_wmove("attack", "jab"))
 		return true
 	if Inputs.buffered("heavy", false, CHARGE_MIN + 0.1):
 		if sprinting:
 			Inputs.clear("heavy")
-			_start_attack("flying_hook")
+			_start_attack(_wmove("sprint_heavy", "flying_hook"))
 			return true
 		if riposte_t > 0.0:
 			Inputs.clear("heavy")
 			_start_attack("riposte")
+			return true
+		if weapon != "":
+			# arme en main : Y part tout de suite (pas de charge)
+			Inputs.clear("heavy")
+			_start_attack(_wmove("heavy", "push_kick"))
 			return true
 		# Y : on attend de savoir si c'est un appui court (coup de pied) ou maintenu (charge)
 		if not Inputs.held("heavy") or Inputs.held_time("heavy") >= CHARGE_MIN:
@@ -274,6 +399,8 @@ func _loco_anim() -> void:
 	var sp := Vector2(hvel.x, hvel.z).length()
 	if sp < 0.35:
 		var idle := "cmu/guard_idle" if in_combat_t > 0.0 else "idle"
+		if weapon != "":
+			idle = "sword_idle"
 		rig.play(idle, 0.18, 1.0, 0.0, false)
 	elif sp < 3.2:
 		rig.play("walk", 0.15, clampf(sp / 1.6, 0.8, 1.8), 0.0, false)
@@ -301,7 +428,7 @@ func _st_air(dt: float, on_floor: bool) -> void:
 		return
 	var d := stick_world()
 	var top := maxf(RUN, Vector2(hvel.x, hvel.z).length())
-	hvel = hvel.move_toward(d * top, AIR_ACCEL * dt)
+	hvel = hvel.move_toward(d * top, AIR_ACCEL * dt * (0.12 if wj_t > 0.0 else 1.0))
 	_turn_to(d, dt, TURN * 0.6)
 	_gravity(dt)
 	fall_peak = maxf(fall_peak, global_position.y)
@@ -310,11 +437,16 @@ func _st_air(dt: float, on_floor: bool) -> void:
 	if coyote > 0 and Inputs.buffered("jump"):
 		_jump()
 		return
+	# v0.112 : rebords et course au mur
+	if _try_ledge():
+		return
+	if _try_wallrun():
+		return
 	if Inputs.buffered("dodge") and not air_dash_used:
 		_start_airdash()
 		return
 	if Inputs.buffered("attack") and air_attacks < 4:
-		_start_attack("air_jab")
+		_start_attack(_wmove("air", "air_jab"))
 		return
 	if Inputs.buffered("heavy"):
 		_start_attack("air_spike")
@@ -345,6 +477,7 @@ func _start_attack(id: String) -> void:
 	hit_list = []
 	has_hit = false
 	chain_req = ""
+	_blade_prev = []
 	sprinting = false
 	in_combat_t = 4.0
 	_go("attack")
@@ -429,6 +562,8 @@ func _st_attack(dt: float, on_floor: bool) -> void:
 	else:
 		velocity.y = -2.0 if on_floor else velocity.y - GRAV_DOWN * dt
 	# frappe
+	if f == su - 1 and mv.get("blade", false) and weapon != "":
+		_blade_prev = _blade_points()
 	if f >= su and f < su + ac:
 		_check_hits()
 	# enchaînements (tampon) : on retient la demande dès l'image 0, elle part à `chain_from`
@@ -440,7 +575,7 @@ func _st_attack(dt: float, on_floor: bool) -> void:
 		var nxt: String = mv.chain[chain_req]
 		Inputs.clear(chain_req)
 		chain_req = ""
-		if air and not nxt.begins_with("air"):
+		if air and not Moves.M[nxt].get("air", false):
 			pass
 		else:
 			_start_attack(nxt)
@@ -505,6 +640,9 @@ func _dive_land() -> void:
 
 
 func _check_hits() -> void:
+	if mv.get("blade", false) and weapon != "":
+		_check_blade()
+		return
 	var b: Array = mv.box
 	var fwd := float(b[0])
 	if mv.get("sweep", false):
@@ -527,6 +665,38 @@ func _check_hits() -> void:
 				m2.crit = true
 			var res: String = e.take_hit(self, m2, dir)
 			_on_hit(e, move_id, res, int(m2.hitstop))
+	if has_hit and perfect_t > 0.0:
+		perfect_t = 0.0
+
+
+## Arme : la zone de frappe suit la lame ; entre deux images on balaie (4 positions intermédiaires) pour ne rien traverser.
+func _check_blade() -> void:
+	var cur := _blade_points()
+	if _blade_prev.size() != cur.size():
+		_blade_prev = cur
+	var r := float(Weapons.DEFS[weapon].radius) * (1.2 if perfect_t > 0.0 else 1.0)
+	for k in 4:
+		var s := (k + 1) / 4.0
+		for i in cur.size():
+			var c: Vector3 = (_blade_prev[i] as Vector3).lerp(cur[i], s)
+			if k == 3:
+				game.debug_box(c, r)
+			for e in game.enemies:
+				if e in hit_list or not e.hittable():
+					continue
+				if e.capsule_hit(c, r):
+					hit_list.append(e)
+					var dir := facing
+					var m2 := mv.duplicate()
+					if perfect_t > 0.0 or mv.get("crit", false):
+						m2.dmg = int(m2.dmg * 1.5)
+						m2.stun = int(m2.stun * 1.4)
+						m2.crit = true
+					var res: String = e.take_hit(self, m2, dir)
+					if mv.get("bowl", false) and res in ["hit", "counter"]:
+						e.thrown_by = self
+					_on_hit(e, move_id, res, int(m2.hitstop))
+	_blade_prev = cur
 	if has_hit and perfect_t > 0.0:
 		perfect_t = 0.0
 
@@ -621,10 +791,10 @@ func _st_dodge(dt: float) -> void:
 	velocity.y = -2.0 if is_on_floor() else velocity.y - GRAV_DOWN * dt
 	if f >= DODGE_ATTACK_F:
 		if Inputs.buffered("attack"):
-			_start_attack("dash_punch")
+			_start_attack(_wmove("dodge_attack", "dash_punch"))
 			return
 		if Inputs.buffered("heavy"):
-			_start_attack("slide")
+			_start_attack(_wmove("dodge_heavy", "slide"))
 			return
 	if f >= DODGE_F - 4:
 		if Inputs.buffered("dodge", false) and dodges < DODGE_CHAIN:
@@ -656,7 +826,7 @@ func _st_airdash(_dt: float) -> void:
 	hvel = dodge_dir * (AIRDASH_DIST / T * 1.5 * (1.0 - float(f) / AIRDASH_F))
 	velocity.y = 0.0
 	if f >= 6 and Inputs.buffered("attack") and air_attacks < 4:
-		_start_attack("air_jab")
+		_start_attack(_wmove("air", "air_jab"))
 		return
 	if f >= 6 and Inputs.buffered("heavy"):
 		_start_attack("air_spike")
@@ -672,7 +842,10 @@ func _start_guard() -> void:
 	_go("guard")
 	guard_f = 0 if guard_cool <= 0.0 else PARRY_F + 1
 	in_combat_t = 4.0
-	rig.play("cmu/guard_idle", 0.06, 1.3)
+	if weapon != "":
+		rig.play("block", 0.06, 1.0, 0.25)
+	else:
+		rig.play("cmu/guard_idle", 0.06, 1.3)
 	rig.flash(0.06, Color(0.4, 0.7, 1.0))
 
 
@@ -682,6 +855,8 @@ func parrying() -> bool:
 
 func _st_guard(dt: float) -> void:
 	guard_f += 1
+	if weapon != "" and f == 8:
+		rig.set_speed(0.0)
 	var d := stick_world()
 	hvel = hvel.move_toward(d * GUARD_WALK, ACCEL * dt)
 	velocity.y = -2.0
@@ -792,11 +967,12 @@ func _st_down(dt: float) -> void:
 		_go("move")
 
 
-# ------------------------------------------------------------------ chope
+# ------------------------------------------------------------------ chope (v0.112 : on le tient)
 
 func _start_grab() -> void:
 	_go("grab")
 	grabbed = null
+	grab_mode = ""
 	in_combat_t = 4.0
 	var want := stick_world()
 	if want.length() > 0.2:
@@ -809,7 +985,7 @@ func _st_grab(dt: float) -> void:
 	var g := Moves.GRAB
 	hvel = hvel.move_toward(Vector3.ZERO, DECEL * dt)
 	velocity.y = -2.0
-	if grabbed == null:
+	if grabbed == null and grab_mode == "":
 		if f == int(g.startup):
 			var t = _pick_target(facing, float(g.reach), 0.9)
 			if t and t.grabbable():
@@ -819,19 +995,93 @@ func _st_grab(dt: float) -> void:
 					facing = to.normalized()
 					grabbed = t
 					t.grab_by(self)
+					grab_mode = "hold"
+					grab_f = 0
+					pummel_cd = 0
 					f = 0
-					rig.play("throw", 0.05, 0.9, 0.12)
+					rig.play("carry", 0.08, 0.0, 0.3)
 					game.sfx.play("grab", global_position, 0.7)
+					game.popup(global_position + Vector3.UP * 2.3, "CHOPE !", Color(1, 0.85, 0.4))
 					hitstop = 4
 					return
 		if f >= int(g.startup) + int(g.whiff):
 			_go("move")
 		return
-	# tenu : il est dans les mains, puis lancé
-	grabbed.global_position = global_position + facing * 0.75 + Vector3.UP * 0.25
-	if f == int(g.hold):
-		rig.set_speed(1.9)
-	if f == int(g.hold) + int(g.throw_f):
+	match grab_mode:
+		"hold": _grab_hold(dt)
+		"slam": _grab_slam()
+		"throw": _grab_throw()
+
+
+## Tenu : il est soulevé devant le héros. Le stick tourne le héros (choisir où l'éclater / le lancer).
+func _grab_hold(dt: float) -> void:
+	var g := Moves.GRAB
+	grab_f += 1
+	pummel_cd -= 1
+	_turn_to(stick_world(), dt, 6.0)
+	if not is_instance_valid(grabbed):
+		_go("move")
+		return
+	grabbed.global_position = global_position + facing * 0.72 + Vector3.UP * 0.22
+	grabbed.facing = -facing
+	if pummel_cd == int(g.pummel_f) - 10:
+		rig.play("carry", 0.1, 0.0, 0.3)
+	if Inputs.buffered("dodge"):
+		grabbed.release_grab(Vector3.ZERO)
+		grabbed = null
+		grab_mode = ""
+		_start_dodge()
+		return
+	if Inputs.buffered("heavy"):
+		grab_mode = "slam"
+		f = 0
+		rig.play("throw", 0.04, 1.9, 0.08)
+		game.sfx.play("whoosh_heavy", global_position, 0.6)
+		return
+	if Inputs.buffered("grab"):
+		grab_mode = "throw"
+		f = 0
+		rig.play("throw", 0.05, 1.5, 0.12)
+		return
+	if Inputs.buffered("attack") and pummel_cd <= 0:
+		pummel_cd = int(g.pummel_f)
+		rig.play("jab", 0.03, 1.8, 0.05)
+		grabbed.pummeled(self, float(g.pummel_dmg))
+		_on_hit(grabbed, "pummel", "hit", 4)
+		game.sfx.play("light", grabbed.global_position + Vector3.UP * 1.2, 0.6)
+		game.fx.spark(grabbed.global_position + Vector3.UP * 1.3, facing, 0.4, Color(1, 0.9, 0.55))
+		return
+	if grab_f >= int(g.hold_max):
+		# trop long : il se dégage (comme la chope de Smash Bros)
+		grabbed.escape_grab(facing)
+		grabbed = null
+		grab_mode = ""
+		hvel = -facing * 4.0
+		_go("hurt")
+		stun = 16
+		rig.play("hit_chest", 0.05, 1.4)
+		game.popup(global_position + Vector3.UP * 2.3, "IL SE DÉGAGE", Color(1, 0.6, 0.5))
+
+
+## Y pendant la chope : il le soulève et l'éclate au sol devant lui. Il rebondit (jonglable) ; on peut agir dès l'impact.
+func _grab_slam() -> void:
+	var g := Moves.GRAB
+	if grabbed and is_instance_valid(grabbed) and f < int(g.slam_f):
+		var k := float(f) / float(g.slam_f)
+		grabbed.global_position = global_position + facing * lerpf(0.72, 0.9, k) + Vector3.UP * lerpf(0.22, 1.5, k)
+	if f == int(g.slam_f) and grabbed:
+		grabbed.slam_by(self, global_position + facing * 1.05)
+		grabbed = null
+	if f >= int(g.slam_f) + int(g.slam_recovery) or (f > int(g.slam_f) + 6 and has_hit):
+		grab_mode = ""
+		_go("move")
+
+
+func _grab_throw() -> void:
+	var g := Moves.GRAB
+	if grabbed and is_instance_valid(grabbed):
+		grabbed.global_position = global_position + facing * 0.72 + Vector3.UP * 0.22
+	if f == int(g.throw_f) and grabbed:
 		var kb: Array = g.kb
 		var dir := facing
 		var s2 := stick_world()
@@ -842,9 +1092,308 @@ func _st_grab(dt: float) -> void:
 		game.shake(0.35)
 		game.sfx.play("heavy", global_position, 0.8)
 		grabbed = null
-		f = 100
-	if f >= 100 + int(g.recovery):
+	if f >= int(g.throw_f) + int(g.recovery):
+		grab_mode = ""
 		_go("move")
+
+
+## Appelé par le mannequin quand il touche le sol après l'éclatement.
+func slam_landed(e: Node) -> void:
+	has_hit = true
+	combo += 1
+	combo_t = 1.2
+	hitstop = 10
+	rig.freeze(10 / 60.0)
+	hit_landed.emit(e, "slam", "hit")
+
+
+# ------------------------------------------------------------------ rebords (v0.112)
+## D'après Climbing Physics Prototype (teitasan/climbing_physics_prototype, MIT) : un rayon horizontal trouve le mur et sa
+## normale, un rayon vertical juste derrière la face trouve le dessus ; une capsule vérifie qu'on tient debout en haut.
+## Réglages repris de son GameFeel : vitesse le long du rebord 1,85 m/s, se hisser ~0,6 s, lâcher = 0,3 s sans réagripper.
+
+func _ray(a: Vector3, b: Vector3) -> Dictionary:
+	var q := PhysicsRayQueryParameters3D.create(a, b, 1, [get_rid()])
+	return get_world_3d().direct_space_state.intersect_ray(q)
+
+
+func _free_at(feet: Vector3) -> bool:
+	var q := PhysicsShapeQueryParameters3D.new()
+	var cap := CapsuleShape3D.new()
+	cap.radius = 0.28
+	cap.height = 1.6
+	q.shape = cap
+	q.transform = Transform3D(Basis(), feet + Vector3.UP * 0.86)
+	q.collision_mask = 1
+	q.exclude = [get_rid()]
+	return get_world_3d().direct_space_state.intersect_shape(q, 1).is_empty()
+
+
+## Rebord devant (direction `dir`) depuis `from` (pieds). Retourne {} ou {wall, n, top, rel, stand, can_stand}.
+func find_ledge(dir: Vector3, from: Vector3) -> Dictionary:
+	dir.y = 0
+	if dir.length() < 0.1:
+		return {}
+	dir = dir.normalized()
+	for h in [-0.35, 0.05, 0.5, 0.95, 1.4, 1.85]:
+		var r := _ray(from + Vector3.UP * h - dir * 0.1, from + Vector3.UP * h + dir * 0.85)
+		if r.is_empty() or absf(r.normal.y) > 0.4:
+			continue
+		var n := Vector3(r.normal.x, 0, r.normal.z).normalized()
+		var wp: Vector3 = r.position
+		var top_r := _ray(Vector3(wp.x - n.x * 0.22, from.y + 3.3, wp.z - n.z * 0.22), Vector3(wp.x - n.x * 0.22, from.y + 0.3, wp.z - n.z * 0.22))
+		if top_r.is_empty() or top_r.normal.y < 0.7:
+			continue
+		var top: float = top_r.position.y
+		var stand := Vector3(wp.x - n.x * 0.5, top + 0.02, wp.z - n.z * 0.5)
+		return {"wall": wp, "n": n, "top": top, "rel": top - from.y, "stand": stand, "can_stand": _free_at(stand)}
+	return {}
+
+
+func _try_ledge() -> bool:
+	if drop_lock > 0.0:
+		return false
+	var s := stick_world()
+	if s.length() < 0.3:
+		return false
+	var L := find_ledge(s, global_position)
+	if L.is_empty() or s.normalized().dot(-L.n) < 0.5:
+		return false
+	if L.rel >= 0.2 and L.rel <= MANTLE_MAX and L.can_stand:
+		_start_climb(L, false)
+		return true
+	if L.rel > MANTLE_MAX and L.rel <= HANG_REACH:
+		if L.top - hang_h > last_ground_y + 0.15:
+			_start_hang(L)
+		elif L.can_stand:
+			_start_climb(L, false)
+		else:
+			return false
+		return true
+	return false
+
+
+func _start_hang(L: Dictionary) -> void:
+	ledge = L
+	_go("hang")
+	hang_push = 0
+	facing = -L.n
+	hvel = Vector3.ZERO
+	velocity = Vector3.ZERO
+	air_dash_used = false
+	air_attacks = 0
+	global_position = Vector3(L.wall.x + L.n.x * 0.36, L.top - hang_h, L.wall.z + L.n.z * 0.36)
+	# pose d'agrippe figée (la capture se balance sous une barre : contre un mur, les jambes rentreraient dedans) ;
+	# le modèle avance un peu vers le mur pour que les mains soient sur le rebord
+	rig.play("cmu/hang", 0.08, 0.0, 1.2)
+	rig.position = facing * 0.22
+	game.sfx.play("land", global_position + Vector3.UP * 2.0, 0.4)
+
+
+func _st_hang(_dt: float) -> void:
+	hvel = Vector3.ZERO
+	velocity = Vector3.ZERO
+	var n: Vector3 = ledge.n
+	var s := stick_world()
+	var right := facing.cross(Vector3.UP).normalized()
+	var lat := s.dot(right)
+	if absf(lat) > 0.3:
+		var step := right * signf(lat) * SHIMMY / 60.0 * absf(lat)
+		var probe := global_position + right * signf(lat) * 0.3 + Vector3.UP * (hang_h - 1.4)
+		var L2 := find_ledge(-n, Vector3(probe.x, ledge.top - 1.4, probe.z) + n * 0.1)
+		if not L2.is_empty() and absf(L2.top - ledge.top) < 0.3 and L2.n.dot(n) > 0.8:
+			global_position += step
+			ledge.top = L2.top
+			ledge.wall = L2.wall + step * 0.0
+			ledge.stand = L2.stand
+			ledge.can_stand = L2.can_stand
+			rig.lean = Vector3(0, 0, 6.0 * sin(f * 0.3) * signf(lat))
+		else:
+			rig.lean = Vector3.ZERO
+	else:
+		rig.lean = Vector3.ZERO
+	if Inputs.buffered("jump"):
+		if s.dot(n) > 0.5:
+			# saut en arrière, dos au mur
+			velocity = n * 5.5 + Vector3.UP * 7.0
+			hvel = Vector3(velocity.x, 0, velocity.z)
+			facing = n
+			drop_lock = 0.3
+			_go("air")
+			rig.play("ninja_start", 0.05, 1.6, 0.22)
+		elif ledge.can_stand:
+			_start_climb(ledge, true)
+		else:
+			velocity = Vector3.UP * 5.0
+			drop_lock = 0.3
+			_go("air")
+		return
+	if s.dot(-n) > 0.6:
+		hang_push += 1
+		if hang_push > 12 and ledge.can_stand and f > 10:
+			_start_climb(ledge, true)
+			return
+	else:
+		hang_push = 0
+	if Inputs.buffered("dodge") or (s.dot(n) > 0.7 and f > 10 and not Inputs.held("jump")):
+		hvel = n * 1.5
+		velocity = Vector3(hvel.x, -0.5, hvel.z)
+		drop_lock = 0.35
+		_go("air")
+		rig.play("ninja_loop", 0.15)
+
+
+## Se hisser : depuis l'agrippe, traction (capture CMU 01_12) puis enjambée (Quaternius ClimbUp_1m) ; depuis le sol ou
+## en l'air devant un rebord bas : enjambée seule. La capsule suit un chemin départ -> bord -> debout (collision coupée).
+func _start_climb(L: Dictionary, from_hang: bool) -> void:
+	ledge = L
+	_go("climb")
+	climb_f = 0
+	facing = -L.n
+	hvel = Vector3.ZERO
+	velocity = Vector3.ZERO
+	col_shape.disabled = true
+	climb_start = global_position
+	if from_hang:
+		climb_p1 = 34
+		climb_p2 = 26
+		rig.play("cmu/hang_pull", 0.06, 1.25 / (climb_p1 / 60.0))
+	else:
+		climb_p1 = 0
+		climb_p2 = int(lerpf(20, 30, clampf((L.rel - 0.45) / 1.4, 0, 1)))
+		rig.play("climb_up", 0.06, 0.667 / (climb_p2 / 60.0))
+	game.sfx.play("jump", global_position, 0.5)
+
+
+func _st_climb(_dt: float) -> void:
+	climb_f += 1
+	hvel = Vector3.ZERO
+	velocity = Vector3.ZERO
+	var n: Vector3 = ledge.n
+	var hang_feet := Vector3(ledge.wall.x + n.x * 0.36, ledge.top - 1.0, ledge.wall.z + n.z * 0.36)
+	if climb_f <= climb_p1:
+		var k := float(climb_f) / climb_p1
+		global_position = climb_start.lerp(hang_feet, k * k * (3.0 - 2.0 * k))
+		rig.position = facing * 0.22 * (1.0 - k)
+		rig.lean = Vector3.ZERO
+		if climb_f == climb_p1:
+			climb_start = global_position
+			rig.play("climb_up", 0.08, 0.667 / (climb_p2 / 60.0))
+		return
+	var u := clampf(float(climb_f - climb_p1) / climb_p2, 0.0, 1.0)
+	var sm := u * u * (3.0 - 2.0 * u)
+	var mid := Vector3(ledge.wall.x + n.x * 0.12, ledge.top + 0.05, ledge.wall.z + n.z * 0.12)
+	if sm < 0.55:
+		global_position = climb_start.lerp(mid, sm / 0.55)
+	else:
+		global_position = mid.lerp(ledge.stand, (sm - 0.55) / 0.45)
+	if u >= 1.0:
+		global_position = ledge.stand
+		col_shape.disabled = false
+		_go("move")
+		land_lag = 2
+		last_ground_y = global_position.y
+		fall_peak = global_position.y
+
+
+# ------------------------------------------------------------------ course au mur (v0.112)
+## d'après godot-wall-running (Garbaj, MIT) : en l'air, un mur juste à côté et de l'élan le long du mur = on court dessus
+## (gravité presque coupée) ; réglages de Vigilante (madebynova) : ~1,2 s, A = saut de mur qui traverse un couloir de 2-3,5 m
+## et reprend la course sur le mur d'en face ; B = lâcher.
+
+func _try_wallrun() -> bool:
+	if f < 4:
+		return false
+	var hv := Vector3(hvel.x, 0, hvel.z)
+	if hv.length() < WR_MIN_SPEED:
+		return false
+	var p := global_position
+	var right := hv.normalized().cross(Vector3.UP).normalized()
+	for side in [1.0, -1.0]:
+		var d: Vector3 = right * side
+		var r := _ray(p + Vector3.UP * 1.0, p + Vector3.UP * 1.0 + d * 0.8)
+		if r.is_empty() or absf(r.normal.y) > 0.3:
+			continue
+		var n := Vector3(r.normal.x, 0, r.normal.z).normalized()
+		if _ray(p + Vector3.UP * 2.2, p + Vector3.UP * 2.2 + d * 0.95).is_empty():
+			continue      # mur trop bas : pas de course (les murets restent des murets)
+		if wall_lock > 0.0 and n.dot(last_wall_n) > 0.9:
+			continue
+		var along := hv - n * hv.dot(n)
+		if along.length() < WR_MIN_SPEED * 0.8:
+			continue
+		if stick_world().dot(n) > 0.7:
+			continue
+		_start_wallrun(n, along.normalized(), along.length(), side)
+		return true
+	return false
+
+
+func _start_wallrun(n: Vector3, dir: Vector3, sp: float, side: float) -> void:
+	_go("wallrun")
+	wall_n = n
+	wr_dir = dir
+	wr_speed = maxf(sp, WR_SPEED)
+	velocity.y = clampf(velocity.y * 0.5 + 2.0, 1.5, 5.0)
+	facing = dir
+	air_dash_used = false
+	air_attacks = 0
+	rig.play("sprint", 0.1, 1.3)
+	rig.lean = Vector3(0, 0, -24.0 * side)
+	game.fx.dust(global_position + Vector3.UP * 1.0 - n * 0.3, 0.5)
+	game.sfx.play("land", global_position, 0.4)
+
+
+func _st_wallrun(dt: float, on_floor: bool) -> void:
+	var p := global_position
+	var n := wall_n
+	if on_floor and f > 2:
+		_land()
+		return
+	var still := _ray(p + Vector3.UP * 1.0, p + Vector3.UP * 1.0 - n * 0.85)
+	var t := f / 60.0
+	if still.is_empty() or t > WR_MAX:
+		last_wall_n = n
+		wall_lock = 0.3
+		hvel = wr_dir * wr_speed * 0.8 + n * 1.5
+		_go("air")
+		rig.play("ninja_loop", 0.15)
+		return
+	hvel = wr_dir * wr_speed - n * 0.6
+	# presque pas de gravité au début, puis il glisse doucement
+	velocity.y -= (4.0 if t < 0.5 else 14.0) * dt
+	velocity.y = maxf(velocity.y, -4.0)
+	if Inputs.buffered("jump"):
+		last_wall_n = n
+		wall_lock = 0.35
+		hvel = wr_dir * wr_speed * 0.8 + n * WJ_OUT
+		velocity.y = WJ_UP
+		wj_t = 0.4
+		facing = Vector3(hvel.x, 0, hvel.z).normalized()
+		_go("air")
+		rig.play("ninja_start", 0.05, 1.6, 0.22)
+		game.sfx.play("jump", p, 0.6)
+		game.fx.dust(p + Vector3.UP * 1.0 - n * 0.3, 0.7)
+		return
+	if Inputs.buffered("dodge"):
+		last_wall_n = n
+		wall_lock = 0.4
+		hvel = wr_dir * wr_speed * 0.6 + n * 3.0
+		_go("air")
+		rig.play("ninja_loop", 0.15)
+		return
+	if Inputs.buffered("attack"):
+		last_wall_n = n
+		wall_lock = 0.4
+		_go("air")
+		_start_attack(_wmove("air", "air_jab"))
+		return
+	if Inputs.buffered("heavy"):
+		last_wall_n = n
+		wall_lock = 0.4
+		_go("air")
+		_start_attack("air_spike")
+		return
 
 
 # ------------------------------------------------------------------ cibles
@@ -892,7 +1441,20 @@ const MOVE_NAMES := {
 	"haymaker": "gros crochet plongeant (renverse, mur)", "charged": "crochet chargé", "dash_punch": "direct plongeant",
 	"slide": "glissade qui fauche", "flying_hook": "crochet volant", "air_jab": "jab aérien", "air_cross": "direct aérien",
 	"air_kick": "coup de pied qui écrase (rebond)", "air_spike": "piqué (onde au sol)", "riposte": "RIPOSTE (uppercut critique)",
+	# armes (v0.112)
+	"sw_a": "taille", "sw_b": "revers", "sw_c": "grand coup (renverse)", "sw_up": "taille montante (envoie en l'air)",
+	"sw_heavy": "grand coup d'épée (brise la garde, renverse)", "sw_dash": "estocade en avançant", "sw_air": "taille aérienne",
+	"sw_air2": "revers aérien", "sw_air3": "coup d'épée qui écrase",
+	"ka_a": "coupe", "ka_b": "coupe retour", "ka_c": "coupe finale (renverse)", "ka_rise": "coupe montante (envoie en l'air)",
+	"ka_iai": "dégainé éclair (traverse)", "ka_air": "coupe aérienne", "ka_air2": "coupe aérienne retour",
+	"ax_chop": "coup de hache (ne bronche pas)", "ax_chop2": "2e coup de hache", "ax_final": "grand coup de hache (brise la garde)",
+	"ax_sweep": "balayage à la hache (brise la garde)", "ax_up": "hache montante (envoie en l'air)", "ax_air": "hache qui écrase",
+	"bt_a": "coup de batte", "bt_b": "revers de batte", "bt_swing": "HOME RUN (l'envoie loin)", "bt_smash": "batte vers le bas (il rebondit)",
+	"bt_up": "batte montante (envoie en l'air)", "bt_air": "coup de batte aérien",
 }
+
+func _mn(id: String) -> String:
+	return MOVE_NAMES.get(id, id)
 
 func actions() -> Array:
 	var out := []
@@ -905,8 +1467,16 @@ func actions() -> Array:
 			if riposte_t > 0.0:
 				out.append({"b": "X", "t": MOVE_NAMES.riposte, "on": true})
 			elif sprinting:
-				out.append({"b": "X", "t": MOVE_NAMES.slide + " (en sprint)", "on": true})
-				out.append({"b": "Y", "t": MOVE_NAMES.flying_hook + " (en sprint)", "on": true})
+				out.append({"b": "X", "t": _mn(_wmove("sprint_attack", "slide")) + " (en sprint)", "on": true})
+				out.append({"b": "Y", "t": _mn(_wmove("sprint_heavy", "flying_hook")) + " (en sprint)", "on": true})
+			elif weapon != "":
+				var chain := []
+				var m := _wmove("attack", "jab")
+				while m != "" and chain.size() < 4:
+					chain.append(_mn(m))
+					m = Moves.M[m].chain.get("attack", "")
+				out.append({"b": "X", "t": " ▸ ".join(chain), "on": true})
+				out.append({"b": "Y", "t": _mn(_wmove("heavy", "push_kick")), "on": true})
 			else:
 				out.append({"b": "X", "t": "jab ▸ direct ▸ crochet ▸ retourné", "on": true})
 				out.append({"b": "Y", "t": MOVE_NAMES.push_kick, "on": true})
@@ -914,10 +1484,14 @@ func actions() -> Array:
 			out.append({"b": "B", "t": "roulade (invincible au début)" if dodge_ok else "roulade (recharge…)", "on": dodge_ok})
 			out.append({"b": "A", "t": "saut", "on": true})
 			out.append({"b": "L1", "t": "garde (pile au coup = parade)", "on": true})
-			var t = _pick_target(facing, float(Moves.GRAB.reach), 0.9)
-			out.append({"b": "R1", "t": "chope et lancer" if t else "chope (personne à portée)", "on": t != null})
+			var rk: String = game.arena.rack_near(global_position)
+			if rk != "":
+				out.append({"b": "R1", "t": ("raccrocher : " if rk == weapon else "prendre : ") + Weapons.DEFS[rk].name, "on": true})
+			else:
+				var t = _pick_target(facing, float(Moves.GRAB.reach), 0.9)
+				out.append({"b": "R1", "t": "chope (tenir 3 s)" if t else "chope (personne à portée)", "on": t != null})
 		"air":
-			out.append({"b": "X", "t": "combo aérien : jab ▸ direct ▸ écrasé", "on": air_attacks < 4})
+			out.append({"b": "X", "t": "combo aérien : jab ▸ direct ▸ écrasé" if weapon == "" else _mn(_wmove("air", "air_jab")) + " ▸ …", "on": air_attacks < 4})
 			out.append({"b": "Y", "t": MOVE_NAMES.air_spike, "on": true})
 			out.append({"b": "B", "t": "dash aérien", "on": not air_dash_used})
 		"attack":
@@ -927,7 +1501,7 @@ func actions() -> Array:
 			var air := bool(mv.get("air", false))
 			for b in mv.chain:
 				var nxt: String = mv.chain[b]
-				if air and not nxt.begins_with("air"):
+				if air and not Moves.M[nxt].get("air", false):
 					continue
 				var lab: String = MOVE_NAMES.get(nxt, nxt)
 				out.append({"b": "X" if b == "attack" else "Y", "t": lab, "on": f >= from, "wait": maxi(from - f, 0)})
@@ -966,10 +1540,30 @@ func actions() -> Array:
 			out.append({"b": "B", "t": "roulade", "on": dodge_ok})
 			out.append({"b": "R1", "t": "chope", "on": true})
 		"grab":
-			if grabbed:
+			if grabbed and grab_mode == "hold":
+				out.append({"b": "", "t": "tenu : encore %.1f s" % maxf((int(Moves.GRAB.hold_max) - grab_f) / 60.0, 0.0), "on": false})
+				out.append({"b": "Y", "t": "l'ÉCLATER au sol (il rebondit : jongle)", "on": true})
+				out.append({"b": "X", "t": "coups pendant la chope", "on": pummel_cd <= 0, "wait": maxi(pummel_cd, 0)})
+				out.append({"b": "R1", "t": "le lancer (stick = direction)", "on": true})
+				out.append({"b": "B", "t": "lâcher et rouler", "on": true})
+			elif grab_mode == "slam":
+				out.append({"b": "X", "t": "après l'impact : uppercut / saut + combo", "on": has_hit})
+			elif grabbed:
 				out.append({"b": "stick", "t": "choisir la direction du lancer", "on": true})
 			else:
 				out.append({"b": "", "t": "chope ratée : récupération", "on": false})
+		"hang":
+			out.append({"b": "A", "t": "se hisser" if ledge.get("can_stand", false) else "pas de place en haut", "on": ledge.get("can_stand", false)})
+			out.append({"b": "stick", "t": "gauche / droite : se déplacer le long du rebord", "on": true})
+			out.append({"b": "A", "t": "stick dos au mur + A : saut en arrière", "on": true})
+			out.append({"b": "B", "t": "lâcher", "on": true})
+		"climb":
+			out.append({"b": "", "t": "se hisse…", "on": false})
+		"wallrun":
+			out.append({"b": "A", "t": "saut de mur (vers le mur d'en face)", "on": true})
+			out.append({"b": "X", "t": "attaque aérienne (quitte le mur)", "on": true})
+			out.append({"b": "Y", "t": MOVE_NAMES.air_spike, "on": true})
+			out.append({"b": "B", "t": "lâcher le mur", "on": true})
 		"hurt":
 			out.append({"b": "B", "t": "roulade de sortie (fin de l'étourdissement)", "on": f > stun - 6, "wait": maxi(stun - 6 - f, 0)})
 		"down":
@@ -980,6 +1574,16 @@ func actions() -> Array:
 
 ## Indice de situation (ennemi en l'air, sonné…) d'après l'état réel des mannequins proches.
 func situation_hint() -> String:
+	if state == "move":
+		var rk: String = game.arena.rack_near(global_position)
+		if rk != "":
+			return ("RB : raccrocher " if rk == weapon else "RB : prendre ") + Weapons.DEFS[rk].name.to_lower()
+	if state == "wallrun":
+		return "Course au mur : A = saut vers le mur d'en face"
+	if state == "hang":
+		return "Agrippé : A = se hisser, gauche / droite = se déplacer, B = lâcher"
+	if state == "grab" and grab_mode == "hold":
+		return "Tu le tiens : Y = l'éclater au sol, X = frapper, R1 = lancer"
 	for e in game.enemies:
 		var d: Vector3 = e.global_position - global_position
 		d.y = 0

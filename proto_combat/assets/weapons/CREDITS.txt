@@ -1,0 +1,4 @@
+Armes (toutes CC0, domaine public) :
+- Sword.obj, Axe.obj : Quaternius, « LowPoly Medieval Weapons » (opengameart.org/content/lowpoly-medieval-weapons)
+- Katana.obj : « Low-Poly Katana » (opengameart.org/content/low-poly-katana)
+- baseball_bat.glb : « Old Wooden Baseball Bat » (opengameart.org/content/old-wooden-baseball-bat)

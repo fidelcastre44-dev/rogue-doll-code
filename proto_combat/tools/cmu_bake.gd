@@ -18,6 +18,10 @@ const CLIPS := {
 	# relevés (repris de tools/cmu/clips.py du jeu principal) : à plat ventre 139_16, sur le dos 140_09 ; « hit » = fin, debout (donne le devant)
 	"getup_front": {"file": "139_16", "t0": 1.62, "hit": 3.45, "t1": 3.45, "tip": "", "speed": 2.2},
 	"getup_back": {"file": "140_09", "t0": 2.1, "hit": 4.48, "t1": 4.48, "tip": "", "speed": 2.2},
+	# v0.112 : suspendu à une barre puis traction (01_12 « playground - climb, pull up, dangle »). Essayé et écarté : la batte
+	# 124_07 « Baseball Swing » (la capture n'a pas les poignets : la batte reste sur l'épaule).
+	"hang": {"file": "01_12", "t0": 2.0, "hit": 2.0, "t1": 4.2, "tip": "", "speed": 1.0, "loop": true},
+	"hang_pull": {"file": "01_12", "t0": 4.3, "hit": 5.5, "t1": 5.55, "tip": "", "speed": 1.0},
 }
 
 const FULL := {"pelvis": "Hips", "spine_01": "LowerBack", "spine_02": "Spine", "spine_03": "Spine1", "neck_01": "Neck", "Head": "Head"}

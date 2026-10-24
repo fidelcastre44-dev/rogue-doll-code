@@ -15,6 +15,16 @@ const SCENARIOS := {
 	"move_strip": [[2, "spot", "ligne"], [3, "zoom", 0.6], [10, "stick", Vector2(1, 0)], [40, "press", "dodge"], [52, "press", "attack"], [80, "stick", Vector2(-1, 0)], [100, "stick", Vector2.ZERO], [104, "press", "heavy"], [8, "strip", [10, 140, 5]], [150, "end", 0]],
 	"rag_strip": [[2, "spot", "centre"], [3, "zoom", 0.6], [10, "press", "attack"], [17, "press", "heavy"], [44, "press", "jump"], [50, "press", "attack"], [61, "press", "attack"], [72, "press", "attack"], [8, "strip", [30, 200, 6]], [210, "end", 0]],
 	"rag_kick": [[2, "spot", "centre"], [3, "zoom", 1.0], [10, "press", "heavy"], [30, "press", "heavy"], [8, "strip", [36, 190, 6]], [200, "end", 0]],
+	# v0.112
+	"weapons_wall": [[2, "spot", "armes"], [3, "zoom", 0.75], [40, "shot", "wall"], [41, "press", "grab"], [70, "shot", "sword"], [80, "end", 0]],
+	"sword_strip": [[2, "spot", "centre"], [3, "zoom", 0.55], [4, "weapon", "sword"], [20, "press", "attack"], [34, "press", "attack"], [48, "press", "attack"], [8, "strip", [20, 120, 4]], [130, "end", 0]],
+	"katana_strip": [[2, "spot", "centre"], [3, "zoom", 0.55], [4, "weapon", "katana"], [20, "press", "attack"], [30, "press", "attack"], [40, "press", "attack"], [80, "press", "heavy"], [8, "strip", [20, 140, 4]], [150, "end", 0]],
+	"axe_strip": [[2, "spot", "centre"], [3, "zoom", 0.55], [4, "weapon", "axe"], [20, "press", "attack"], [52, "press", "attack"], [84, "press", "attack"], [8, "strip", [20, 160, 5]], [170, "end", 0]],
+	"bat_strip": [[2, "spot", "centre"], [3, "zoom", 0.55], [4, "weapon", "bat"], [20, "press", "attack"], [38, "press", "attack"], [58, "press", "attack"], [8, "strip", [20, 150, 5]], [160, "end", 0]],
+	"grab_strip": [[2, "spot", "centre"], [3, "pos", Vector3(0, 0.05, 0.6)], [4, "zoom", 0.55], [10, "press", "grab"], [40, "press", "attack"], [70, "press", "heavy"], [8, "strip", [16, 130, 5]], [140, "end", 0]],
+	"climb_strip": [[2, "spot", "parcours"], [3, "pos", Vector3(26.5, 0.05, 7.0)], [4, "yaw", 60.0], [5, "zoom", 0.6], [10, "stick", Vector2(0, -1)], [12, "press", "jump"], [40, "stick", Vector2.ZERO], [50, "press", "jump"], [8, "strip", [10, 130, 5]], [140, "end", 0]],
+	"hang_strip": [[2, "spot", "parcours"], [3, "pos", Vector3(26.5, 0.05, 7.0)], [4, "yaw", 90.0], [5, "zoom", 0.5], [10, "stick", Vector2(1, 0)], [12, "press", "jump"], [24, "stick", Vector2.ZERO], [60, "press", "jump"], [8, "strip", [10, 106, 4]], [110, "end", 0]],
+	"wallrun_strip": [[2, "spot", "parcours"], [3, "pos", Vector3(22.9, 0.05, 34.0)], [4, "zoom", 0.75], [6, "stick", Vector2(0, -1)], [36, "press", "jump"], [60, "press", "jump"], [90, "press", "jump"], [8, "strip", [30, 140, 5]], [150, "end", 0]],
 	"attackers": [[2, "mode", "attack"], [3, "spot", "foule"], [60, "shot", "crowd"], [120, "shot", "crowd2"], [121, "press", "guard"], [200, "shot", "guard"], [201, "release", "guard"], [260, "end", 0]],
 }
 
@@ -59,6 +69,9 @@ func _physics_process(_dt: float) -> bool:
 			"look": game.set_look(s[2])
 			"shot": _shot(s[2])
 			"zoom": game.cam.zoom = s[2]
+			"weapon": game.set_weapon(s[2])
+			"pos": game.hero.global_position = s[2]; game.cam.snap()
+			"yaw": game.cam.yaw = s[2]
 			"strip": strip = s[2]
 			"end":
 				print("fin du scénario")

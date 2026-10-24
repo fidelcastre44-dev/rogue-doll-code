@@ -3,7 +3,7 @@ extends Node3D
 ## Ce nœud monte tout (lumière, terrain, héros, mannequins, caméra, effets, sons, interface, menu) et sert d'arbitre :
 ## figé à l'impact, secousses, ralentis, parade, esquive parfaite, jetons d'attaque des ennemis (2 à la fois au plus).
 
-const VERSION := "0.11"
+const VERSION := "0.112"
 const MAX_ATTACKERS := 2
 
 var arena: Arena
@@ -23,6 +23,11 @@ var tokens: Array = []
 var _slow_t := 0.0
 var _slow_scale := 1.0
 var _boxes := []
+var _cam_cfg := [0.0, 40.0, 1.0]
+const SPOTS := ["centre", "mur", "plateforme", "ligne", "foule", "armes", "parcours"]
+const CAM_YAWS := [0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345]
+const CAM_PITCHES := [25, 30, 35, 40, 45, 50, 55, 60, 65]
+const CAM_ZOOMS := [0.55, 0.65, 0.75, 0.85, 1.0, 1.15, 1.3, 1.5, 1.75]
 
 
 func _ready() -> void:
@@ -65,6 +70,7 @@ func _ready() -> void:
 	if c.load("user://proto.cfg") == OK:
 		hero.look = c.get_value("hero", "look", "male")
 		hero.assist = c.get_value("hero", "assist", 0.65)
+		_cam_cfg = [c.get_value("cam", "yaw", 0.0), c.get_value("cam", "pitch", 40.0), c.get_value("cam", "zoom", 1.0)]
 	game_root.add_child(hero)
 	hero.hit_landed.connect(_on_hero_hit)
 	cam = Cam.new()
@@ -72,6 +78,9 @@ func _ready() -> void:
 	cam.target = hero
 	add_child(cam)
 	cam.current = true
+	cam.yaw = _cam_cfg[0]
+	cam.pitch = _cam_cfg[1]
+	cam.zoom = _cam_cfg[2]
 	hud = Hud.new()
 	hud.game = self
 	add_child(hud)
@@ -87,12 +96,15 @@ func _ready() -> void:
 func _menu_setup() -> void:
 	menu.setup([
 		["Reprendre", [], 0, func(_i): menu.toggle()],
-		["Situation", ["centre", "mur", "plateforme", "ligne", "foule"], 0, func(i): load_spot(["centre", "mur", "plateforme", "ligne", "foule"][i])],
+		["Situation", SPOTS, 0, func(i): load_spot(SPOTS[i])],
 		["Mannequins", ["passifs", "en garde", "attaquent"], 0, func(i): set_foe_mode(["passive", "guard", "attack"][i])],
 		["Nombre de mannequins", [1, 2, 3, 4, 5, 6], 2, func(i): set_count(i + 1)],
 		["Vitesse du jeu", ["×1", "×0,5", "×0,25"], 0, func(i): set_speed([1.0, 0.5, 0.25][i])],
 		["Aide à la visée", ["aucune", "légère", "normale", "forte"], 2, func(i): set_assist([0.0, 0.35, 0.65, 1.0][i])],
-		["Zoom caméra", ["proche", "normal", "loin"], 1, func(i): cam.zoom = [0.75, 1.0, 1.3][i]],
+		["Caméra : rotation", CAM_YAWS.map(func(v): return "%d°" % v), _nearest(CAM_YAWS, cam.yaw), func(i): set_cam("yaw", CAM_YAWS[i])],
+		["Caméra : inclinaison", CAM_PITCHES.map(func(v): return "%d°" % v), _nearest(CAM_PITCHES, cam.pitch), func(i): set_cam("pitch", CAM_PITCHES[i])],
+		["Caméra : zoom", CAM_ZOOMS.map(func(v): return "×%.2f" % v), _nearest(CAM_ZOOMS, cam.zoom), func(i): set_cam("zoom", CAM_ZOOMS[i])],
+		["Arme en main", ["mains nues"] + Weapons.ORDER.map(func(w): return Weapons.DEFS[w].name), 0, func(i): set_weapon("" if i == 0 else Weapons.ORDER[i - 1])],
 		["Zones de frappe", ["cachées", "visibles"], 0, func(i): show_boxes = i == 1],
 		["Perso", ["homme", "femme"], 0 if hero.look == "male" else 1, func(i): set_look(["male", "female"][i])],
 		["Infos des coups (frise)", ["visibles", "cachées"], 0, func(i): hud.show_debug = i == 0],
@@ -109,6 +121,31 @@ func _menu_setup() -> void:
 	menu.opts[5][2] = best
 
 
+func _nearest(vals: Array, v: float) -> int:
+	var bi := 0
+	for i in vals.size():
+		if absf(float(vals[i]) - v) < absf(float(vals[bi]) - v):
+			bi = i
+	return bi
+
+
+## Caméra (menu Start) : rotation 360°, inclinaison, zoom ; gardés dans user://proto.cfg.
+func set_cam(what: String, v: float) -> void:
+	cam.set(what, float(v))
+	_save()
+
+
+## Arme (menu) : comme la prendre au mur.
+func set_weapon(id: String) -> void:
+	if hero.weapon != "":
+		arena.rack_show(hero.weapon, true)
+	if id == "":
+		hero.unequip()
+	else:
+		arena.rack_show(id, false)
+		hero.equip(id)
+
+
 func mode_name() -> String:
 	return {"passive": "passifs", "guard": "en garde", "attack": "attaquent"}[foe_mode]
 
@@ -117,6 +154,10 @@ func _save() -> void:
 	var c := ConfigFile.new()
 	c.set_value("hero", "look", hero.look)
 	c.set_value("hero", "assist", hero.assist)
+	if cam:
+		c.set_value("cam", "yaw", cam.yaw)
+		c.set_value("cam", "pitch", cam.pitch)
+		c.set_value("cam", "zoom", cam.zoom)
 	c.save("user://proto.cfg")
 
 
@@ -180,6 +221,11 @@ func load_spot(name: String) -> void:
 	hero.velocity = Vector3.ZERO
 	hero.hvel = Vector3.ZERO
 	hero.facing = s.face
+	if hero.col_shape:
+		hero.col_shape.disabled = false
+	hero.rig.lean = Vector3.ZERO
+	hero.grabbed = null
+	hero.grab_mode = ""
 	hero.state = "move"
 	hero.f = 0
 	hero.hp = 100.0

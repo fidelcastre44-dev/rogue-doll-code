@@ -1,4 +1,4 @@
-# Rogue Doll — proto combat (v0.11)
+# Rogue Doll — proto combat (v0.112)
 
 Version à part du jeu : **seulement le terrain d'essai**, avec un système de déplacement / combat refait de zéro pour trouver un
 feeling solide. Pas de ragdoll : des états lisibles comme dans un jeu de baston pro. Godot 4.7 (Jolt), GDScript.
@@ -25,8 +25,34 @@ feeling solide. Pas de ragdoll : des états lisibles comme dans un jeu de baston
   (`Hero.actions()`) : allumé = part tout de suite, grisé + « dans N images » = appui déjà accepté mais pas encore ouvert.
   Indice de situation en haut (ennemi sonné, en l'air, au sol, coup rouge / orange qui arrive). F1 = liste complète.
 
+## v0.112
+- **Caméra** moins plongeante (40° au lieu de 52°) ; menu Start : **rotation 360°** (pas de 15°), **inclinaison** (25-65°), **zoom**.
+  Gardé dans `user://proto.cfg`. Le stick suit la caméra.
+- **Chope tenue** (RB) : il est soulevé et tenu jusqu'à 3 s (il se débat de plus en plus) ; **Y = l'éclater au sol** (gros impact,
+  il rebondit haut : jonglable), X = coups pendant la chope, RB = le lancer (stick = direction, renverse les autres), B = lâcher.
+  Tenu 3 s sans rien faire : il se dégage (comme la chope de Smash Bros).
+- **Mur d'armes** (situation « armes », à l'ouest) : épée, katana, hache, batte. RB devant une arme = la prendre, RB devant son
+  crochet = la raccrocher (objets, rien ne se casse). Aussi dans le menu (« Arme en main »). Chaque arme a ses coups
+  (`moves.gd` : sw_, ka_, ax_, bt_) et **la zone de frappe suit la lame** (balayage entre deux images, `Hero._check_blade`).
+  Épée : X taille ▸ revers ▸ grand coup, Y grand coup (brise la garde), X puis Y = taille montante (lanceur).
+  Katana : plus rapide, Y = dégainé éclair qui traverse (4,5 m). Hache : lente, ne bronche pas, gros dégâts.
+  Batte : X X X finit par un **home run** (il part loin, renverse les autres, s'écrase au mur) ; Y = coup vers le bas (il rebondit).
+  Modèles CC0 (`assets/weapons/CREDITS.txt`) ; animations Quaternius UAL (Sword_Regular_A/B/C, Sword_Attack, Sword_Dash,
+  TreeChopping, Sword_Block, Sword_Idle). Prise dans la main : `Weapons.GRIP`, mesurée sur les os des doigts. `tools/weapon_times.gd`
+  mesure l'impact (pointe la plus rapide devant), `tools/weapon_sheet.gd` / `tools/grip_try.gd` = planches de contrôle.
+- **Rebords** (zone « parcours », rangée de blocs 1 / 1,8 / 2,4 / 3,2 m) : sauter vers un rebord en poussant le stick vers lui =
+  enjamber (≤ 1,45 m) ou s'agripper (≤ 2,35 m au-dessus des pieds). Agrippé : gauche / droite = se déplacer, A ou stick vers le mur
+  = se hisser, stick dos au mur + A = saut en arrière, B = lâcher. D'après **Climbing Physics Prototype** (teitasan, MIT).
+  Animations : capture CMU 01_12 (suspendu, traction) + Quaternius ClimbUp_1m.
+- **Course au mur** (zone « parcours » : couloir de 2 murs à 2,5 m, zigzag, mur long) : sauter le long d'un mur haut avec de l'élan
+  = courir dessus (1,3 s) ; A = saut de mur vers le mur d'en face (on y recourt), X / Y = attaque aérienne, B = lâcher.
+  D'après **godot-wall-running** (Garbaj, MIT) et les réglages de **Vigilante** (madebynova). Pas encore d'animation dédiée :
+  course penchée vers le mur (une animation Mixamo « Wall Run » ferait mieux).
+- Tests : `tests/check.gd` = 70 vérifications (chope tenue / éclatée / dégagée, armes, rebords, course au mur, caméra).
+
 ## Règle de travail (Paul, 24/10)
-Pas de coup ni d'animation inventés : on part de ressources existantes. **Quand il faut une animation, Claude demande à Paul**
+Pas de coup ni d'animation inventés : on part de ressources existantes. **Quand il faut une animation, Claude la cherche d'abord lui-même**
+(bibliothèques libres : Quaternius, CMU…) ; s'il ne trouve pas, **il demande à Paul**
 ce qu'il faut chercher sur Mixamo (mots-clés, FBX « Without Skin », 30 i/s, « In Place ») ; Paul la télécharge et la donne.
 Les fichiers Mixamo bruts ne vont pas sur GitHub (licence).
 
@@ -41,7 +67,7 @@ Les fichiers Mixamo bruts ne vont pas sur GitHub (licence).
 | B (Maj) | roulade (invincible au début) ▸ X = direct plongeant ▸ Y = glissade qui fauche ; en l'air : dash |
 | B juste avant un coup ennemi | esquive parfaite : ralenti + prochain coup critique |
 | L1 (U) | garde ; pile au moment du coup = PARADE (ralenti) ▸ X = riposte (uppercut critique) |
-| R1 (L) | chope et lancer (le stick choisit la direction ; le lancé renverse les autres) |
+| R1 (L) | chope : tenu 3 s ▸ Y = l'éclater au sol, X = frapper, R1 = lancer ; devant le mur d'armes : prendre / raccrocher |
 | Sprint + X / Y | glissade / crochet volant |
 | Y en l'air | piqué (onde au sol) |
 | Start (Tab) | menu : situation, mannequins (passifs / en garde / attaquent), nombre, vitesse, aide à la visée, zoom, zones de frappe, perso |
@@ -54,7 +80,8 @@ Mannequins qui attaquent : flash **rouge** = coup normal (bloquable), **orange**
   `game/moves.gd` **toutes les données des coups** (à régler ici), `game/rig.gd` modèle + animations, `game/cam.gd` caméra,
   `game/fx.gd` effets, `game/sfx.gd` sons (remplaçables : déposer `assets/sfx/heavy.wav` etc.), `game/arena.gd` terrain, `game/hud.gd`, `game/menu.gd`, `game/inputs.gd`.
 - `tools/build_anims.gd` (reprise UAL), `tools/cmu_bake.gd` (reprise CMU), `tools/anim_sheet.gd` (planche d'animations), `tools/hit_times.gd`.
-- `tests/check.gd` : 40 vérifications automatiques (`godot --headless --path . -s tests/check.gd` → `RESULTAT: OK`). `tests/play.gd` : scénarios + captures.
+- `game/weapons.gd` armes (modèles, prise, coups par bouton).
+- `tests/check.gd` : 70 vérifications automatiques (`godot --headless --path . -s tests/check.gd` → `RESULTAT: OK`). `tests/play.gd` : scénarios + captures.
 
 ## Crédits
 Animations : Quaternius, Universal Animation Library 1 & 2 (CC0). Captures : CMU Graphics Lab Motion Capture Database (usage libre).

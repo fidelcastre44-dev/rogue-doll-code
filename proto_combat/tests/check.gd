@@ -85,6 +85,12 @@ func _run() -> void:
 	await t_slide_and_dash()
 	await t_perfect()
 	await t_ai()
+	await t_grab_slam()
+	await t_grab_escape()
+	await t_weapons()
+	await t_climb()
+	await t_wallrun()
+	await t_camera()
 	print("")
 	if fails.is_empty():
 		print("RESULTAT: OK")
@@ -244,8 +250,10 @@ func t_grab() -> void:
 	game.hero.facing = Vector3(0, 0, -1)
 	await tap("grab", 10)
 	ok(foe(0).state == "grabbed", "attrapé (%s)" % foe(0).state)
-	await wait(30)
-	ok(foe(0).state == "air", "lancé (%s)" % foe(0).state)
+	await wait(90)
+	ok(foe(0).state == "grabbed", "toujours tenu après 1,5 s (%s)" % foe(0).state)
+	await tap("grab", 16)
+	ok(foe(0).state == "air", "R1 : lancé (%s)" % foe(0).state)
 	await wait(30)
 	ok(foe(1).state in ["air", "down"] or foe(2).state in ["air", "down"], "il renverse les autres (boule de bowling)")
 	await wait(60)
@@ -336,3 +344,171 @@ func t_ai() -> void:
 	ok(max_att >= 1, "ils attaquent")
 	ok(max_att <= game.MAX_ATTACKERS, "jamais plus de %d à la fois (%d)" % [game.MAX_ATTACKERS, max_att])
 	ok(game.hero.hurt_count > h0, "le héros se fait toucher s'il ne fait rien (%d coups)" % (game.hero.hurt_count - h0))
+
+
+
+# ------------------------------------------------------------------ v0.112
+
+func t_grab_slam() -> void:
+	print("chope : l'éclater au sol")
+	await setup("centre", 1, "passive", 1.0)
+	game.hero.facing = Vector3(0, 0, -1)
+	await tap("grab", 10)
+	ok(foe().state == "grabbed", "attrapé")
+	await wait(30)
+	var hp0: float = foe().hp
+	await tap("heavy", 1)
+	var max_y := -1.0
+	var landed := false
+	for i in 70:
+		await wait(1)
+		if foe().slammed_by == null and foe().state == "air":
+			landed = true
+		if landed:
+			max_y = maxf(max_y, foe().global_position.y)
+	ok(landed, "écrasé au sol")
+	ok(max_y > 0.8, "il rebondit haut, jonglable (%.2f m)" % max_y)
+	ok(foe().hp < hp0 - 10.0, "ça fait mal (%d)" % int(hp0 - foe().hp))
+	ok(game.hero.state != "grab", "le héros peut agir après l'impact (%s)" % game.hero.state)
+
+
+func t_grab_escape() -> void:
+	print("chope : il se dégage après 3 s")
+	await setup("centre", 1, "passive", 1.0)
+	game.hero.facing = Vector3(0, 0, -1)
+	await tap("grab", 10)
+	await tap("attack", 20)
+	ok(foe().hp < foe().HP_MAX, "X pendant la chope : coups")
+	await wait(170)
+	ok(foe().state != "grabbed", "après 3 s il se dégage (%s)" % foe().state)
+
+
+func t_weapons() -> void:
+	print("armes")
+	await setup("armes", 1, "passive")
+	var rk: Dictionary = game.arena.racks["sword"]
+	game.hero.global_position = rk.at + Vector3(0, 0.05, -0.3)
+	await wait(5)
+	await tap("grab", 4)
+	ok(game.hero.weapon == "sword", "RB devant le mur : l'épée en main (%s)" % game.hero.weapon)
+	ok(not game.arena.racks["sword"].node.visible, "le crochet est vide")
+	await tap("grab", 4)
+	ok(game.hero.weapon == "", "RB devant son crochet : raccrochée")
+	for id in Weapons.ORDER:
+		await setup("centre", 1, "passive", 1.3)
+		game.set_weapon(id)
+		game.hero.facing = Vector3(0, 0, -1)
+		var hp0: float = foe().hp
+		await tap("attack", 40)
+		ok(foe().hp < hp0, "%s : X touche avec la lame (%d)" % [id, int(hp0 - foe().hp)])
+		await setup("centre", 1, "passive", 1.3)
+		game.hero.facing = Vector3(0, 0, -1)
+		hp0 = foe().hp
+		await tap("heavy", 50)
+		ok(foe().hp < hp0, "%s : Y touche (%d)" % [id, int(hp0 - foe().hp)])
+	await setup("centre", 1, "passive", 1.2)
+	game.set_weapon("sword")
+	game.hero.facing = Vector3(0, 0, -1)
+	for i in 3:
+		await tap("attack", 14)
+	await wait(30)
+	ok(game.hero.combo >= 3 or foe().state in ["air", "down"], "épée : X X X enchaîne (combo %d, %s)" % [game.hero.combo, foe().state])
+	game.set_weapon("")
+
+
+func t_climb() -> void:
+	print("rebords")
+	await setup("parcours", 1, "passive")
+	# rebord de 1 m (x 20.5) : on saute dessus en poussant vers lui -> enjambe
+	game.hero.global_position = Vector3(20.5, 0.05, 7.6)
+	await wait(4)
+	inp.fake_stick = Vector2(0, -1)
+	await tap("jump", 18)
+	inp.fake_stick = Vector2.ZERO
+	await wait(30)
+	ok(game.hero.global_position.y > 0.9, "1 m : il enjambe et se retrouve dessus (y %.2f)" % game.hero.global_position.y)
+	# rebord de 2,4 m (x 26.5) : agrippé puis A = se hisser
+	game.hero.global_position = Vector3(26.5, 0.05, 7.0)
+	game.hero.state = "move"
+	await wait(6)
+	inp.fake_stick = Vector2(0, -1)
+	await tap("jump", 1)
+	var hung := false
+	for i in 40:
+		await wait(1)
+		if game.hero.state == "hang":
+			hung = true
+			break
+	inp.fake_stick = Vector2.ZERO
+	ok(hung, "2,4 m : il s'agrippe (%s)" % game.hero.state)
+	await wait(12)
+	inp.fake_stick = Vector2(1, 0)
+	var x0: float = game.hero.global_position.x
+	await wait(20)
+	inp.fake_stick = Vector2.ZERO
+	ok(game.hero.state == "hang" and game.hero.global_position.x > x0 + 0.2, "il se déplace le long du rebord (%.2f m)" % (game.hero.global_position.x - x0))
+	await tap("jump", 80)
+	ok(game.hero.global_position.y > 2.3 and game.hero.state == "move", "A : il se hisse en haut (y %.2f, %s)" % [game.hero.global_position.y, game.hero.state])
+	# rebord de 3,2 m : saut puis agrippe
+	game.hero.global_position = Vector3(29.5, 0.05, 7.0)
+	game.hero.state = "move"
+	await wait(6)
+	inp.fake_stick = Vector2(0, -1)
+	await tap("jump", 1)
+	hung = false
+	for i in 50:
+		await wait(1)
+		if game.hero.state == "hang":
+			hung = true
+			break
+	inp.fake_stick = Vector2.ZERO
+	ok(hung, "3,2 m : saut + agrippe (%s)" % game.hero.state)
+	await tap("dodge", 30)
+	ok(game.hero.state in ["move", "air"], "B : il lâche (%s)" % game.hero.state)
+
+
+func t_wallrun() -> void:
+	print("course au mur")
+	await setup("parcours", 1, "passive")
+	game.hero.global_position = Vector3(22.9, 0.05, 33.0)
+	game.hero.facing = Vector3(0, 0, -1)
+	inp.fake_stick = Vector2(0, -1)
+	await wait(30)
+	await tap("jump", 1)
+	var ran := false
+	var n1 := Vector3.ZERO
+	for i in 30:
+		await wait(1)
+		if game.hero.state == "wallrun":
+			ran = true
+			n1 = game.hero.wall_n
+			break
+	ok(ran, "sauter le long du mur = courir dessus (%s)" % game.hero.state)
+	await wait(12)
+	ok(game.hero.state == "wallrun" and game.hero.global_position.y > 0.6, "il reste sur le mur (y %.2f)" % game.hero.global_position.y)
+	await tap("jump", 1)
+	var other := false
+	for i in 45:
+		await wait(1)
+		if game.hero.state == "wallrun" and game.hero.wall_n.dot(n1) < -0.5:
+			other = true
+			break
+	ok(other, "A : saut de mur, il reprend la course sur le mur d'en face (%s)" % game.hero.state)
+	inp.fake_stick = Vector2.ZERO
+	await wait(90)
+	ok(game.hero.state in ["move", "air"], "fin de course : il retombe (%s)" % game.hero.state)
+
+
+func t_camera() -> void:
+	print("caméra")
+	await setup("centre", 1)
+	game.set_cam("yaw", 90.0)
+	var p0: Vector3 = game.hero.global_position
+	inp.fake_stick = Vector2(0, -1)
+	await wait(20)
+	inp.fake_stick = Vector2.ZERO
+	var d: Vector3 = game.hero.global_position - p0
+	ok(absf(d.x) > absf(d.z) * 3.0, "rotation 90° : « haut » suit la caméra (%.1f, %.1f)" % [d.x, d.z])
+	game.set_cam("yaw", 0.0)
+	game.set_cam("pitch", 40.0)
+	game.set_cam("zoom", 1.0)

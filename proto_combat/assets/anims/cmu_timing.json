@@ -15,6 +15,14 @@
     "hit": 0.15,
     "length": 0.775
   },
+  "hang": {
+    "hit": 0.0,
+    "length": 2.2
+  },
+  "hang_pull": {
+    "hit": 1.2,
+    "length": 1.25
+  },
   "hook_box": {
     "hit": 0.319999999999993,
     "length": 0.700000000000003
