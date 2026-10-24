@@ -274,21 +274,7 @@ func _run() -> void:
 	ok(seen.has("sj_grab"), "il plonge depuis le super saut (%s)" % str(seen.keys()))
 	ok(seen.has("air_slam") or seen.has("airslam_land"), "il attrape un sbire et le plaque au sol")
 
-	print("Course au mur horizontale")
-	lab.variant["mseed27"] = "wall_side"   # une seule carte depuis la v0.212 : situation « le long du mur »
-	await go("mseed27")
-	seen = {}
-	m = {"hy": 0.0}
-	Input.action_press("up")
-	await wait(3)
-	await tap("heavy")
-	await watch(100, seen, func():
-		if p.attack == "wall_run_h" and p.t < 0.5:
-			m.hy = maxf(m.hy, p.global_position.y))
-	Input.action_release("up")
-	ok(seen.has("wall_run_h"), "elle part (stick le long du mur + Y)")
-	ok(m.hy > 0.5, "il court sur le mur, au-dessus du sol (%.2f m)" % m.hy)
-	ok(lab.main.enemies[0].state != "stand" or lab.main.enemies[0].hp < lab.main.enemies[0].MAX_HP, "il fauche le sbire sur sa route")
+	# v0.23 : la course au mur horizontale n'est plus un coup (Y) mais un déplacement de base (A) : voir wallcheck.gd.
 
 	print("Micro-animations au repos")
 	await go("mseed12")

@@ -26,7 +26,6 @@ const TESTS := {
 	"mseed16": [[[5, "roll", "tap"], [70, "light", "tap"]], ["spin_counter"]],
 	"mseed25": [[[5, "roll", "tap"], [70, "heavy", "tap"]], ["capoeira"]],
 	"mseed29": [[[110, "heavy", "tap"]], ["soccer_kick"]],
-	"mseed27": [[[5, "up", "press"], [8, "heavy", "tap"], [12, "up", "release"]], ["wall_run"]],
 	"mseed28": [[[30, "heavy", "tap"]], ["prop_kick"]],
 	"mseed26": [[[60, "jump", "tap"], [80, "heavy", "tap"]], ["bicycle"]],
 	"mseed46": [[[5, "jump", "tap"], [25, "roll", "tap"]], ["#airdash"]],

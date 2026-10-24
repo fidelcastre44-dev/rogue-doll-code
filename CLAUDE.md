@@ -44,6 +44,13 @@ Godot 4.7 + Jolt. Équipe : Paul (code avec Claude, son), Thibaud (visuels, game
   bassin recalé sur le milieu des hanches, clavicules visées vers les épaules des cubes, doigts repliés en poing). Pantin : suit `player.rag`.
   F4 (partout) : homme -> femme -> cubes (`user://hero.cfg`). `player.skin_on = false` = toujours en cubes (éditeur d'animation).
   Sourcils cachés (textures sans transparence). Test : `skincheck.gd`. Rendu : `tools/skin_shot.gd`.
+- **v0.23 : course au mur, déplacement de base** (`Locomotion` : états `wallrun`, `wallclimb`, `wall_leap` ; `try_wall`, `WALL_MIN` = 3,4 m :
+  les blocs de 3 m gardent l'agrippe). En l'air à côté d'un vrai mur (stick ou élan le long du mur) : course horizontale (`WR_MAX` 3 s, longue
+  pour les essais) ; face au mur : course vers le haut (`WC_MAX`), bord à portée = il se hisse (`climb`). A = saut de mur (`_wall_jump`,
+  `wj_t` : l'élan prime sur le stick 0,5 s) ou salto arrière (`flip_jump`) ; X / Y = attaque de sortie (`_wall_attack` : bond vers le sbire
+  le plus proche, puis poing aérien ou gros genou) ; B / stick à l'opposé = lâcher. Prendre un mur remet à zéro coups aériens, double saut,
+  esquive aérienne. Zone **Parcours** de la carte (`TestMap._parkour`, à l'est : couloir, zigzag au-dessus d'un sol rouge, mur 4 m, tour 8 m).
+  Les coups `wall_run` / `wall_run_h` (Y) ne sont plus branchés. Test : `wallcheck.gd`.
 - `main.tscn` / `main.gd` : arène, caméra, hitstop (`impact()`, `base_time_scale`), barres, menu pause, sbires.
 - `player.gd` : le héros (squelette en blocs animé par poses clés, IK des pieds, tous les états de combat).
 - `enemy.gd` : sbire ragdoll (debout animé ↔ ragdoll physique), IA, garde, chopes, rebonds. `ai_on = false` = sac de frappe.
@@ -114,7 +121,7 @@ Décisions à respecter : pas de différence arrêt / marche (« basique ») ; p
 
 ## Tests (obligatoires avant de livrer)
 Depuis `/home/claude/godot/ragdoll_proto` : `../godot --headless --path . -s <x>check.gd --fixed-fps 120`.
-31 suites (`*check.gd`, dont `skincheck.gd` = habillage v0.22), chacune finit par `RESULTAT: OK` (`correctcheck.gd` = correctifs 0.11, `editorcheck.gd` = éditeur d'animation, `v021check.gd` = version 0.21, `hubcheck.gd` = salon, `mapcheck.gd` = carte et déplacements, `v0212check.gd` = formes, améliorations, états, coups v0.212, `v0216check.gd` = retours du 23/10, `v0217check.gd` = retours du 23/10 au soir, `v0218check.gd` = bilans de la nuit du 23/10). `varietycheck` et `runcheck` sont
+32 suites (`*check.gd`, dont `skincheck.gd` = habillage v0.22, `wallcheck.gd` = course au mur v0.23), chacune finit par `RESULTAT: OK` (`correctcheck.gd` = correctifs 0.11, `editorcheck.gd` = éditeur d'animation, `v021check.gd` = version 0.21, `hubcheck.gd` = salon, `mapcheck.gd` = carte et déplacements, `v0212check.gd` = formes, améliorations, états, coups v0.212, `v0216check.gd` = retours du 23/10, `v0217check.gd` = retours du 23/10 au soir, `v0218check.gd` = bilans de la nuit du 23/10). `varietycheck` et `runcheck` sont
 un peu aléatoires : un échec isolé se relance. Lancer les suites 2 par 2 au plus (machine à 2 cœurs). `labcheck.gd` vérifie l'ancienne salle de test, `labocheck.gd` le labo (chaque coup part dans sa situation).
 Rendu d'images : xvfb-run + `--rendering-driver opengl3 --rendering-method gl_compatibility`.
 

@@ -157,7 +157,9 @@ func build() -> void:
 
 	# Bords : murs hauts au nord et à l'est (fond de l'écran), plinthes basses au sud et à l'ouest (côté caméra).
 	wall(Vector3(-22, 0, -22), Vector3(22, 0, -22), 3.5, 0.5, wallc)
-	wall(Vector3(22, 0, -22), Vector3(22, 0, 22), 3.5, 0.5, wallc)
+	wall(Vector3(22, 0, -22), Vector3(22, 0, -12), 3.5, 0.5, wallc)   # v0.23 : ouverture (z -12..-2) vers le parcours, à l'est
+	wall(Vector3(22, 0, -2), Vector3(22, 0, 22), 3.5, 0.5, wallc)
+	_parkour()
 	wall(Vector3(-22, 0, 22), Vector3(22, 0, 22), 0.5, 0.5, dark)
 	wall(Vector3(-22, 0, -22), Vector3(-22, 0, 22), 0.5, 0.5, dark)
 
@@ -239,6 +241,61 @@ func build() -> void:
 		props.append(_prop(kinds[i], Vector3(-12, 0, 17) + Vector3(cos(a), 0, sin(a)) * 2.6))
 	_anchor("center", Vector3.ZERO, DIAG)
 	_anchor("props", Vector3(-12, 0, 17) - DIAG * 4.5, DIAG)                 # devant les objets à ramasser
+
+
+## Parcours (v0.23) : zone à l'est, derrière l'ouverture du mur (x 22..48, z -22..12), pour la course au mur.
+## Comme le reste de la carte, tout est tourné vers DIAG : on court en poussant le stick vers le haut.
+## Tous les murs font 4 m (assez hauts pour courir dessus : WALL_MIN de la locomotion = 3,4 m).
+##   Couloir  : deux murs parallèles (4 m de vide, 12 m de long) : course, saut, course sur l'autre mur…
+##   Zigzag   : trois murs décalés au-dessus d'un sol rouge (« ne touche pas le sol »), puis une plateforme de 2 m.
+##   Escalade : mur de 4 m et tour de 8 m (face au mur : il court vers le haut, se hisse en haut ; A = salto arrière).
+const PK_H := 4.0
+func _pk(o: Vector3, a: float, s: float) -> Vector3:   # point du parcours : a mètres devant (DIAG), s mètres à droite (SIDE)
+	return o + DIAG * a + SIDE * s
+
+
+func _parkour() -> void:
+	var pk := Color(0.32, 0.55, 0.6)          # murs du parcours : bleu-vert, pour les repérer
+	var pk2 := pk.lightened(0.15)
+	var lava := Color(0.62, 0.2, 0.18)
+	var yaw := atan2(DIAG.x, DIAG.z)
+	var bound := Color(0.5, 0.47, 0.55)
+	var dark := Color(0.36, 0.35, 0.38)
+	block(Vector3(26, 0.02, 34), Vector3(35, 0.011, -5), Color(0.44, 0.45, 0.45), 0.0, false)   # sol (rendu)
+	wall(Vector3(22, 0, -22), Vector3(48, 0, -22), 3.5, 0.5, bound)
+	wall(Vector3(48, 0, -22), Vector3(48, 0, 12), 3.5, 0.5, bound)
+	wall(Vector3(22, 0, 12), Vector3(48, 0, 12), 0.5, 0.5, dark)
+	wall(Vector3(22, 0, 12), Vector3(22, 0, 22), 0.5, 0.5, dark)
+	_label("PARCOURS", Vector3(24.5, 3.0, -7))
+
+	# Couloir : deux murs parallèles le long de DIAG.
+	var o1 := Vector3(27, 0, -6)
+	wall(_pk(o1, 0, -2.25), _pk(o1, 12, -2.25), PK_H, 0.5, pk)
+	wall(_pk(o1, 0, 2.25), _pk(o1, 12, 2.25), PK_H, 0.5, pk2)
+	_label("Couloir", _pk(o1, 6, 0) + Vector3.UP * (PK_H + 0.6))
+	_anchor("wr_corridor", _pk(o1, -1.0, -1.3), DIAG)          # le mur de gauche à 0,7 m, 1 m avant son début
+	_anchor("wr_attack", _pk(o1, -1.0, -1.3), DIAG)            # le même, avec des sbires (attaque de sortie)
+
+	# Zigzag : murs de 4,5 m qui se chevauchent d'un mètre, de part et d'autre d'un sol interdit, puis l'arrivée.
+	var o2 := Vector3(29, 0, 8)
+	block(Vector3(4.5, 0.03, 11.5), _pk(o2, 5.75, 0) + Vector3.UP * 0.03, lava, yaw, false)
+	for k in 3:
+		var sd := -2.25 if k % 2 == 0 else 2.25
+		wall(_pk(o2, k * 3.5, sd), _pk(o2, k * 3.5 + 4.5, sd), PK_H, 0.5, pk if k % 2 == 0 else pk2)
+	block(Vector3(6.0, 2.0, 5.0), _pk(o2, 14.5, 0) + Vector3.UP * 1.0, Color(0.58, 0.55, 0.5), yaw)   # plateforme d'arrivée (2 m)
+	_label("Zigzag : ne touche pas le sol", _pk(o2, 5.75, 0) + Vector3.UP * (PK_H + 0.6))
+	_label("Arrivée (2 m)", _pk(o2, 14.5, 0) + Vector3.UP * 2.8)
+	_anchor("wr_zigzag", _pk(o2, -1.0, -1.3), DIAG)
+
+	# Escalade : face au mur, saute contre : il court vers le haut ; arrivé au bord, il se hisse.
+	var c4 := Vector3(44.5, 0, 6.5)
+	var c6 := Vector3(44.5, 0, -6.0)
+	wall(c4 - SIDE * 2.0, c4 + SIDE * 2.0, PK_H, 3.0, pk)        # 4 m, face vers -DIAG
+	wall(c6 - SIDE * 2.0, c6 + SIDE * 2.0, 8.0, 3.0, pk2)        # 8 m : trop haut pour arriver au bord
+	_label("Mur 4 m", c4 - DIAG * 1.6 + Vector3.UP * (PK_H + 0.6))
+	_label("Tour 8 m", c6 - DIAG * 1.6 + Vector3.UP * 8.6)
+	_anchor("wc_wall4", c4 - DIAG * 2.8, DIAG)                   # 1,3 m devant la face
+	_anchor("wc_tower", c6 - DIAG * 2.8, DIAG)
 
 
 ## Hauteur du sol sous un point (depuis 2,5 m au-dessus).

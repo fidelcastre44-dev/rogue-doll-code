@@ -40,7 +40,7 @@ const CARD_MOVES := {
 	"mseed04": ["flop_prep", "flop", "flop_land"], "mseed16": ["spin_counter", "spin_counter3"], "mseed19": ["prop_bash"],
 	"mseed05": ["kick", "kick2", "kick3", "hikick", "spinkick", "axe", "quake"], "mseed06": ["air_bigknee", "air_kick", "dive_kick"],
 	"mseed07": ["charge", "charge_sho", "charge_hado", "shoryu", "hadoken"], "mseed26": ["bicycle"], "mseed25": ["capoeira"],
-	"mseed29": ["soccer_kick"], "mseed27": ["wall_run", "wall_run_h"], "mseed28": ["prop_kick"],
+	"mseed29": ["soccer_kick"], "mseed28": ["prop_kick"],
 	"mseed24": ["run_kick"], "mseed08": ["grab", "collar", "collar_punch", "headbutt", "slam", "collar_finish"],
 	"mseed09": ["swing", "swing_finish"], "mseed10": ["air_slam", "airslam_land"], "mseed53": ["piledriver", "pd_land"],
 	"mseed39": ["hip_throw"], "mseed36": ["cheese_grater", "cheese_grater_r"], "mseed32": ["tackle", "tackle_slam", "tackle_wall"],

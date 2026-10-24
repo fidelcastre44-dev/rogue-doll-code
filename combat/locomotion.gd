@@ -67,6 +67,36 @@ const YANK_PULL := 0.16       # s : la main tient la cheville, il tire d'un coup
 const YANK_T := 0.42          # s : fin du geste ; s'il a fait tomber quelqu'un, il enchaîne en se hissant
 const CLIMB_PUSH := 0.3       # v0.218 (Thibaud) : X agrippé repousse seulement (était 0,6 × la force du coup lourd, il faisait tomber)
 
+# --- Course au mur (v0.23, mécanique de base demandée par Paul ; remplace les coups « course au mur salto / horizontale »).
+#   Sauter à côté d'un mur (stick ou élan le long du mur) : il court à l'horizontale dessus. A = il saute à l'opposé (et peut
+#   recourir sur un autre mur). Sauter face à un mur (stick vers le mur) : il court vers le haut ; arrivé au bord, il se hisse ;
+#   A = salto arrière. Sur le mur, X ou Y = il bondit sur le sbire le plus proche et l'attaque. B ou stick à l'opposé = lâcher.
+#   Seulement sur les vrais murs (WALL_MIN et plus) : les blocs de 3 m gardent l'agrippe au rebord.
+const WALL_MIN := 3.4         # m : hauteur de mur minimale pour courir dessus
+const WR_SPEED := 9.0         # m/s : course horizontale
+const WR_MAX := 3.0           # s : durée maximale (longue pour l'instant, à réduire après les essais)
+const WR_GAP := 0.32          # m : du centre du héros à la face du mur (rayon 0,3)
+const WC_SPEED := 7.0         # m/s : vitesse de départ de la course vers le haut
+const WC_MAX := 1.2           # s : durée maximale vers le haut (puis il glisse et lâche) : ~5 m de montée
+const WJ_OUT := 7.0           # saut depuis le mur : vitesse vers la salle...
+const WJ_UP := 5.5            # ... vers le haut (bas : il doit arriver sur l'autre mur sous son sommet)...
+const WJ_ALONG := 6.0         # ... et dans le sens de la course
+const WF_OUT := 5.0           # salto arrière (face au mur)
+const WF_UP := 9.0
+const WA_RANGE := 10.0        # m : sbires visés par l'attaque de sortie
+const WA_SPEED := 14.0        # m/s : bond vers le sbire
+const WA_MAX := 0.8           # s
+const WA_REACH := 1.05        # m : à cette distance de sa poitrine, le coup part
+var wr_tan := Vector3.ZERO    # sens de la course (le long du mur)
+var wr_side := 1.0            # mur à droite (1) ou à gauche (-1) du héros
+var wr_last_n := Vector3.ZERO # dernier mur quitté (on ne s'y raccroche pas tout de suite)
+var wr_cd := 0.0
+var wj_t := 0.0               # temps restant pendant lequel l'élan du saut de mur prime sur le stick
+const WJ_CARRY := 0.5
+var wa_target: Node3D = null  # attaque de sortie : sbire visé
+var wa_btn := ""              # "light" (X) ou "heavy" (Y)
+var wa_from := ""             # "wallrun" ou "wallclimb"
+
 
 func _init(player: CharacterBody3D) -> void:
 	p = player
@@ -305,6 +335,176 @@ func try_air_dodge() -> bool:
 	return true
 
 
+## Vrai mur (assez haut pour courir dessus) dans cette direction : contact {pos, n, top, rel, dist}, ou {}.
+func _tall_wall(d: Vector3, reach: float) -> Dictionary:
+	var pr := probe(d, reach)
+	if pr.is_empty():
+		return {}
+	var g := ground_at(p.global_position, 0.1)
+	if g == INF:
+		g = p.global_position.y
+	if pr.top != INF and pr.top - g < WALL_MIN:
+		return {}
+	return pr
+
+
+## En l'air, direction d : face à un mur = course vers le haut ; mur sur le côté (à peu près parallèle à d) = course horizontale.
+func try_wall(d: Vector3) -> bool:
+	if not p.terrain:
+		return false
+	d = _flat(d)
+	var front := _tall_wall(d, 0.6)
+	if not front.is_empty() and d.dot(-front.n) > 0.7 and (front.top == INF or front.rel > HANG_REACH + 0.25) and _wall_ok(front.n):
+		_start_wallclimb(front)
+		return true
+	var right := d.cross(Vector3.UP).normalized()
+	for side in [right, -right]:
+		var pr := _tall_wall(side, 0.75)
+		if pr.is_empty() or absf(pr.n.dot(d)) > 0.55 or pr.dist > 0.95 or not _wall_ok(pr.n):
+			continue
+		if pr.top != INF and pr.rel < 1.0:
+			continue   # presque en haut du mur : pas la place de courir
+		_start_wallrun(pr, d)
+		return true
+	return false
+
+
+## On ne se raccroche pas au mur qu'on vient de quitter (un autre mur, oui, tout de suite).
+func _wall_ok(n: Vector3) -> bool:
+	return wr_cd <= 0.0 or n.dot(wr_last_n) < 0.8
+
+
+func _wall_reset_air() -> void:
+	p.air_hits = 0   # sur le mur, il retrouve ses coups aériens, son double saut et son esquive aérienne
+	p.air_heavy_used = false
+	p.air_jumps = 0
+	p.air_dash_n = 0
+	p.air_dash_used = false
+	p.air_buf = 0.0
+	p.jump_buf = 0.0
+
+
+func _start_wallrun(pr: Dictionary, d: Vector3) -> void:
+	_start("wallrun")
+	wj_t = 0.0
+	wall_n = pr.n
+	wr_tan = _flat(d - wall_n * wall_n.dot(d))
+	if wr_tan == Vector3.ZERO:
+		wr_tan = wall_n.cross(Vector3.UP).normalized()
+	edge = pr.pos
+	p.rotation.y = atan2(-wr_tan.x, -wr_tan.z)
+	wr_side = 1.0 if p.global_basis.x.dot(-wall_n) > 0.0 else -1.0
+	p.velocity.y = maxf(p.velocity.y, 3.0)   # petite impulsion vers le haut en prenant le mur
+	_wall_reset_air()
+	p.get_parent().impact(0.0, 0.15)
+
+
+func _start_wallclimb(pr: Dictionary) -> void:
+	_start("wallclimb")
+	wall_n = pr.n
+	edge = pr.pos
+	p.rotation.y = atan2(wall_n.x, wall_n.z)   # face au mur
+	_wall_reset_air()
+	p.get_parent().impact(0.0, 0.15)
+
+
+## Garde le héros collé au mur (à WR_GAP de sa face) ; renvoie faux si le mur s'arrête (bout du mur, ouverture).
+func _glue() -> bool:
+	var o := p.global_position + Vector3.UP * 1.0
+	var r := _ray(o, o - wall_n * 1.0)
+	if r.is_empty() or absf(r.normal.y) > 0.5 or r.collider is RigidBody3D:
+		return false
+	var n := _flat(r.normal)
+	if n.dot(wall_n) < 0.85:
+		return false   # coin : l'autre mur est en travers de la course
+	wall_n = n
+	edge = r.position
+	var gap: float = (p.global_position - r.position).dot(wall_n)
+	var fix := (WR_GAP - gap) * 12.0
+	p.velocity.x += wall_n.x * fix
+	p.velocity.z += wall_n.z * fix
+	return true
+
+
+## Quitte le mur (en tombant, en sautant, en bondissant) : on ne s'y raccroche pas tout de suite.
+func _leave_wall() -> void:
+	wr_last_n = wall_n
+	wr_cd = 0.6
+	_end()
+	p.air = true
+
+
+## A sur le mur. Course horizontale : saut vers la salle, dans le sens de la course. Face au mur : salto arrière.
+func _wall_jump() -> void:
+	var was := state
+	if was == "wallrun":
+		var along := wr_tan * WJ_ALONG
+		if p.stick_dir.length() > 0.3:   # le stick oriente un peu le saut (vers l'autre mur, vers l'avant…)
+			var s := _flat(p.stick_dir)
+			if s.dot(wall_n) > -0.2:
+				along = (wr_tan * WJ_ALONG).lerp(s * WJ_ALONG, 0.35)
+		p.velocity = wall_n * WJ_OUT + along + Vector3.UP * WJ_UP
+		var hv := _flat(p.velocity)
+		p.rotation.y = atan2(-hv.x, -hv.z)
+		_count("wall_jump")
+	else:
+		p.velocity = wall_n * WF_OUT + Vector3.UP * WF_UP
+		p.rotation.y = atan2(-wall_n.x, -wall_n.z)   # il se retourne vers la salle pendant le salto
+		_count("wall_flip")
+	_leave_wall()
+	wj_t = WJ_CARRY
+	if was == "wallclimb":
+		p.start("flip_jump")   # salto (le geste du double saut) : X / Y en l'air s'enchaînent derrière
+	p._flash(Color(0.75, 0.95, 1.0), 0.05)
+
+
+## X / Y sur le mur : il bondit vers le sbire le plus proche (le stick aide à choisir) et l'attaque en arrivant.
+func _wall_attack(btn: String) -> void:
+	wa_from = state
+	wa_btn = btn
+	wa_target = null
+	var bd := INF
+	var look: Vector3 = _flat(p.stick_dir) if p.stick_dir.length() > 0.3 else (wr_tan if state == "wallrun" else wall_n)
+	for e in p.enemies:
+		if not is_instance_valid(e) or e.parts.is_empty() or e.state in ["held", "swung", "dead"]:
+			continue
+		var to: Vector3 = e.parts.chest.global_position - p.global_position
+		var flat := to * Vector3(1, 0, 1)
+		if flat.length() > WA_RANGE or flat.normalized().dot(wall_n) < -0.2:
+			continue   # derrière le mur
+		var score := flat.length() + look.angle_to(flat) * 1.2
+		if score < bd:
+			bd = score
+			wa_target = e
+	wr_last_n = wall_n
+	wr_cd = 0.6
+	_start("wall_leap")
+	_count("wall_attack")
+	if wa_target == null:   # personne : il se repousse du mur et frappe dans le vide
+		p.velocity = wall_n * WJ_OUT + (wr_tan * 4.0 if wa_from == "wallrun" else Vector3.ZERO) + Vector3.UP * 4.0
+		_wall_strike()
+
+
+## Le coup de l'attaque de sortie : X = premier coup du combo aérien, Y = coup lourd aérien.
+func _wall_strike() -> void:
+	_end()
+	p.air = true
+	if wa_target and is_instance_valid(wa_target) and not wa_target.parts.is_empty():
+		var to: Vector3 = _flat(wa_target.parts.chest.global_position - p.global_position)
+		if to != Vector3.ZERO:
+			p.rotation.y = atan2(-to.x, -to.z)
+	var v := p.velocity
+	if wa_btn == "light":
+		p.air_hits = 1
+		p.start(p._air_combo()[0])
+	else:
+		p.air_heavy_used = true
+		p._air_kick()
+	p.velocity.x = v.x * 0.35   # il arrive sur lui : il ne le dépasse pas
+	p.velocity.z = v.z * 0.35
+	p.velocity.y = maxf(p.velocity.y, 1.5)
+
+
 ## Bonus de chute : plus il tombe de haut, plus son coup aérien frappe fort (×1 à ×2).
 func fall_bonus() -> float:
 	if not p.terrain or p.is_on_floor():
@@ -405,6 +605,8 @@ func tick(dt: float) -> bool:
 		return false
 	regrab_t -= dt
 	land_roll_t -= dt
+	wr_cd -= dt
+	wj_t -= dt
 	if state == "":
 		w = move_toward(w, 0.0, dt * 8.0)
 		return false
@@ -520,6 +722,12 @@ func tick(dt: float) -> bool:
 			if (not held and t > 0.2) or (glide_v < 2.0 and steep <= 0.015) or t > 6.0:
 				if not _ceiling():
 					_end()
+		"wallrun":
+			_wallrun_tick(dt)
+		"wallclimb":
+			_wallclimb_tick(dt)
+		"wall_leap":
+			_wall_leap_tick(dt)
 		"skid":
 			glide_v = maxf(glide_v - 11.0 * dt, 3.0)
 			p.velocity.x = glide_dir.x * glide_v
@@ -533,6 +741,90 @@ func tick(dt: float) -> bool:
 				_end()
 	p._animate(dt)
 	return true
+
+
+## Course horizontale : vitesse constante le long du mur, il monte un peu en prenant le mur puis redescend très lentement.
+func _wallrun_tick(dt: float) -> void:
+	if Input.is_action_just_pressed("jump"):
+		_wall_jump()
+		return
+	if Input.is_action_just_pressed("light") or Input.is_action_just_pressed("heavy"):
+		_wall_attack("light" if Input.is_action_just_pressed("light") else "heavy")
+		return
+	var off: bool = Input.is_action_just_pressed("roll") or (p.stick_dir.length() > 0.5 and p.stick_dir.dot(wall_n) > 0.75)
+	if off or t > WR_MAX:
+		p.velocity = wr_tan * WR_SPEED * 0.6 + wall_n * 2.5 + Vector3.UP * minf(p.velocity.y, 0.0)
+		_leave_wall()   # B, stick à l'opposé du mur ou course trop longue : il lâche
+		return
+	p.velocity.x = wr_tan.x * WR_SPEED
+	p.velocity.z = wr_tan.z * WR_SPEED
+	var want_vy := maxf(1.8 - 1.5 * t, -0.6)   # monte un peu (~1 m), puis redescend tout doucement
+	p.velocity.y = move_toward(p.velocity.y, want_vy, 30.0 * dt)
+	if not _glue():
+		_leave_wall()   # bout du mur : il continue sur sa lancée et retombe
+		p.velocity.y = minf(p.velocity.y, 1.0)
+		return
+	p.move_and_slide()
+	if t > 0.12 and p.is_on_floor():
+		_end()   # il a touché le sol
+		return
+	for i in p.get_slide_collision_count():   # mur en travers devant : il s'arrête net et tombe
+		var c := p.get_slide_collision(i)
+		if c.get_collider() is StaticBody3D and _flat(c.get_normal()).dot(wr_tan) < -0.7:
+			p.velocity = wall_n * 2.0
+			_leave_wall()
+			return
+
+
+## Course vers le haut : face au mur, il ralentit en montant ; arrivé au bord, il se hisse ; trop long, il glisse et lâche.
+func _wallclimb_tick(dt: float) -> void:
+	if Input.is_action_just_pressed("jump"):
+		_wall_jump()   # salto arrière
+		return
+	if Input.is_action_just_pressed("light") or Input.is_action_just_pressed("heavy"):
+		_wall_attack("light" if Input.is_action_just_pressed("light") else "heavy")
+		return
+	var off: bool = Input.is_action_just_pressed("roll") or (p.stick_dir.length() > 0.5 and p.stick_dir.dot(wall_n) > 0.75)
+	if off or t > WC_MAX:
+		p.velocity = wall_n * 2.5 + Vector3.UP * minf(p.velocity.y, 0.0)
+		_leave_wall()
+		return
+	var pr := probe(-wall_n, 0.8)
+	if not pr.is_empty() and pr.top != INF and pr.rel <= HANG_REACH:   # le bord est à portée de main : il se hisse
+		top = pr.top
+		edge = Vector3(pr.pos.x, top, pr.pos.z)
+		a0 = p.global_position
+		a1 = Vector3(pr.pos.x, top + 0.02, pr.pos.z) - wall_n * 0.8
+		_start("climb")
+		climb_atk = false
+		_count("wall_top")
+		return
+	p.velocity.x = 0.0
+	p.velocity.z = 0.0
+	p.velocity.y = lerpf(WC_SPEED, 1.2, clampf(t / WC_MAX, 0.0, 1.0))
+	if not _glue():
+		_leave_wall()
+		return
+	p.move_and_slide()
+
+
+## Attaque de sortie : il bondit vers le sbire visé (en le suivant), le coup part à portée.
+func _wall_leap_tick(dt: float) -> void:
+	var e := wa_target
+	if e == null or not is_instance_valid(e) or e.parts.is_empty() or e.state in ["held", "swung", "dead"] or t > WA_MAX:
+		_wall_strike()
+		return
+	var to: Vector3 = (e.parts.chest.global_position + Vector3.UP * 0.1) - (p.global_position + Vector3.UP * 1.1)
+	var flat := _flat(to)
+	if flat != Vector3.ZERO:
+		p.rotation.y = lerp_angle(p.rotation.y, atan2(-flat.x, -flat.z), minf(dt * 18.0, 1.0))
+	if to.length() < WA_REACH:
+		_wall_strike()
+		return
+	p.velocity = to.normalized() * WA_SPEED
+	p.move_and_slide()
+	if p.is_on_floor() and t > 0.1 and to.y > 0.3:
+		_wall_strike()
 
 
 func _sweep(d: Vector3) -> void:
@@ -587,6 +879,11 @@ func after_move(dt: float) -> void:
 			return
 	if p.roll < 0.0:
 		bounced = false
+	# v0.23 : en l'air à côté d'un mur (ou face à lui) : course au mur. Sans stick, c'est l'élan qui donne la direction.
+	if not on_floor and regrab_t <= 0.0 and p.roll < 0.0 and p.hurt <= 0.0 and p.attack in ["", "flip_jump"]:
+		var dw := d if d != Vector3.ZERO else (_flat(hv) if hv.length() > 2.0 else Vector3.ZERO)
+		if dw != Vector3.ZERO and try_wall(dw):
+			return
 	if p.attack != "" or p.roll >= 0.0 or p.hurt > 0.0 or d == Vector3.ZERO:
 		return
 	if on_floor:
@@ -806,6 +1103,31 @@ func pose() -> Dictionary:
 			return {"hips_pos": Vector3(0.05, -0.44, 0.04), "hips": Vector3(-8, 72, 6 + wob), "spine": Vector3(-35, -18, -12), "head": Vector3(5, -50, 6),
 				"sh_l": Vector3(40, 0, 0), "el_l": Vector3(10, 0, 0), "sh_r": Vector3(70, 0, -55), "el_r": Vector3(45, 0, 0),
 				"foot_r": Vector3(0.04, 0.02, -0.36), "foot_l": Vector3(-0.03, 0.02, 0.3)}   # pied droit devant : c'est lui qui fauche
+		"wallrun":   # la course capturée, couché sur le côté : les pieds courent sur le mur (penché à 55°, exagéré)
+			var pz: Dictionary = p._cyc(CycleData.RUN, fposmod(t * 1.7, 1.0))
+			var k := smoothstep(0.0, 0.1, t)
+			pz.hips = pz.get("hips", Vector3.ZERO) + Vector3(0, 0, 55.0 * wr_side * k)
+			pz.spine = pz.get("spine", Vector3.ZERO) + Vector3(0, 0, -12.0 * wr_side * k)
+			pz.head = pz.get("head", Vector3.ZERO) + Vector3(0, 0, -20.0 * wr_side * k)
+			pz.foot_l = N
+			pz.foot_r = N
+			return pz
+		"wallclimb":   # face au mur, penché en arrière, les genoux qui montent l'un après l'autre
+			var a: Dictionary = p._pose("wr_run1")
+			var b: Dictionary = p._pose("wr_run2")
+			var u := 0.5 + 0.5 * sin(t * TAU * 2.2)
+			var pz := {}
+			for key in a:
+				if a[key] is Vector3 and b.get(key) is Vector3:
+					pz[key] = a[key].lerp(b[key], u)
+			pz.foot_l = N
+			pz.foot_r = N
+			return pz
+		"wall_leap":   # bondit vers le sbire, groupé, l'épaule devant
+			var pz: Dictionary = p._pose("air_up")
+			pz.foot_l = N
+			pz.foot_r = N
+			return pz
 		"skid":
 			return {"hips_pos": Vector3(0, -0.6, 0.1), "hips": Vector3(62, 0, 0), "spine": Vector3(-22, 0, 0), "head": Vector3(-12, 0, 0),
 				"hip_r": Vector3(25, 0, 0), "kn_r": Vector3(0, 0, 0), "hip_l": Vector3(8, 0, 0), "kn_l": Vector3(-100, 0, 0),

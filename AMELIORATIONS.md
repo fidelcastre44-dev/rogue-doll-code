@@ -308,6 +308,10 @@ se hisser sur un rebord, glissade, atterrissages, coups aériens.
 
 - **Chope d'un sbire couché** (par le col, gardé 4 s) et **chope d'un sbire en l'air depuis le sol** : retirées en v0.217 (Thibaud). Le grand tour garde le sbire couché ; la chope plongeante garde le sbire en l'air.
 
+- **Course au mur salto** (stick vers un mur + Y) et **course au mur horizontale** (`wall_run_h`, mur sur le côté + Y) : ce ne sont plus
+  des coups. En v0.23 (Paul), la course au mur devient un **déplacement de base** (locomotion.gd, Terrain d'essai) : sauter à côté d'un
+  mur = course horizontale, sauter face à un mur = course vers le haut (se hisser en haut, A = salto arrière), A = sauter d'un mur à
+  l'autre, X / Y = attaque de sortie sur le sbire le plus proche. Fiches `wall_run` / `wall_run_h` gardées dans `moves/`, plus branchées.
 - **Drop kick** (Y en sprint, retombée sur le dos 2 s) : remplacé en v0.216 par le coup de pied en course (Thibaud : il figeait le joueur au sol). Fiches gardées.
 - **Chassé sauté** comme Y aérien de base : remplacé en v0.216 par le gros genou (il cassait l'élan des combos). Gardé en variante (`air_heavy = "dropkick"`).
 - **Râpe à fromage sur R1** : passée sur Y (finisher) en v0.216.

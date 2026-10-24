@@ -564,6 +564,8 @@ func _physics_process(dt: float) -> void:
 		if holding:
 			mult = 0.45 if attack in ["swing", "club_hold", "club_swing"] else 0.55   # on peut marcher en le tenant (par le col, ou par les pieds pendant le grand tour)
 		var accel := 40.0 if grounded else 14.0   # en l'air on garde du contrôle, mais moins vif
+		if not grounded and lc.wj_t > 0.0:
+			accel = 2.5   # v0.23 : juste après un saut de mur, l'élan l'emporte vers l'autre mur (le stick n'oriente presque pas)
 		if sprinting and attack == "" and not guarding and grounded:
 			mult *= SPRINT_MULT
 		velocity.x = move_toward(velocity.x, dir.x * speed * mult, accel * dt)
@@ -2505,12 +2507,7 @@ func _atelier_heavy() -> bool:
 		held_prop = null
 		start("prop_kick")   # objet au sol devant : shoot d'objet
 		return true
-	if stick_dir.length() > 0.5 and _find_wall(stick_dir):
-		start("wall_run")   # stick vers un mur tout proche : course au mur
-		return true
-	if stick_dir.length() > 0.5 and _side_wall(stick_dir):
-		start("wall_run_h")   # mur tout proche sur le côté, stick le long du mur : course au mur horizontale
-		return true
+	# v0.23 : plus de « course au mur » sur Y (salto / horizontale) : c'est devenu un déplacement de base (A à côté d'un mur, locomotion.gd).
 	return false
 
 
