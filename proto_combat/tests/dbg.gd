@@ -1,6 +1,5 @@
 extends SceneTree
 var game; var inp; var fr := 0
-var seq := {10: "attack", 17: "heavy", 44: "jump", 50: "attack", 61: "attack", 72: "attack", 88: "heavy"}
 func _initialize():
 	game = load("res://main.tscn").instantiate(); root.add_child(game)
 func _physics_process(_d):
@@ -8,11 +7,13 @@ func _physics_process(_d):
 		inp = root.get_node("Inputs"); inp.use_fake = true
 	fr += 1
 	if fr == 2: game.foe_count = 1; game.load_spot("centre")
-	if seq.has(fr): inp.press(seq[fr])
-	for a in ["attack","heavy","jump"]:
-		if inp.held(a) and inp.held_time(a) > 0.02: inp.release(a)
-	var e = game.enemies[0]
-	if fr % 3 == 0 and fr < 140:
-		var h = game.hero
-		print(fr, " ", h.state, ":", h.move_id, " f", h.f, " hit", h.has_hit, " pos(%.1f,%.1f,%.1f)" % [h.global_position.x,h.global_position.y,h.global_position.z], " | foe ", e.state, " (%.1f,%.1f,%.1f)" % [e.global_position.x,e.global_position.y,e.global_position.z], " combo ", h.combo)
-	return fr > 140
+	if fr == 10 or fr == 30: inp.press("heavy")
+	if inp.held("heavy") and inp.held_time("heavy") > 0.02: inp.release("heavy")
+	var e = game.enemies[0] if game.enemies.size() else null
+	if e and fr > 40 and fr % 4 == 0 and fr < 170:
+		var sk: Skeleton3D = e.rig.skel
+		var b = sk.find_bone("spine_03")
+		var g = sk.global_transform * sk.get_bone_global_pose(b)
+		var up = g.basis.y.normalized()
+		print(fr, " ", e.state, " rag=", e.rag.active, " pin=", e.rag.pinned, " tilt=%d°" % rad_to_deg(up.angle_to(Vector3.UP)), " pel(%.1f,%.1f,%.1f)" % [e.rag.pelvis_pos().x, e.rag.pelvis_pos().y, e.rag.pelvis_pos().z], " cap(%.1f,%.1f,%.1f)" % [e.global_position.x, e.global_position.y, e.global_position.z])
+	return fr > 170

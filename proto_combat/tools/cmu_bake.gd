@@ -15,6 +15,9 @@ const CLIPS := {
 	"jab_box": {"file": "144_14", "t0": 3.32, "hit": 3.58, "t1": 3.82, "tip": "LeftHand", "speed": 1.0},
 	"cross_box": {"file": "144_20", "t0": 1.38, "hit": 1.68, "t1": 1.95, "tip": "RightHand", "speed": 1.0},
 	"guard_idle": {"file": "13_17", "t0": 0.45, "hit": 0.6, "t1": 1.225, "tip": "", "speed": 1.0, "loop": true},
+	# relevés (repris de tools/cmu/clips.py du jeu principal) : à plat ventre 139_16, sur le dos 140_09 ; « hit » = fin, debout (donne le devant)
+	"getup_front": {"file": "139_16", "t0": 1.62, "hit": 3.45, "t1": 3.45, "tip": "", "speed": 2.2},
+	"getup_back": {"file": "140_09", "t0": 2.1, "hit": 4.48, "t1": 4.48, "tip": "", "speed": 2.2},
 }
 
 const FULL := {"pelvis": "Hips", "spine_01": "LowerBack", "spine_02": "Spine", "spine_03": "Spine1", "neck_01": "Neck", "Head": "Head"}

@@ -132,3 +132,62 @@ func tick(dt: float) -> void:
 		off = shake_dir * 0.12 * k + Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)) * 0.035 * k
 	model.position = off
 	model.rotation_degrees = lean
+
+
+# ------------------------------------------------------------------ ragdoll : relevé depuis la pose où il est tombé
+
+var _fit_cache := {}
+
+## Pose (repère du modèle) d'une animation à l'instant t, calculée à partir des pistes (sans lecture).
+func pose_at(anim: String, t: float) -> Dictionary:
+	var a := ap.get_animation(anim)
+	var loc := {}
+	for i in a.get_track_count():
+		var bn := str(a.track_get_path(i).get_concatenated_subnames())
+		var b := skel.find_bone(bn)
+		if b < 0:
+			continue
+		if not loc.has(b):
+			loc[b] = skel.get_bone_rest(b)
+		var tr: Transform3D = loc[b]
+		if a.track_get_type(i) == Animation.TYPE_ROTATION_3D:
+			tr.basis = Basis(a.rotation_track_interpolate(i, t))
+		elif a.track_get_type(i) == Animation.TYPE_POSITION_3D:
+			tr.origin = a.position_track_interpolate(i, t)
+		loc[b] = tr
+	var g := {}
+	for b in skel.get_bone_count():
+		var l: Transform3D = loc.get(b, skel.get_bone_rest(b))
+		var p := skel.get_bone_parent(b)
+		g[b] = l if p < 0 else (g[p] as Transform3D) * l
+	var out := {}
+	# repère du modèle = repère du squelette (Armature et Skeleton sans transformation dans nos glTF)
+	for b in g:
+		out[skel.get_bone_name(b)] = g[b]
+	return out
+
+
+## Pour se relever d'un ragdoll : quelle animation, et comment placer / tourner le perso pour que son corps couché
+## au début de l'animation tombe pile sur le corps du ragdoll. Retourne {anim, from, facing, pos}.
+func getup_fit(rag: Ragdoll, from_back: String, back_t: float, from_front: String, front_t: float) -> Dictionary:
+	var up := rag.face_up()
+	var anim := from_back if up else from_front
+	var t0 := back_t if up else front_t
+	var key := anim + str(t0)
+	if not _fit_cache.has(key):
+		var p := pose_at(anim, t0)
+		var pel: Vector3 = (p["pelvis"] as Transform3D).origin
+		var hd: Vector3 = (p["Head"] as Transform3D).origin
+		_fit_cache[key] = [Vector3(hd.x - pel.x, 0, hd.z - pel.z), Vector3(pel.x, 0, pel.z)]
+	var d_anim: Vector3 = _fit_cache[key][0]
+	var o_anim: Vector3 = _fit_cache[key][1]
+	var pel_w := rag.pelvis_pos()
+	var d_rag := rag.head_pos() - pel_w
+	d_rag.y = 0
+	if d_rag.length() < 0.05 or d_anim.length() < 0.05:
+		d_rag = Vector3(0, 0, 1)
+		d_anim = Vector3(0, 0, 1)
+	var yaw := atan2(d_rag.x, d_rag.z) - atan2(d_anim.x, d_anim.z)
+	var facing := Vector3(0, 0, 1).rotated(Vector3.UP, yaw)
+	var pos := Vector3(pel_w.x, 0, pel_w.z) - o_anim.rotated(Vector3.UP, yaw)
+	return {"anim": anim, "from": t0, "facing": facing, "pos": pos, "up": up}

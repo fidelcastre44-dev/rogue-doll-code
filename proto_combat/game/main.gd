@@ -3,7 +3,7 @@ extends Node3D
 ## Ce nœud monte tout (lumière, terrain, héros, mannequins, caméra, effets, sons, interface, menu) et sert d'arbitre :
 ## figé à l'impact, secousses, ralentis, parade, esquive parfaite, jetons d'attaque des ennemis (2 à la fois au plus).
 
-const VERSION := "0.1"
+const VERSION := "0.11"
 const MAX_ATTACKERS := 2
 
 var arena: Arena
@@ -96,6 +96,8 @@ func _menu_setup() -> void:
 		["Zones de frappe", ["cachées", "visibles"], 0, func(i): show_boxes = i == 1],
 		["Perso", ["homme", "femme"], 0 if hero.look == "male" else 1, func(i): set_look(["male", "female"][i])],
 		["Infos des coups (frise)", ["visibles", "cachées"], 0, func(i): hud.show_debug = i == 0],
+		["Aide « possible maintenant »", ["visible", "cachée"], 0, func(i): hud.show_actions = i == 0],
+		["Ragdoll visuel", ["oui", "non"], 0, func(i): set_ragdoll(i == 0)],
 		["Quitter le jeu", [], 0, func(_i): get_tree().quit()],
 	])
 	# aide à la visée : refléter la valeur sauvegardée
@@ -128,6 +130,15 @@ func set_assist(a: float) -> void:
 	_save()
 
 
+var ragdoll_on := true
+func set_ragdoll(on: bool) -> void:
+	ragdoll_on = on
+	for e in enemies:
+		e.ragdoll_on = on
+		if not on:
+			e.rag.stop()
+
+
 func set_speed(s: float) -> void:
 	speed = s
 	Engine.time_scale = s
@@ -157,6 +168,7 @@ func load_spot(name: String) -> void:
 		var d := Dummy.new()
 		d.game = self
 		d.mode = foe_mode
+		d.ragdoll_on = ragdoll_on
 		var p: Vector3 = foes[i] if i < foes.size() else foes[0] + Vector3(randf_range(-3, 3), 0, randf_range(-3, 3))
 		d.position = p + Vector3.UP * 0.05
 		get_node("World").add_child(d)

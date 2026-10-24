@@ -1,6 +1,8 @@
 class_name Dummy
 extends CharacterBody3D
-## Mannequin d'entraînement (sbire). Pas de ragdoll : des états lisibles comme dans un jeu de baston pro.
+## Mannequin d'entraînement (sbire). Les états de jeu restent lisibles comme dans un jeu de baston pro ; le ragdoll est
+## seulement VISUEL (game/ragdoll.gd) : en l'air le bassin du pantin suit la capsule (la trajectoire du jongle reste celle
+## du jeu), au sol il tombe librement, puis il se relève depuis la pose où il est tombé (sur le dos / à plat ventre).
 ## Modes : "passive" (encaisse), "guard" (garde de face, se fait briser par les coups lourds), "attack" (IA qui tourne autour
 ## du héros et frappe en prévenant : flash rouge = coup normal, orange = coup lourd imparable, à esquiver ou parer).
 ## États : idle, walk, windup, strike, recover, hurt, air (jonglé / projeté), down (à terre), getup, block, stagger, grabbed, splat.
@@ -39,6 +41,8 @@ var down_from_air := false
 var bar: Node3D
 var bar_fill: MeshInstance3D
 var bar_back: MeshInstance3D
+var rag: Ragdoll
+var ragdoll_on := true
 
 const ATTACKS := {
 	"light": {"anim": "cross", "from": 0.0, "hit": 0.283, "end": 0.7, "windup": 26, "active": 4, "recovery": 26, "reach": 1.5, "dmg": 8, "kb": 5.0, "heavy": false, "flash": Color(1, 0.15, 0.1)},
@@ -61,6 +65,8 @@ func _ready() -> void:
 	add_child(rig)
 	rig.setup("dummy")
 	rig.play("idle", 0.0)
+	rag = Ragdoll.new()
+	rag.setup(rig.skel, self)
 	_make_bar()
 	home = global_position
 	set_mode(mode)
@@ -114,6 +120,8 @@ func reset_at(p: Vector3, face: Vector3) -> void:
 	hp = HP_MAX
 	ko = false
 	juggle = 0
+	if rag:
+		rag.stop()
 	_to_idle()
 
 
@@ -123,8 +131,10 @@ func _physics_process(dt: float) -> void:
 	_update_bar()
 	if hitstop > 0:
 		hitstop -= 1
+		rag.hold(true)
 		rig.tick(dt)
 		return
+	rag.hold(false)
 	f += 1
 	atk_cool -= dt
 	last_hit_t += dt
@@ -149,6 +159,18 @@ func _physics_process(dt: float) -> void:
 		hvel.x = velocity.x
 		hvel.z = velocity.z
 	_separate()
+	if rag.active:
+		if rag.pinned:
+			rag.pin(global_position + Vector3.UP * 0.95, dt)
+		elif state == "down":
+			# couché : la capsule suit le corps (zone de frappe au sol = là où il est vraiment)
+			var pp := rag.pelvis_pos()
+			global_position.x = pp.x
+			global_position.z = pp.z
+			var hd := rag.head_pos() - pp
+			hd.y = 0
+			if hd.length() > 0.1:
+				facing = -hd.normalized()
 	rig.rotation.y = atan2(facing.x, facing.z)
 	lean_v = lean_v.lerp(lean_target, 1.0 - exp(-18.0 * dt))
 	lean_target = lean_target.lerp(Vector3.ZERO, 1.0 - exp(-7.0 * dt))
@@ -433,6 +455,18 @@ func _launch(dir: Vector3, kb: Array, effect: String, stun_f: int) -> void:
 		velocity.y = float(kb[1])
 	rig.play("knockback", 0.03, 1.0, 0.06)
 	atk = {}
+	_rag_hit(Vector3(hvel.x, velocity.y, hvel.z))
+
+
+## Ragdoll visuel : il part (ou reprend un coup) dans le sens du coup ; le bassin restera épinglé à la capsule.
+func _rag_hit(vel: Vector3) -> void:
+	if not ragdoll_on:
+		return
+	if rag.active:
+		rag.pinned = true
+		rag.kick(vel * 0.6, global_position + Vector3.UP * 1.2)
+	else:
+		rag.start(Vector3(vel.x, vel.y * 0.5, vel.z) * 0.7, true)
 
 
 func _guard_break(dir: Vector3) -> void:
@@ -506,7 +540,11 @@ func _st_air(dt: float, on_floor: bool) -> void:
 		thrown_by = null
 		_go("down")
 		hvel *= 0.3
-		rig.play("knockback", 0.08, 1.4, 0.42)
+		if rag.active:
+			rag.pinned = false   # il s'écrase librement
+			rag.damp(0.4)
+		else:
+			rig.play("knockback", 0.08, 1.4, 0.42)
 		game.fx.dust(global_position, 1.0)
 		game.sfx.play("thud", global_position, 0.7)
 
@@ -518,7 +556,16 @@ func _st_down(dt: float) -> void:
 	if f >= wait:
 		_go("getup")
 		juggle = 0
-		rig.play("getup", 0.15, 2.0, 0.55)
+		if rag.active:
+			# relevé depuis la pose du ragdoll : sur le dos = LayToIdle (Quaternius), à plat ventre = capture CMU 139_16
+			var fit := rig.getup_fit(rag, "getup", 0.0, "cmu/getup_front", 0.0)
+			facing = fit.facing
+			global_position = Vector3(fit.pos.x, global_position.y, fit.pos.z)
+			rig.rotation.y = atan2(facing.x, facing.z)
+			rig.play(fit.anim, 0.0, 1.6 if fit.up else 1.5, fit.from)
+			rag.blend_out(0.22)
+		else:
+			rig.play("getup", 0.15, 2.0, 0.55)
 		if ko:
 			hp = HP_MAX
 			ko = false
@@ -527,7 +574,7 @@ func _st_down(dt: float) -> void:
 func _st_getup(dt: float) -> void:
 	hvel = hvel.move_toward(Vector3.ZERO, 18 * dt)
 	velocity.y = -2.0
-	if f >= 42:
+	if f >= 56:
 		_to_idle()
 
 
@@ -536,7 +583,10 @@ func _st_splat(dt: float) -> void:
 	velocity.y = 0.0 if f < 24 else velocity.y - GRAV * dt
 	if f >= 24 and (is_on_floor() or f > 60):
 		_go("down")
-		rig.play("knockback", 0.1, 1.2, 0.42)
+		if rag.active:
+			rag.pinned = false
+		else:
+			rig.play("knockback", 0.1, 1.2, 0.42)
 
 
 ## Projeté fort contre un mur : il s'y écrase (wall splat), puis glisse au sol.
@@ -558,6 +608,8 @@ func _check_wall(pre: Vector3) -> void:
 			game.sfx.play("big", global_position, 0.9)
 			game.popup(global_position + Vector3.UP * 2.2, "MUR !", Color(1, 0.9, 0.5))
 			hp -= 6.0
+			if rag.active:
+				rag.kick(-n * 4.0, global_position + Vector3.UP * 1.0)
 			return
 
 
@@ -567,6 +619,7 @@ func grab_by(h: Node) -> void:
 	_drop_token()
 	grabbed_by = h
 	_go("grabbed")
+	rag.stop()
 	rig.play("hit_chest", 0.05, 0.0, 0.15)
 	lean_target = Vector3(-20, 0, 0)
 	atk = {}
@@ -587,6 +640,7 @@ func release_grab(v: Vector3) -> void:
 	facing = -Vector3(v.x, 0, v.z).normalized()
 	rig.play("knockback", 0.03, 1.0, 0.06)
 	rig.flash(0.1)
+	_rag_hit(v)
 
 
 ## Projeté : il renverse les autres sbires qu'il percute (boule de bowling).

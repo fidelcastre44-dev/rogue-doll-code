@@ -1,4 +1,4 @@
-# Rogue Doll — proto combat (v0.1)
+# Rogue Doll — proto combat (v0.11)
 
 Version à part du jeu : **seulement le terrain d'essai**, avec un système de déplacement / combat refait de zéro pour trouver un
 feeling solide. Pas de ragdoll : des états lisibles comme dans un jeu de baston pro. Godot 4.7 (Jolt), GDScript.
@@ -15,6 +15,20 @@ feeling solide. Pas de ragdoll : des états lisibles comme dans un jeu de baston
 - **Aide à la visée** réglable (aucune / légère / normale / forte) : oriente le coup vers l'ennemi le plus pertinent du cône du stick
   et règle l'élan pour arriver au contact. Mettre « aucune » pour la règle d'origine (pas d'aimantation).
 - Rien de spammable : 2 esquives puis recharge, parade pas répétable trop vite, finisseurs avec vraie récupération.
+
+## v0.11
+- **Ragdoll visuel** (`game/ragdoll.gd`), monté comme le bouton « Create Physical Skeleton » de Godot et réglé comme la démo officielle
+  *Ragdoll Physics* (godot-demo-projects, mêmes noms d'os) : en l'air le bassin du pantin suit la capsule (le jongle reste fiable),
+  au sol il tombe librement, puis il se relève depuis sa pose (sur le dos : LayToIdle Quaternius ; à plat ventre : capture CMU 139_16).
+  Aussi sur le héros quand il est renversé. Menu Start : « Ragdoll visuel oui / non » pour comparer.
+- **Aide « possible maintenant »** (en bas à droite) : les boutons utiles à cet instant, calculés avec les vraies règles du héros
+  (`Hero.actions()`) : allumé = part tout de suite, grisé + « dans N images » = appui déjà accepté mais pas encore ouvert.
+  Indice de situation en haut (ennemi sonné, en l'air, au sol, coup rouge / orange qui arrive). F1 = liste complète.
+
+## Règle de travail (Paul, 24/10)
+Pas de coup ni d'animation inventés : on part de ressources existantes. **Quand il faut une animation, Claude demande à Paul**
+ce qu'il faut chercher sur Mixamo (mots-clés, FBX « Without Skin », 30 i/s, « In Place ») ; Paul la télécharge et la donne.
+Les fichiers Mixamo bruts ne vont pas sur GitHub (licence).
 
 ## Commandes (manette ; clavier entre parenthèses)
 | Bouton | Action |

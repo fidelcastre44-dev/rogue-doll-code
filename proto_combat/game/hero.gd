@@ -81,6 +81,7 @@ var hp := 100.0
 var combo := 0
 var combo_t := 0.0
 var hurt_count := 0
+var rag: Ragdoll
 var guard_cool := 0.0          # parade pas spammable : re-garder trop vite = pas de fenêtre de parade
 
 
@@ -106,6 +107,8 @@ func set_look(l: String) -> void:
 	rig = Rig.new()
 	add_child(rig)
 	rig.setup(l)
+	rag = Ragdoll.new()
+	rag.setup(rig.skel, self)
 	rig.play("cmu/guard_idle", 0.0)
 	_face_rig()
 
@@ -119,8 +122,10 @@ func _face_rig() -> void:
 func _physics_process(dt: float) -> void:
 	if hitstop > 0:
 		hitstop -= 1
+		rag.hold(true)
 		rig.tick(dt)
 		return
+	rag.hold(false)
 	if dodge_cool > 0.0:
 		dodge_cool -= dt
 		if dodge_cool <= 0.0:
@@ -729,6 +734,8 @@ func receive(attacker, dmg: float, kb: Vector3, heavy: bool) -> String:
 		hvel = kb
 		velocity.y = 4.0
 		rig.play("knockback", 0.03, 1.4)
+		if game.ragdoll_on:
+			rag.start(Vector3(kb.x, 2.0, kb.z) * 0.7, true)   # ragdoll visuel : le bassin suit la capsule pendant la chute
 	else:
 		_go("hurt")
 		stun = 18
@@ -755,12 +762,30 @@ func _st_down(dt: float) -> void:
 	down_f += 1
 	hvel = hvel.move_toward(Vector3.ZERO, 14 * dt)
 	velocity.y -= GRAV_DOWN * dt if not is_on_floor() else 0.0
+	if rag.active:
+		if down_f < 14:
+			rag.pin(global_position + Vector3.UP * 0.95, dt)
+		elif down_f == 14:
+			rag.pinned = false
+			rag.damp(0.4)
 	if down_f == 40:
-		rig.play("getup", 0.15, 2.4, 0.5)
 		invuln = 40
+		if rag.active:
+			var fit := rig.getup_fit(rag, "getup", 0.0, "cmu/getup_front", 0.0)
+			facing = fit.facing
+			global_position = Vector3(fit.pos.x, global_position.y, fit.pos.z)
+			_face_rig()
+			rig.play(fit.anim, 0.0, 2.0 if fit.up else 1.6, fit.from)
+			rag.blend_out(0.2)
+		else:
+			rig.play("getup", 0.15, 2.4, 0.5)
 	# relevé rapide : B ou A au sol
 	if down_f > 22 and down_f < 40 and (Inputs.buffered("dodge") or Inputs.buffered("jump")):
 		invuln = 20
+		if rag.active:
+			var pp := rag.pelvis_pos()
+			global_position = Vector3(pp.x, global_position.y, pp.z)
+			rag.blend_out(0.12)
 		_start_dodge()
 		return
 	if down_f >= 75:
@@ -856,3 +881,117 @@ func phase() -> String:
 	if f < int(mv.startup) + int(mv.active):
 		return "active"
 	return "recovery"
+
+
+# ------------------------------------------------------------------ overlay : ce qui est possible MAINTENANT
+## Calculé avec les mêmes règles que les états ci-dessus (une seule vérité). Chaque entrée :
+## {b: bouton ("X","Y","A","B","L1","R1","Ymaint","stick"), t: ce que ça fait, on: possible tout de suite, wait: images avant que ça s'ouvre}
+const MOVE_NAMES := {
+	"jab": "jab", "cross": "direct", "hook": "crochet", "spin_kick": "coup de pied retourné (renverse)",
+	"launcher": "uppercut lanceur (envoie en l'air)", "push_kick": "coup de pied poussé (brise la garde)",
+	"haymaker": "gros crochet plongeant (renverse, mur)", "charged": "crochet chargé", "dash_punch": "direct plongeant",
+	"slide": "glissade qui fauche", "flying_hook": "crochet volant", "air_jab": "jab aérien", "air_cross": "direct aérien",
+	"air_kick": "coup de pied qui écrase (rebond)", "air_spike": "piqué (onde au sol)", "riposte": "RIPOSTE (uppercut critique)",
+}
+
+func actions() -> Array:
+	var out := []
+	var dodge_ok := not (dodges >= DODGE_CHAIN and dodge_cool > 0.0)
+	match state:
+		"move":
+			if land_lag > 0:
+				out.append({"b": "", "t": "réception…", "on": false, "wait": land_lag})
+				return out
+			if riposte_t > 0.0:
+				out.append({"b": "X", "t": MOVE_NAMES.riposte, "on": true})
+			elif sprinting:
+				out.append({"b": "X", "t": MOVE_NAMES.slide + " (en sprint)", "on": true})
+				out.append({"b": "Y", "t": MOVE_NAMES.flying_hook + " (en sprint)", "on": true})
+			else:
+				out.append({"b": "X", "t": "jab ▸ direct ▸ crochet ▸ retourné", "on": true})
+				out.append({"b": "Y", "t": MOVE_NAMES.push_kick, "on": true})
+				out.append({"b": "Ymaint", "t": "maintenu : " + MOVE_NAMES.charged, "on": true})
+			out.append({"b": "B", "t": "roulade (invincible au début)" if dodge_ok else "roulade (recharge…)", "on": dodge_ok})
+			out.append({"b": "A", "t": "saut", "on": true})
+			out.append({"b": "L1", "t": "garde (pile au coup = parade)", "on": true})
+			var t = _pick_target(facing, float(Moves.GRAB.reach), 0.9)
+			out.append({"b": "R1", "t": "chope et lancer" if t else "chope (personne à portée)", "on": t != null})
+		"air":
+			out.append({"b": "X", "t": "combo aérien : jab ▸ direct ▸ écrasé", "on": air_attacks < 4})
+			out.append({"b": "Y", "t": MOVE_NAMES.air_spike, "on": true})
+			out.append({"b": "B", "t": "dash aérien", "on": not air_dash_used})
+		"attack":
+			var su := int(mv.startup)
+			var ac := int(mv.active)
+			var from: int = maxi(int(mv.get("chain_from", su)), su + ac)
+			var air := bool(mv.get("air", false))
+			for b in mv.chain:
+				var nxt: String = mv.chain[b]
+				if air and not nxt.begins_with("air"):
+					continue
+				var lab: String = MOVE_NAMES.get(nxt, nxt)
+				out.append({"b": "X" if b == "attack" else "Y", "t": lab, "on": f >= from, "wait": maxi(from - f, 0)})
+			if mv.get("jump_cancel", false):
+				if has_hit:
+					out.append({"b": "A", "t": "saut de poursuite ▸ puis X X X en l'air", "on": f >= su + ac, "wait": maxi(su + ac - f, 0)})
+				elif f < su + ac:
+					out.append({"b": "A", "t": "(s'il touche) saut de poursuite", "on": false, "wait": su + ac - f})
+			var dc: String = mv.get("dodge", "active")
+			var dlab := "dash aérien" if air else "roulade (annule le coup)"
+			if dc == "always":
+				out.append({"b": "B", "t": dlab, "on": dodge_ok or air})
+			elif dc == "active":
+				out.append({"b": "B", "t": dlab, "on": f >= su + ac, "wait": maxi(su + ac - f, 0)})
+			elif has_hit:
+				out.append({"b": "B", "t": dlab + " (il a touché)", "on": f >= su + ac, "wait": maxi(su + ac - f, 0)})
+			else:
+				out.append({"b": "B", "t": "roulade seulement si le coup touche", "on": false})
+			if out.is_empty():
+				out.append({"b": "", "t": "coup engagé : pas d'annulation", "on": false})
+		"charge":
+			out.append({"b": "Ymaint", "t": "relâcher Y : frapper (%d %%)" % int(clampf(charge_t / CHARGE_MAX, 0, 1) * 100), "on": true})
+			out.append({"b": "B", "t": "roulade (annule la charge)", "on": true})
+		"dodge":
+			out.append({"b": "X", "t": MOVE_NAMES.dash_punch, "on": f >= DODGE_ATTACK_F, "wait": maxi(DODGE_ATTACK_F - f, 0)})
+			out.append({"b": "Y", "t": MOVE_NAMES.slide, "on": f >= DODGE_ATTACK_F, "wait": maxi(DODGE_ATTACK_F - f, 0)})
+			out.append({"b": "B", "t": "2e roulade" if dodges < DODGE_CHAIN else "roulade (recharge…)", "on": f >= DODGE_F - 4 and dodges < DODGE_CHAIN, "wait": maxi(DODGE_F - 4 - f, 0)})
+			out.append({"b": "A", "t": "saut", "on": f >= DODGE_F - 4, "wait": maxi(DODGE_F - 4 - f, 0)})
+		"airdash":
+			out.append({"b": "X", "t": MOVE_NAMES.air_jab, "on": f >= 6 and air_attacks < 4, "wait": maxi(6 - f, 0)})
+			out.append({"b": "Y", "t": MOVE_NAMES.air_spike, "on": f >= 6, "wait": maxi(6 - f, 0)})
+		"guard":
+			out.append({"b": "L1", "t": "PARADE active (%d images)" % maxi(PARRY_F - guard_f, 0) if parrying() else "garde (bloque de face)", "on": true})
+			if riposte_t > 0.0:
+				out.append({"b": "X", "t": MOVE_NAMES.riposte, "on": true})
+			out.append({"b": "B", "t": "roulade", "on": dodge_ok})
+			out.append({"b": "R1", "t": "chope", "on": true})
+		"grab":
+			if grabbed:
+				out.append({"b": "stick", "t": "choisir la direction du lancer", "on": true})
+			else:
+				out.append({"b": "", "t": "chope ratée : récupération", "on": false})
+		"hurt":
+			out.append({"b": "B", "t": "roulade de sortie (fin de l'étourdissement)", "on": f > stun - 6, "wait": maxi(stun - 6 - f, 0)})
+		"down":
+			out.append({"b": "B", "t": "relevé rapide (roulade)", "on": down_f > 22 and down_f < 40, "wait": maxi(23 - down_f, 0)})
+			out.append({"b": "A", "t": "relevé rapide", "on": down_f > 22 and down_f < 40, "wait": maxi(23 - down_f, 0)})
+	return out
+
+
+## Indice de situation (ennemi en l'air, sonné…) d'après l'état réel des mannequins proches.
+func situation_hint() -> String:
+	for e in game.enemies:
+		var d: Vector3 = e.global_position - global_position
+		d.y = 0
+		if d.length() > 4.0:
+			continue
+		match e.state:
+			"stagger": return "Ennemi sonné : frappe-le, tous tes coups passent"
+			"air": return "Ennemi en l'air : saute (A) pour le jongler" if state in ["move"] else "Ennemi en l'air : continue le jongle"
+			"down": return "Ennemi au sol : seuls la glissade (roulade + Y / sprint + X) et le piqué le touchent"
+			"windup":
+				if e.atk.get("heavy", false):
+					return "Coup lourd (orange) : esquive (B) ou parade (L1 pile au coup)"
+				return "Il prépare un coup (rouge) : garde, parade ou esquive"
+			"block": return "Il bloque : coup de pied poussé (Y) ou chope (R1) pour passer la garde"
+	return ""

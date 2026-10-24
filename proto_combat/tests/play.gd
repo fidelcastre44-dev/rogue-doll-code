@@ -13,6 +13,8 @@ const SCENARIOS := {
 	"combo_strip": [[2, "spot", "centre"], [3, "zoom", 0.55], [10, "press", "attack"], [24, "press", "attack"], [38, "press", "attack"], [52, "press", "attack"], [8, "strip", [10, 130, 4]], [140, "end", 0]],
 	"air_strip": [[2, "spot", "centre"], [3, "zoom", 0.7], [10, "press", "attack"], [17, "press", "heavy"], [44, "press", "jump"], [50, "press", "attack"], [61, "press", "attack"], [72, "press", "attack"], [88, "press", "heavy"], [8, "strip", [10, 150, 5]], [160, "end", 0]],
 	"move_strip": [[2, "spot", "ligne"], [3, "zoom", 0.6], [10, "stick", Vector2(1, 0)], [40, "press", "dodge"], [52, "press", "attack"], [80, "stick", Vector2(-1, 0)], [100, "stick", Vector2.ZERO], [104, "press", "heavy"], [8, "strip", [10, 140, 5]], [150, "end", 0]],
+	"rag_strip": [[2, "spot", "centre"], [3, "zoom", 0.6], [10, "press", "attack"], [17, "press", "heavy"], [44, "press", "jump"], [50, "press", "attack"], [61, "press", "attack"], [72, "press", "attack"], [8, "strip", [30, 200, 6]], [210, "end", 0]],
+	"rag_kick": [[2, "spot", "centre"], [3, "zoom", 1.0], [10, "press", "heavy"], [30, "press", "heavy"], [8, "strip", [36, 190, 6]], [200, "end", 0]],
 	"attackers": [[2, "mode", "attack"], [3, "spot", "foule"], [60, "shot", "crowd"], [120, "shot", "crowd2"], [121, "press", "guard"], [200, "shot", "guard"], [201, "release", "guard"], [260, "end", 0]],
 }
 
