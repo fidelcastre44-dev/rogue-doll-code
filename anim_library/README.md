@@ -2,7 +2,7 @@
 
 Ressources d'animation pour le proto combat v2 (cahier des charges : https://claude.ai/artifact/AVS5q1UjX7h58zZ6hj1W1Y).
 
-- `mixamo_v2/` : ≈ 590 animations Mixamo de combat (FBX sans skin, 30 i/s, squelette Mixamo), nommées `rd_v2__<nom>.fbx`,
+- `mixamo_v2/` : 592 animations (lot complet, 25/10/2026) Mixamo de combat (FBX sans skin, 30 i/s, squelette Mixamo), nommées `rd_v2__<nom>.fbx`,
   téléchargées en octobre 2026 ; `manifest.json` = nom et description Mixamo de chaque fichier. Usage commercial autorisé (Mixamo).
 - Autres sources déjà dans le dépôt : `proto_combat/mixamo_src/` (160 FBX Mixamo), `proto_combat/assets/anims/` (Quaternius UAL1/UAL2 CC0,
   mannequin, bibliothèques reprises), CMU BVH sur GitHub `Shriinivas/cmubvh`.
