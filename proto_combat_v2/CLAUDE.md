@@ -13,6 +13,7 @@ Tout y est exemple et point de départ ; tu décides. S'il contredit autre chose
 - Base en ressources existantes (animations, projets open source, références de jeu) ; inventivité permise pour les ajuster entre elles,
   y compris animer soi-même en poses clés ce qui manque.
 - Pas de validation intermédiaire : une consigne -> travail jusqu'au bout -> build jouable (Windows + Mac) publié + court résumé.
+- Si GitHub refuse un zip (trop lourd) : ne pas compresser ni alléger le build ; l'envoyer directement à Paul dans la conversation.
 - Jeu séparé de l'affichage ; coop pensée dès la première ligne (hôte qui décide, prédiction du perso local).
 - Ragdoll purement visuel et local, il ne touche jamais la capsule.
 - Chope en animations à deux ; RB pendant la chope = slam au sol simple.
