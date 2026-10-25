@@ -1,0 +1,3554 @@
+[
+ {
+  "file": "rd_v2__punching.fbx",
+  "name": "Punching",
+  "description": "Jab Punch",
+  "mixamo_id": "c9c5f7e1-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__punch_combo.fbx",
+  "name": "Punch Combo",
+  "description": "Four Punch Combo",
+  "mixamo_id": "c9caf4f2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__combo_punch.fbx",
+  "name": "Combo Punch",
+  "description": "Eight Punch Combo",
+  "mixamo_id": "c9caf5b4-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__punching_2.fbx",
+  "name": "Punching",
+  "description": "Hook Punch With The Rear Hand",
+  "mixamo_id": "c9c5fab8-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__cross_punch.fbx",
+  "name": "Cross Punch",
+  "description": "A Cross Punch",
+  "mixamo_id": "c9c7f89a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__punching_3.fbx",
+  "name": "Punching",
+  "description": "Cross Punch",
+  "mixamo_id": "c9c5f8da-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__quad_punch.fbx",
+  "name": "Quad Punch",
+  "description": "Quad Punch Combo",
+  "mixamo_id": "c9c7f1df-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hook_punch.fbx",
+  "name": "Hook Punch",
+  "description": "A Hook Punch",
+  "mixamo_id": "c9c7fb71-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__punching_bag.fbx",
+  "name": "Punching Bag",
+  "description": "Various Punches To A Punching Bag",
+  "mixamo_id": "c9c7a268-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__flying_knee_punch_combo.fbx",
+  "name": "Flying Knee Punch Combo",
+  "description": "Jumping Knee Followed By A Punch",
+  "mixamo_id": "c9ca9a5a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__punching_4.fbx",
+  "name": "Punching",
+  "description": "Hook With The Lead Hand",
+  "mixamo_id": "c9c5f9cb-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hook.fbx",
+  "name": "Hook",
+  "description": "Short Hook Punch To The Head",
+  "mixamo_id": "c9cb1065-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hook_2.fbx",
+  "name": "Hook",
+  "description": "Long Hook Punch To The Body",
+  "mixamo_id": "c9cb0e71-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hook_3.fbx",
+  "name": "Hook",
+  "description": "Short Hook Punch To The Body",
+  "mixamo_id": "c9cb0db7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__male_action_pose.fbx",
+  "name": "Male Action Pose",
+  "description": "Exaggerated Punch With Right Hand",
+  "mixamo_id": "8202fbeb-5755-4943-ba48-c7d8c8af9407"
+ },
+ {
+  "file": "rd_v2__taking_punch.fbx",
+  "name": "Taking Punch",
+  "description": "Getting Hit In The Face From Various Angles",
+  "mixamo_id": "c9c82f93-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__uppercut.fbx",
+  "name": "Uppercut",
+  "description": "Standing Left Uppercut Punch",
+  "mixamo_id": "c9c9c626-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__receive_punch_to_the_face.fbx",
+  "name": "Receive Punch To The Face",
+  "description": "Receive Stomach Uppercut",
+  "mixamo_id": "c9c89bdf-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__right_hook.fbx",
+  "name": "Right Hook",
+  "description": "Right Hook Punch From Idle",
+  "mixamo_id": "c9c9b7c5-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hook_4.fbx",
+  "name": "Hook",
+  "description": "Mid Hook Punch To The Head",
+  "mixamo_id": "c9cb1308-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hook_5.fbx",
+  "name": "Hook",
+  "description": "Long Hook Punch To The Head",
+  "mixamo_id": "c9cb11ba-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hook_6.fbx",
+  "name": "Hook",
+  "description": "Mid Hook Punch To The Body",
+  "mixamo_id": "c9cb0f38-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__speedbag.fbx",
+  "name": "Speedbag",
+  "description": "Punching A Speedbag",
+  "mixamo_id": "c9c77262-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_to_body.fbx",
+  "name": "Hit To Body",
+  "description": "Receiving A Body Hit By A Straight Punch",
+  "mixamo_id": "c9cb0034-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__male_action_pose_2.fbx",
+  "name": "Male Action Pose",
+  "description": "Jab With Right Hand",
+  "mixamo_id": "829cc0ef-488c-422a-8b1b-2f836ed60811"
+ },
+ {
+  "file": "rd_v2__boxing.fbx",
+  "name": "Boxing",
+  "description": "Body Punch To The Knee",
+  "mixamo_id": "c9c7090b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_reaction.fbx",
+  "name": "Hit Reaction",
+  "description": "Receive Punch To The Body",
+  "mixamo_id": "c9c89ed9-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stunned.fbx",
+  "name": "Stunned",
+  "description": "Male Knocked Down From A Punch",
+  "mixamo_id": "c9ca7f74-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__head_hit.fbx",
+  "name": "Head Hit",
+  "description": "Receiving A Big Hit To The Head From A Straight Punch",
+  "mixamo_id": "c9cb56e9-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__big_hit_to_head.fbx",
+  "name": "Big Hit To Head",
+  "description": "Receiving A Big Hit From A Left Punch",
+  "mixamo_id": "c9cb01c1-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__big_hit_to_head_2.fbx",
+  "name": "Big Hit To Head",
+  "description": "Receiving A Big Hit From A Right Punch",
+  "mixamo_id": "c9cb03fa-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__big_hit_to_head_3.fbx",
+  "name": "Big Hit To Head",
+  "description": "Receiving A Big Hit From A Straight Punch",
+  "mixamo_id": "c9cb0637-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__receive_uppercut_to_the_face.fbx",
+  "name": "Receive Uppercut To The Face",
+  "description": "Receive An Uppercut Punch To The Face",
+  "mixamo_id": "c9c90592-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__light_hit_to_head.fbx",
+  "name": "Light Hit To Head",
+  "description": "Receiving A Light Hit From A Right Punch",
+  "mixamo_id": "c9cb0575-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__light_hit_to_head_2.fbx",
+  "name": "Light Hit To Head",
+  "description": "Receiving A Light Hit From A Straight Punch",
+  "mixamo_id": "c9cb07b2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__light_hit_to_head_3.fbx",
+  "name": "Light Hit To Head",
+  "description": "Receiving A Light Hit From A Left Punch",
+  "mixamo_id": "c9cb033b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__medium_hit_to_head.fbx",
+  "name": "Medium Hit To Head",
+  "description": "Receiving A Medium Hit From A Straight Punch",
+  "mixamo_id": "c9cb06f7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__medium_hit_to_head_2.fbx",
+  "name": "Medium Hit To Head",
+  "description": "Receiving A Medium Hit From A Right Punch",
+  "mixamo_id": "c9cb04b8-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__medium_hit_to_head_3.fbx",
+  "name": "Medium Hit To Head",
+  "description": "Receiving A Medium Hit From A Left Punch",
+  "mixamo_id": "c9cb027f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__head_hit_2.fbx",
+  "name": "Head Hit",
+  "description": "Receiving A Medium Hit To The Head From A Right Punch",
+  "mixamo_id": "c9cb546f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__head_hit_3.fbx",
+  "name": "Head Hit",
+  "description": "Receiving A Light Hit To The Head From A Straight Punch",
+  "mixamo_id": "c9cb5867-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__head_hit_4.fbx",
+  "name": "Head Hit",
+  "description": "Receiving A Light Hit To The Head From A Left Punch",
+  "mixamo_id": "c9cb52f3-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__head_hit_5.fbx",
+  "name": "Head Hit",
+  "description": "Receiving A Medium Hit To The Head From A Straight Punch",
+  "mixamo_id": "c9cb57a9-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__head_hit_6.fbx",
+  "name": "Head Hit",
+  "description": "Receiving A Big Hit To The Head From A Left Punch",
+  "mixamo_id": "c9cb516e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__head_hit_7.fbx",
+  "name": "Head Hit",
+  "description": "Receiving A Big Hit To The Head From A Right Punch",
+  "mixamo_id": "c9cb53b0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__head_hit_8.fbx",
+  "name": "Head Hit",
+  "description": "Receiving A Medium Hit To The Head From A Left Punch",
+  "mixamo_id": "c9cb5234-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__head_hit_9.fbx",
+  "name": "Head Hit",
+  "description": "Receiving A Light Hit To The Head From A Right Punch",
+  "mixamo_id": "c9cb5616-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__crouching.fbx",
+  "name": "Crouching",
+  "description": "Crouching From Standing Position",
+  "mixamo_id": "c9c8ecbd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__male_crouch_pose.fbx",
+  "name": "Male Crouch Pose",
+  "description": "Leaning Forward, Right Hand Supporting",
+  "mixamo_id": "d525734f-e335-4711-91c6-283811398fb4"
+ },
+ {
+  "file": "rd_v2__crouch_to_stand.fbx",
+  "name": "Crouch To Stand",
+  "description": "Male Crouch To Stand",
+  "mixamo_id": "c9c62952-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__lead_jab.fbx",
+  "name": "Lead Jab",
+  "description": "Mid Body Jab",
+  "mixamo_id": "c9cb1672-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jab_cross.fbx",
+  "name": "Jab Cross",
+  "description": "Short Jab Cross",
+  "mixamo_id": "c9caec94-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jab_cross_2.fbx",
+  "name": "Jab Cross",
+  "description": "Boxing Jab Cross Long",
+  "mixamo_id": "c9cae414-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__body_jab_cross.fbx",
+  "name": "Body Jab Cross",
+  "description": "Boxing Body Jab Cross Medium",
+  "mixamo_id": "c9cae26b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__lead_jab_2.fbx",
+  "name": "Lead Jab",
+  "description": "Long Body Jab",
+  "mixamo_id": "c9cb1594-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__lead_jab_3.fbx",
+  "name": "Lead Jab",
+  "description": "Short Head Jab",
+  "mixamo_id": "c9cb1733-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__lead_jab_4.fbx",
+  "name": "Lead Jab",
+  "description": "Short Body Jab",
+  "mixamo_id": "c9cb144f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jab_cross_3.fbx",
+  "name": "Jab Cross",
+  "description": "Boxing Jab Cross Medium",
+  "mixamo_id": "c9cae4da-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__lead_jab_5.fbx",
+  "name": "Lead Jab",
+  "description": "Med Head Jab",
+  "mixamo_id": "c9cb19f9-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__lead_jab_6.fbx",
+  "name": "Lead Jab",
+  "description": "Long Head Jab",
+  "mixamo_id": "c9cb1868-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__body_jab_cross_2.fbx",
+  "name": "Body Jab Cross",
+  "description": "Boxing Body Jab Cross Long",
+  "mixamo_id": "c9cae1a9-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__body_jab_cross_3.fbx",
+  "name": "Body Jab Cross",
+  "description": "Boxing Body Jab Cross Short",
+  "mixamo_id": "c9cae34b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__uppercut_jab.fbx",
+  "name": "Uppercut Jab",
+  "description": "Uppercut Jab And Open Palm Strike Combo",
+  "mixamo_id": "c9c7aa9c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__knee_jabs_to_uppercut.fbx",
+  "name": "Knee Jabs To Uppercut",
+  "description": "Triple Knee Jabs To Uppercut Combo",
+  "mixamo_id": "c9c7a323-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__boxing_2.fbx",
+  "name": "Boxing",
+  "description": "Boxing Leading Hand Jab",
+  "mixamo_id": "c9c71c43-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__boxing_3.fbx",
+  "name": "Boxing",
+  "description": "Boxing Jab Cross Combo",
+  "mixamo_id": "c9c7060b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__victory.fbx",
+  "name": "Victory",
+  "description": "Victory From A Boxing Win",
+  "mixamo_id": "c9cb3a87-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__right_pivot.fbx",
+  "name": "Right Pivot",
+  "description": "Low Right Boxing Pivot",
+  "mixamo_id": "c9cb37b1-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__right_pivot_2.fbx",
+  "name": "Right Pivot",
+  "description": "High Right Boxing Pivot",
+  "mixamo_id": "c9cb0cf9-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__left_pivot.fbx",
+  "name": "Left Pivot",
+  "description": "Low Left Boxing Pivot",
+  "mixamo_id": "c9cb0c39-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__illegal_headbutt.fbx",
+  "name": "Illegal Headbutt",
+  "description": "Illegal Headbutt With Step",
+  "mixamo_id": "c9cadacd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__right_block.fbx",
+  "name": "Right Block",
+  "description": "High Right Block",
+  "mixamo_id": "c9caeedc-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__big_stomach_hit.fbx",
+  "name": "Big Stomach Hit",
+  "description": "Receiving A Big Hit In The Stomach",
+  "mixamo_id": "c9cafc81-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_to_body_2.fbx",
+  "name": "Hit To Body",
+  "description": "Receiving A Hit To The Body By A Uppercut",
+  "mixamo_id": "c9cafeb8-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__long_right_side_step.fbx",
+  "name": "Long Right Side Step",
+  "description": "Long Right Boxing Side Step",
+  "mixamo_id": "c9caea63-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__medium_right_side_step.fbx",
+  "name": "Medium Right Side Step",
+  "description": "Medium Right Boxing Side Step",
+  "mixamo_id": "c9cae8e0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__defeat.fbx",
+  "name": "Defeat",
+  "description": "Defeat From A Boxing Loss",
+  "mixamo_id": "c9cb3878-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__left_pivot_2.fbx",
+  "name": "Left Pivot",
+  "description": "High Left Boxing Pivot",
+  "mixamo_id": "c9cb0b78-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__step_backward.fbx",
+  "name": "Step Backward",
+  "description": "Long Boxing Step Backward",
+  "mixamo_id": "c9cb4f35-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__center_block.fbx",
+  "name": "Center Block",
+  "description": "Low Center Block",
+  "mixamo_id": "c9caf317-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stomach_hit.fbx",
+  "name": "Stomach Hit",
+  "description": "Receiving A Hit In The Stomach",
+  "mixamo_id": "c9cafd3d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__receiving_a_big_uppercut.fbx",
+  "name": "Receiving A Big Uppercut",
+  "description": "Getting Rocked By A Big Uppercut",
+  "mixamo_id": "c9cb0870-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__idle.fbx",
+  "name": "Idle",
+  "description": "Bouncing Boxing Idle",
+  "mixamo_id": "c9cadd1a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__taunt.fbx",
+  "name": "Taunt",
+  "description": "Boxing Taunt",
+  "mixamo_id": "c9cb3946-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__illegal_knee.fbx",
+  "name": "Illegal Knee",
+  "description": "Muay Thai Illegal Knee",
+  "mixamo_id": "c9cae0e3-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__right_block_2.fbx",
+  "name": "Right Block",
+  "description": "Low Right Block",
+  "mixamo_id": "c9caf411-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__rib_hit.fbx",
+  "name": "Rib Hit",
+  "description": "Receiving A Hit In The Ribs",
+  "mixamo_id": "c9cafa24-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__step_backward_2.fbx",
+  "name": "Step Backward",
+  "description": "Medium Boxing Step Backward",
+  "mixamo_id": "c9cadc5e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_to_body_3.fbx",
+  "name": "Hit To Body",
+  "description": "Receiving A Body Hit By A Right Uppercut",
+  "mixamo_id": "c9cb00f4-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__medium_step_forward.fbx",
+  "name": "Medium Step Forward",
+  "description": "Medium Boxing Step Forward",
+  "mixamo_id": "c9cb1b52-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_to_body_4.fbx",
+  "name": "Hit To Body",
+  "description": "Receiving A Hit To The Body By A Straight",
+  "mixamo_id": "c9cafdf9-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__short_right_side_step.fbx",
+  "name": "Short Right Side Step",
+  "description": "Short Right Boxing Side Step",
+  "mixamo_id": "c9cae7e9-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__receiving_an_uppercut.fbx",
+  "name": "Receiving An Uppercut",
+  "description": "Getting Hit By An Uppercut",
+  "mixamo_id": "c9cb0936-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kidney_hit.fbx",
+  "name": "Kidney Hit",
+  "description": "Receiving A Hit In The Kidneys",
+  "mixamo_id": "c9caf807-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__center_block_2.fbx",
+  "name": "Center Block",
+  "description": "High Center Block",
+  "mixamo_id": "c9caee1d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__left_block.fbx",
+  "name": "Left Block",
+  "description": "High Left Block",
+  "mixamo_id": "c9caed58-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__livershot_knockdown.fbx",
+  "name": "Livershot Knockdown",
+  "description": "Receiving A Hit To The Liver",
+  "mixamo_id": "c9cb4ff3-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__big_kidney_hit.fbx",
+  "name": "Big Kidney Hit",
+  "description": "Receiving A Big Hit In The Kidneys",
+  "mixamo_id": "c9caf698-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__big_side_hit.fbx",
+  "name": "Big Side Hit",
+  "description": "Receiving A Big Hit In The Side",
+  "mixamo_id": "c9cafaf6-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__long_step_forward.fbx",
+  "name": "Long Step Forward",
+  "description": "Long Boxing Step Forward",
+  "mixamo_id": "c9caebc0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__short_left_side_step.fbx",
+  "name": "Short Left Side Step",
+  "description": "Short Left Boxing Side Step",
+  "mixamo_id": "c9cae5a2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__left_block_2.fbx",
+  "name": "Left Block",
+  "description": "Low Left Block",
+  "mixamo_id": "c9caf191-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__step_backward_3.fbx",
+  "name": "Step Backward",
+  "description": "Short Boxing Step Backward",
+  "mixamo_id": "c9cadb92-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__side_hit.fbx",
+  "name": "Side Hit",
+  "description": "Receiving A Hit In The Side",
+  "mixamo_id": "c9cafbc3-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__illegal_knee_2.fbx",
+  "name": "Illegal Knee",
+  "description": "Boxing Illegal Knee",
+  "mixamo_id": "c9cae022-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_to_body_5.fbx",
+  "name": "Hit To Body",
+  "description": "Receiving A Hit By An Uppercut To The Body",
+  "mixamo_id": "c9caff73-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__short_step_forward.fbx",
+  "name": "Short Step Forward",
+  "description": "Short Boxing Step Forward",
+  "mixamo_id": "c9cb50af-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__big_rib_hit.fbx",
+  "name": "Big Rib Hit",
+  "description": "Receiving A Big Hit In The Ribs",
+  "mixamo_id": "c9caf951-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__long_left_side_step.fbx",
+  "name": "Long Left Side Step",
+  "description": "Long Left Boxing Side Step",
+  "mixamo_id": "c9cae725-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__medium_left_side_step.fbx",
+  "name": "Medium Left Side Step",
+  "description": "Medium Left Boxing Side Step",
+  "mixamo_id": "c9cae666-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_jacks.fbx",
+  "name": "Jumping Jacks",
+  "description": "Standard Jumping Jacks",
+  "mixamo_id": "c9caceb2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__start_jumping_jacks.fbx",
+  "name": "Start Jumping Jacks",
+  "description": "Start Jumping Jacks From Fitness Idle",
+  "mixamo_id": "c9cacf79-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stop_jumping_jacks.fbx",
+  "name": "Stop Jumping Jacks",
+  "description": "Stop Jumping Jacks To Fitness Idle",
+  "mixamo_id": "c9cad888-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__slide_hip_hop_walk.fbx",
+  "name": "Slide Hip Hop Walk",
+  "description": "Slide Hip Hop Walk",
+  "mixamo_id": "c9c74506-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__boxing_4.fbx",
+  "name": "Boxing",
+  "description": "Boxing Lead Hand Hook",
+  "mixamo_id": "c9c717c6-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__boxing_5.fbx",
+  "name": "Boxing",
+  "description": "Boxing Back Hand Hook",
+  "mixamo_id": "c9c70b4b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__shoulder_throw_aggressor.fbx",
+  "name": "Shoulder Throw, Aggressor",
+  "description": "Throwing Opponent Over The Shoulder With A Leg Hook",
+  "mixamo_id": "c9c7a795-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__shoulder_throw_victim.fbx",
+  "name": "Shoulder Throw, Victim",
+  "description": "Thrown Over The Shoulder With A Leg Hook By An Aggressor",
+  "mixamo_id": "c9c7a914-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__honking_horn.fbx",
+  "name": "Honking Horn",
+  "description": "Hitting Steering Wheel In Driving Idle",
+  "mixamo_id": "c9c96391-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kneeling_inspecting.fbx",
+  "name": "Kneeling Inspecting",
+  "description": "Kneeling And Inspecting Element With Hands",
+  "mixamo_id": "c9c8cded-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__surprise_uppercut.fbx",
+  "name": "Surprise Uppercut",
+  "description": "Attacker Chase Down Give Surprise Uppercut",
+  "mixamo_id": "c9cd1318-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__surprise_uppercut_2.fbx",
+  "name": "Surprise Uppercut",
+  "description": "Victim Chased Down Given Surprise Uppercut",
+  "mixamo_id": "c9cd125a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__back_flip_to_uppercut.fbx",
+  "name": "Back Flip To Uppercut",
+  "description": "Back Flip To Uppercut Combo",
+  "mixamo_id": "c9c7a617-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__receive_stomach_uppercut.fbx",
+  "name": "Receive Stomach Uppercut",
+  "description": "Receive Stomach Uppercut",
+  "mixamo_id": "c9c8976c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__boxing_6.fbx",
+  "name": "Boxing",
+  "description": "Boxing Back Hand Uppercut",
+  "mixamo_id": "c9c70319-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__boxing_7.fbx",
+  "name": "Boxing",
+  "description": "Boxing Lead Hand Uppercut",
+  "mixamo_id": "c9c71880-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__cross_jumps.fbx",
+  "name": "Cross Jumps",
+  "description": "Cross Jumps",
+  "mixamo_id": "c9ce8316-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__cross_jumps_rotation.fbx",
+  "name": "Cross Jumps Rotation",
+  "description": "Cross Jumps Rotation",
+  "mixamo_id": "c9ce83da-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__male_standing_pose.fbx",
+  "name": "Male Standing Pose",
+  "description": "Legs Crossed, Leaning On Object",
+  "mixamo_id": "1fe07cde-9aa2-478b-870e-397601e63507"
+ },
+ {
+  "file": "rd_v2__male_standing_pose_2.fbx",
+  "name": "Male Standing Pose",
+  "description": "Right Leg On Object, Hands Crossed",
+  "mixamo_id": "0b2ee33c-87ea-4f85-9c9e-f517f883de7a"
+ },
+ {
+  "file": "rd_v2__boxing_8.fbx",
+  "name": "Boxing",
+  "description": "Back Hand Cross",
+  "mixamo_id": "c9c7084d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__male_laying_pose.fbx",
+  "name": "Male Laying Pose",
+  "description": "On Back, Legs Crossed, Hands Behind Head",
+  "mixamo_id": "304a666d-6d1c-4ddd-9944-8710879c309c"
+ },
+ {
+  "file": "rd_v2__male_standing_pose_3.fbx",
+  "name": "Male Standing Pose",
+  "description": "Legs Crossed, Left Arm On Object, Right Hand On Hip",
+  "mixamo_id": "08b56eb4-f99a-4e1b-a3df-bb543f33dbbf"
+ },
+ {
+  "file": "rd_v2__roll_kicking.fbx",
+  "name": "Roll Kicking",
+  "description": "Roll Kick Landing On Hands And Knees",
+  "mixamo_id": "c9c8d041-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__flip_kick.fbx",
+  "name": "Flip Kick",
+  "description": "Flipping Backwards To Kick",
+  "mixamo_id": "c9ca992c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__mma_kick.fbx",
+  "name": "Mma Kick",
+  "description": "Mma Roundhouse Kick",
+  "mixamo_id": "c9cd3af5-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__mma_kick_2.fbx",
+  "name": "Mma Kick",
+  "description": "Mma Side Kick",
+  "mixamo_id": "c9cd278a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__mma_kick_3.fbx",
+  "name": "Mma Kick",
+  "description": "Mma Low Kick",
+  "mixamo_id": "c9cd28fc-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__drop_kick.fbx",
+  "name": "Drop Kick",
+  "description": "Male Kicking With Both Legs",
+  "mixamo_id": "c9ca84cb-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__side_kick.fbx",
+  "name": "Side Kick",
+  "description": "Side Kick",
+  "mixamo_id": "c9c7f59a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kicking.fbx",
+  "name": "Kicking",
+  "description": "Double Front Snap Kick",
+  "mixamo_id": "c9c62472-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__flip_kick_2.fbx",
+  "name": "Flip Kick",
+  "description": "Front Flip To Kick",
+  "mixamo_id": "c9ca9f2f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hurricane_kick.fbx",
+  "name": "Hurricane Kick",
+  "description": "Flying Hurricane Kick",
+  "mixamo_id": "c9c71cfd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__mma_kick_4.fbx",
+  "name": "Mma Kick",
+  "description": "Mma Medium Kick",
+  "mixamo_id": "c9cd385b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__spin_flip_kick.fbx",
+  "name": "Spin Flip Kick",
+  "description": "Spinning Flip Kick",
+  "mixamo_id": "c9caafaa-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__flying_bicycle_kick.fbx",
+  "name": "Flying Bicycle Kick",
+  "description": "Flying Bicycle Kick",
+  "mixamo_id": "c9c72d42-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__roundhouse_kick.fbx",
+  "name": "Roundhouse Kick",
+  "description": "A Roundhouse Kick To The Side Of An Opponent",
+  "mixamo_id": "c9c7fc2e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__inside_crescent_kick.fbx",
+  "name": "Inside Crescent Kick",
+  "description": "Aerial 360 Degree Front Side Rotation Kick With Rear Foot",
+  "mixamo_id": "c9c626e0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kicking_2.fbx",
+  "name": "Kicking",
+  "description": "Male Thrust Kick With The Lead Foot",
+  "mixamo_id": "c9c63e81-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kicking_3.fbx",
+  "name": "Kicking",
+  "description": "Double Front Snap Kick Advancing",
+  "mixamo_id": "c9c6253f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kicking_4.fbx",
+  "name": "Kicking",
+  "description": "Roundhouse Kick With The Rear Foot",
+  "mixamo_id": "c9c5fba3-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kicking_5.fbx",
+  "name": "Kicking",
+  "description": "Male Thrust Kick With The Rear Foot",
+  "mixamo_id": "c9c63f53-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__mma_kick_5.fbx",
+  "name": "Mma Kick",
+  "description": "Mma High Kick",
+  "mixamo_id": "c9cd39f5-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kicking_6.fbx",
+  "name": "Kicking",
+  "description": "Male Front Snap Kick With The Lead Foot Advancing",
+  "mixamo_id": "c9c6205d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__mma_kick_6.fbx",
+  "name": "Mma Kick",
+  "description": "Mma Spinning Back Kick",
+  "mixamo_id": "c9cd2845-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kicking_7.fbx",
+  "name": "Kicking",
+  "description": "Butterfly Kick Advancing",
+  "mixamo_id": "c9c62882-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__knee_kick_lead.fbx",
+  "name": "Knee Kick Lead",
+  "description": "Kicking With Lead Foot",
+  "mixamo_id": "c9c60c4f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kicking_8.fbx",
+  "name": "Kicking",
+  "description": "Spinning Back Kick Advancing",
+  "mixamo_id": "c9c62610-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__roundhouse_kick_2.fbx",
+  "name": "Roundhouse Kick",
+  "description": "Roundhouse Kick With Front Foot Advancing",
+  "mixamo_id": "c9c63db2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kicking_9.fbx",
+  "name": "Kicking",
+  "description": "Male Front Snap Kick With The Lead Foot",
+  "mixamo_id": "c9c61f91-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kick_to_the_groin.fbx",
+  "name": "Kick To The Groin",
+  "description": "Receive A Kick To The Groin To Standing",
+  "mixamo_id": "c9cc9c32-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kicking_10.fbx",
+  "name": "Kicking",
+  "description": "Male Front Snap Kick With The Rear Foot Retreating",
+  "mixamo_id": "c9c623a5-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kicking_11.fbx",
+  "name": "Kicking",
+  "description": "Male Front Snap Kick With The Rear Foot Advancing",
+  "mixamo_id": "c9c622d6-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__inverted_double_kick_to_kip_up.fbx",
+  "name": "Inverted Double Kick To Kip Up",
+  "description": "Hand Stand Kick With Both Feet To Kip Up",
+  "mixamo_id": "c9cab4d0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kick_to_the_groin_2.fbx",
+  "name": "Kick To The Groin",
+  "description": "Receive A Kick To The Groin To Falling Down",
+  "mixamo_id": "c9cca0a4-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__flying_kick.fbx",
+  "name": "Flying Kick",
+  "description": "Flying Sidekick From A Run",
+  "mixamo_id": "c9cd423b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__chapa_2.fbx",
+  "name": "Chapa 2",
+  "description": "Capoeira Side Kick",
+  "mixamo_id": "c9cba31a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__armada_to_esquiva.fbx",
+  "name": "Armada To Esquiva",
+  "description": "Capoeira Spin Kick To Escape",
+  "mixamo_id": "c9cb9bf9-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__meia_lua_de_compasso.fbx",
+  "name": "Meia Lua De Compasso",
+  "description": "Capoeira Side Step Spin Kick",
+  "mixamo_id": "c9cbc42a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__meia_lua_de_frente.fbx",
+  "name": "Meia Lua De Frente",
+  "description": "Capoeira Front Kick",
+  "mixamo_id": "c9cbc81c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__martelo_3.fbx",
+  "name": "Martelo 3",
+  "description": "Capoeira High Kick With Forward Step",
+  "mixamo_id": "c9cbb918-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__leg_sweep.fbx",
+  "name": "Leg Sweep",
+  "description": "360 Leg Sweep Kick",
+  "mixamo_id": "c9c7abe7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__pontera.fbx",
+  "name": "Pontera",
+  "description": "Capoeira Front Kick",
+  "mixamo_id": "c9cbca55-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__chapa_giratoria.fbx",
+  "name": "Chapa-Giratoria",
+  "description": "Capoeira Forward Kick",
+  "mixamo_id": "c9cba630-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__martelo_2.fbx",
+  "name": "Martelo 2",
+  "description": "Capoeira High Kick",
+  "mixamo_id": "c9cbb798-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__meia_lua_de_compasso_back.fbx",
+  "name": "Meia Lua De Compasso Back",
+  "description": "Capoeira Retreating Spin Kick",
+  "mixamo_id": "c9cbc269-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__queshada_2.fbx",
+  "name": "Queshada 2",
+  "description": "Capoeira Side Step Front Kick",
+  "mixamo_id": "c9cbd192-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__chapa_giratoria_2.fbx",
+  "name": "Chapa Giratoria 2",
+  "description": "Capoeira Step Spin Kick",
+  "mixamo_id": "c9cba4b1-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__bencao.fbx",
+  "name": "Bencao",
+  "description": "Capoeira Thrust Kick",
+  "mixamo_id": "c9cba193-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__martelo_do_chau.fbx",
+  "name": "Martelo Do Chau",
+  "description": "Capoeira Spin Kick",
+  "mixamo_id": "c9cbe2c3-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__martelo_do_chau_sem_mao.fbx",
+  "name": "Martelo Do Chau Sem Mao",
+  "description": "Capoeira Spin Kick",
+  "mixamo_id": "c9cbc0bd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__chapaeu_de_couro.fbx",
+  "name": "Chapaeu De Couro",
+  "description": "Capoeira Ground Spin Kick",
+  "mixamo_id": "c9cba7ba-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__queshada_1.fbx",
+  "name": "Queshada 1",
+  "description": "Capoeira Side Step Front Kick",
+  "mixamo_id": "c9cbcc59-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__armada.fbx",
+  "name": "Armada",
+  "description": "Capoeira Spin Kick",
+  "mixamo_id": "c9cb9d65-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__capoeira.fbx",
+  "name": "Capoeira",
+  "description": "Capoeira Kicks",
+  "mixamo_id": "c9c6f3bd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__skateboarding.fbx",
+  "name": "Skateboarding",
+  "description": "Skateboard Kick Push",
+  "mixamo_id": "c9c779c3-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__butterfly_twirl.fbx",
+  "name": "Butterfly Twirl",
+  "description": "Butterfly Twirl Kick",
+  "mixamo_id": "c9cab378-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__leg_sweep_2.fbx",
+  "name": "Leg Sweep",
+  "description": "Front Leg Sweep",
+  "mixamo_id": "c9c6436d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__leg_sweep_3.fbx",
+  "name": "Leg Sweep",
+  "description": "360 Degrees Front Leg Sweep",
+  "mixamo_id": "c9c6429a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__leg_sweep_4.fbx",
+  "name": "Leg Sweep",
+  "description": "Back Leg Sweep",
+  "mixamo_id": "c9c64507-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__leg_sweep_5.fbx",
+  "name": "Leg Sweep",
+  "description": "360 Degrees Back Leg Sweep",
+  "mixamo_id": "c9c64438-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__rockin_shackle_a.fbx",
+  "name": "Rockin' Shackle A",
+  "description": "Grab Attacker Then Twist Arm And Kick Head",
+  "mixamo_id": "c9c7a3e0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__transition.fbx",
+  "name": "Transition",
+  "description": "Low Kick To Idle Transition",
+  "mixamo_id": "c9cb6238-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__pick_fruit.fbx",
+  "name": "Pick Fruit",
+  "description": "Picking Low Hanging Fruit",
+  "mixamo_id": "c9cda511-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__pick_up_item.fbx",
+  "name": "Pick Up Item",
+  "description": "Right Item Pick Up Into Pack When Running",
+  "mixamo_id": "c9cca8c4-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__pick_up_item_2.fbx",
+  "name": "Pick Up Item",
+  "description": "Left Item Pick Up Into Pack When Running",
+  "mixamo_id": "c9cca803-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__pull_plant.fbx",
+  "name": "Pull Plant",
+  "description": "Kneeling Pulling Up A Plant",
+  "mixamo_id": "c9cd9ead-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dig_and_plant_seeds.fbx",
+  "name": "Dig And Plant Seeds",
+  "description": "Kneeling Digging And Planting Seeds",
+  "mixamo_id": "c9cd9d13-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__plant_a_plant.fbx",
+  "name": "Plant A Plant",
+  "description": "Kneeling Planting A Plant",
+  "mixamo_id": "c9cda04a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__throw_object.fbx",
+  "name": "Throw Object",
+  "description": "Picking Up Object And Throwing",
+  "mixamo_id": "c9c9da9b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kneeling.fbx",
+  "name": "Kneeling",
+  "description": "Kneeling On One Knee Idle",
+  "mixamo_id": "c9c836af-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kneeling_down.fbx",
+  "name": "Kneeling Down",
+  "description": "Standing To Kneeling Down",
+  "mixamo_id": "c9c8ac04-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kneel.fbx",
+  "name": "Kneel",
+  "description": "Kneeling Warming Hands Over Campfire",
+  "mixamo_id": "c9c6ceb1-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kneeling_idle.fbx",
+  "name": "Kneeling Idle",
+  "description": "Kneeling Idle",
+  "mixamo_id": "c9cd9c47-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__boxing_9.fbx",
+  "name": "Boxing",
+  "description": "Boxing Illegal Knee",
+  "mixamo_id": "c9c70c09-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dying.fbx",
+  "name": "Dying",
+  "description": "Dying Front Head Impact To Two Knees",
+  "mixamo_id": "c9c630ac-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dying_2.fbx",
+  "name": "Dying",
+  "description": "Dying With Front Impact To The Head And Fall On One Knee",
+  "mixamo_id": "c9c62bc7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dying_3.fbx",
+  "name": "Dying",
+  "description": "Dying Shot To The Chest Falling On Two Knees",
+  "mixamo_id": "c9c62e30-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__male_standing_pose_4.fbx",
+  "name": "Male Standing Pose",
+  "description": "Left Leg On Object, Left Hand On Knee",
+  "mixamo_id": "3bf002cc-5527-4c84-b55c-23db82a48d51"
+ },
+ {
+  "file": "rd_v2__dying_4.fbx",
+  "name": "Dying",
+  "description": "Dying Rear Impact Falling On Two Knees",
+  "mixamo_id": "c9c63186-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dying_5.fbx",
+  "name": "Dying",
+  "description": "Death Hit From The Back Falling On One Knee",
+  "mixamo_id": "c9c62d63-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dying_6.fbx",
+  "name": "Dying",
+  "description": "Dying Shot To The Head Falling On Two Knees",
+  "mixamo_id": "c9c62fce-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dying_7.fbx",
+  "name": "Dying",
+  "description": "Dying Shot To Back Of Head Falling On Two Knees",
+  "mixamo_id": "c9c62efe-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dying_8.fbx",
+  "name": "Dying",
+  "description": "Dying With Front Hit To The Head And Fall On One Knee",
+  "mixamo_id": "c9c62c97-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__male_standing_pose_5.fbx",
+  "name": "Male Standing Pose",
+  "description": "Left Leg On Object, Left Hand On Knee, Right Hand On Hip",
+  "mixamo_id": "5d0f41e7-12d2-4d5b-98fc-42efbdd05929"
+ },
+ {
+  "file": "rd_v2__holding_down.fbx",
+  "name": "Holding Down",
+  "description": "Kneeling To Holding Down Moving Object",
+  "mixamo_id": "c9c85f9c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing.fbx",
+  "name": "Standing",
+  "description": "Standing Up From A Kneeling Position",
+  "mixamo_id": "c9c8cebb-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__blocking.fbx",
+  "name": "Blocking",
+  "description": "Blocking Inward",
+  "mixamo_id": "c9c5ff48-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafing.fbx",
+  "name": "Strafing",
+  "description": "Strafing Run Right To Stop",
+  "mixamo_id": "c9c886bd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafing_2.fbx",
+  "name": "Strafing",
+  "description": "Crouched Strafe Run From Left To Stop",
+  "mixamo_id": "c9c88b34-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafing_3.fbx",
+  "name": "Strafing",
+  "description": "Crouched Strafe Run Right To Stop",
+  "mixamo_id": "c9c8877b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__death.fbx",
+  "name": "Death",
+  "description": "Death From Standing Idle",
+  "mixamo_id": "c9c899a0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__crouch_death.fbx",
+  "name": "Crouch Death",
+  "description": "Dying From A Crouched Position",
+  "mixamo_id": "c9c85edd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__getting_up.fbx",
+  "name": "Getting Up",
+  "description": "Getting Up From Back",
+  "mixamo_id": "c9c7276e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__getting_up_2.fbx",
+  "name": "Getting Up",
+  "description": "Getting Up From Stomach",
+  "mixamo_id": "c9c71f39-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__run_backwards.fbx",
+  "name": "Run Backwards",
+  "description": "Standing Start To Run Backwards",
+  "mixamo_id": "c9c89222-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__warming_up.fbx",
+  "name": "Warming Up",
+  "description": "Boxing Warm Up Exercise",
+  "mixamo_id": "c9c7253f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__rasteira_2.fbx",
+  "name": "Rasteira 2",
+  "description": "Capoeira Escape",
+  "mixamo_id": "c9cbce44-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stealth_assassination.fbx",
+  "name": "Stealth Assassination",
+  "description": "Stealth Assassination From Behind - Victim",
+  "mixamo_id": "c9cce689-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__backflip.fbx",
+  "name": "Backflip",
+  "description": "Standing Backflip",
+  "mixamo_id": "c9c9ea58-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__fight_idle.fbx",
+  "name": "Fight Idle",
+  "description": "Male Fight Idle Empty Stance",
+  "mixamo_id": "c9c63b43-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hell_slammer_a.fbx",
+  "name": "Hell Slammer A",
+  "description": "Hell Slammer Attacker",
+  "mixamo_id": "c9c7a9d4-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__ginga_sideways_2.fbx",
+  "name": "Ginga Sideways 2",
+  "description": "Capoeira Step To The Side",
+  "mixamo_id": "c9cbb097-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__ginga_variation_1.fbx",
+  "name": "Ginga Variation 1",
+  "description": "Capoeira Step",
+  "mixamo_id": "c9cbb200-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__turn_right.fbx",
+  "name": "Turn Right",
+  "description": "Turn Right While Crouching Game Blend",
+  "mixamo_id": "c9c936bd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dying_9.fbx",
+  "name": "Dying",
+  "description": "Explosion From Behind",
+  "mixamo_id": "c9c6e758-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafing_4.fbx",
+  "name": "Strafing",
+  "description": "Upright Strafe Run Left To Stop",
+  "mixamo_id": "c9c88838-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__boxing_10.fbx",
+  "name": "Boxing",
+  "description": "Boxing Idle",
+  "mixamo_id": "c9c70517-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafing_5.fbx",
+  "name": "Strafing",
+  "description": "Crouched Start To Run Strafing Right",
+  "mixamo_id": "c9c88600-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dodging.fbx",
+  "name": "Dodging",
+  "description": "Boxing Dodge Retreat",
+  "mixamo_id": "c9c619e3-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jump_away.fbx",
+  "name": "Jump Away",
+  "description": "Jumping Away To Avoid Explosion",
+  "mixamo_id": "c9c6d3d1-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__capoeira_2.fbx",
+  "name": "Capoeira",
+  "description": "Capoeira Groundwork",
+  "mixamo_id": "c9c70d7b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__run_backwards_2.fbx",
+  "name": "Run Backwards",
+  "description": "Run Backwards To Standing",
+  "mixamo_id": "c9c892df-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__inward_block.fbx",
+  "name": "Inward Block",
+  "description": "Inward Block",
+  "mixamo_id": "c9c7f41f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__esquiva_2.fbx",
+  "name": "Esquiva 2",
+  "description": "Capoeira Escape",
+  "mixamo_id": "c9cbdfd3-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__sweep_fall.fbx",
+  "name": "Sweep Fall",
+  "description": "Getting Feet Swept Out From Underneath And Falling",
+  "mixamo_id": "c9c7f722-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__troca_1.fbx",
+  "name": "Troca 1",
+  "description": "Capoeira Floor Escape",
+  "mixamo_id": "c9cbe411-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__walking.fbx",
+  "name": "Walking",
+  "description": "Boxing Side Step Walk",
+  "mixamo_id": "c9c71582-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__walking_2.fbx",
+  "name": "Walking",
+  "description": "Boxing Left Side Step Walk",
+  "mixamo_id": "c9c719fe-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__walking_3.fbx",
+  "name": "Walking",
+  "description": "Boxing Advancing Forward",
+  "mixamo_id": "c9c720b7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__idle_2.fbx",
+  "name": "Idle",
+  "description": "Male Boxing Idle",
+  "mixamo_id": "c9c60b71-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dodging_2.fbx",
+  "name": "Dodging",
+  "description": "Boxing Dodge Advance",
+  "mixamo_id": "c9c61914-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__fighting_idle.fbx",
+  "name": "Fighting Idle",
+  "description": "Male Fight Idle Boxing Stance",
+  "mixamo_id": "c9c63ce7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__headbutt.fbx",
+  "name": "Headbutt",
+  "description": "Illegal Headbutt With Step",
+  "mixamo_id": "c9c722ef-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__mma_idle.fbx",
+  "name": "Mma Idle",
+  "description": "Mma Standing Idle",
+  "mixamo_id": "c9cd050b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__double_leg_takedown_victim.fbx",
+  "name": "Double Leg Takedown - Victim",
+  "description": "Mma Takedown To Standing Mma Idle",
+  "mixamo_id": "c9cd0691-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__double_leg_takedown_attacker.fbx",
+  "name": "Double Leg Takedown - Attacker",
+  "description": "Mma Takedown To Ground And Pound",
+  "mixamo_id": "c9cd0754-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__double_leg_takedown_victim_2.fbx",
+  "name": "Double Leg Takedown - Victim",
+  "description": "Mma Takedown To Ground And Pound",
+  "mixamo_id": "c9cd0819-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__double_leg_takedown_attacker_2.fbx",
+  "name": "Double Leg Takedown - Attacker",
+  "description": "Mma Takedown To Standing Mma Idle",
+  "mixamo_id": "c9cd05cf-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_react_small_from_left.fbx",
+  "name": "Standing React Small From Left",
+  "description": "Small Hit Reaction From The Left",
+  "mixamo_id": "63fd9933-26cb-40f9-b804-8f76768674dc"
+ },
+ {
+  "file": "rd_v2__standing_react_small_from_right.fbx",
+  "name": "Standing React Small From Right",
+  "description": "Small Hit Reaction From The Right",
+  "mixamo_id": "b099a412-5194-4a60-850f-2306308fba1e"
+ },
+ {
+  "file": "rd_v2__standing_react_small_from_front.fbx",
+  "name": "Standing React Small From Front",
+  "description": "Small Hit Reaction From The Front",
+  "mixamo_id": "3faceec0-f022-4e81-8da2-5b0e38a66087"
+ },
+ {
+  "file": "rd_v2__standing_react_small_from_back.fbx",
+  "name": "Standing React Small From Back",
+  "description": "Small Hit Reaction From The Back",
+  "mixamo_id": "0b890d95-c50e-4ece-a663-56f1870cc4f4"
+ },
+ {
+  "file": "rd_v2__macaco_side.fbx",
+  "name": "Macaco Side",
+  "description": "Capoeira Side Step Flip Escape",
+  "mixamo_id": "c9cbb628-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__male_locomotion_pose.fbx",
+  "name": "Male Locomotion Pose",
+  "description": "Running Forward",
+  "mixamo_id": "c7d5ec2b-c398-4cbd-8440-352c51488ce6"
+ },
+ {
+  "file": "rd_v2__strafe.fbx",
+  "name": "Strafe",
+  "description": "Left Male Strafe",
+  "mixamo_id": "c9c60126-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafe_2.fbx",
+  "name": "Strafe",
+  "description": "Right Male Strafe",
+  "mixamo_id": "c9c60226-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_down.fbx",
+  "name": "Jumping Down",
+  "description": "Male Graceful Jump Down",
+  "mixamo_id": "c9c649e2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping.fbx",
+  "name": "Jumping",
+  "description": "Male Stepping Onto Platform",
+  "mixamo_id": "c9c66acd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_down_2.fbx",
+  "name": "Jumping Down",
+  "description": "Male Frog Style Jump Down",
+  "mixamo_id": "c9c64c7c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_down_3.fbx",
+  "name": "Jumping Down",
+  "description": "Male Menacing Jump Down",
+  "mixamo_id": "c9c64ab0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_down_4.fbx",
+  "name": "Jumping Down",
+  "description": "Male Cape Jump Down",
+  "mixamo_id": "c9c64b7c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_2.fbx",
+  "name": "Jumping",
+  "description": "Male Jumping Down From 4 Feet",
+  "mixamo_id": "c9c64840-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__swinging.fbx",
+  "name": "Swinging",
+  "description": "Male One Arm Swing Onto Platform",
+  "mixamo_id": "c9ca8e91-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__reaction.fbx",
+  "name": "Reaction",
+  "description": "Male Reaction Hit On The Right Side",
+  "mixamo_id": "c9c60d2e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__fight_idle_2.fbx",
+  "name": "Fight Idle",
+  "description": "Male Fight Idle Thai Chi To Open Stance",
+  "mixamo_id": "c9c63c12-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__swinging_2.fbx",
+  "name": "Swinging",
+  "description": "Male Two Arm Swing Onto Platform",
+  "mixamo_id": "c9ca9cba-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_down_5.fbx",
+  "name": "Jumping Down",
+  "description": "Male Half Frog Style Jump Down",
+  "mixamo_id": "c9c64d8d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__reaction_2.fbx",
+  "name": "Reaction",
+  "description": "Male Reaction Hit On The Left Side",
+  "mixamo_id": "c9c60e0e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_3.fbx",
+  "name": "Jumping",
+  "description": "Male Jumping Over And Obstacle Out To A Spin",
+  "mixamo_id": "c9ca9801-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running.fbx",
+  "name": "Running",
+  "description": "Male Weighted Run",
+  "mixamo_id": "c9c610bc-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_4.fbx",
+  "name": "Jumping",
+  "description": "Male Jumping Down From 4ft And Crouching On One Hand",
+  "mixamo_id": "c9c667ea-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__walk_in_circle.fbx",
+  "name": "Walk In Circle",
+  "description": "Male Walking Counter Clockwise",
+  "mixamo_id": "c9c9fc0d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__rope_swinging.fbx",
+  "name": "Rope Swinging",
+  "description": "Male Heroic Rope Swing",
+  "mixamo_id": "c9c6703a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_5.fbx",
+  "name": "Jumping",
+  "description": "Male Jumping Onto Platform",
+  "mixamo_id": "c9c66a19-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_6.fbx",
+  "name": "Jumping",
+  "description": "Male Jumping Over An Obstacle With 1 Hand Planted",
+  "mixamo_id": "c9ca8d0f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafing_6.fbx",
+  "name": "Strafing",
+  "description": "Left Crouched Strafe Walk To Stop",
+  "mixamo_id": "c9c8a04e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafing_7.fbx",
+  "name": "Strafing",
+  "description": "Start Left Upright Strafe Run",
+  "mixamo_id": "c9c88caf-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafing_8.fbx",
+  "name": "Strafing",
+  "description": "Start Left Upright Strafe Walk",
+  "mixamo_id": "c9c89530-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafing_9.fbx",
+  "name": "Strafing",
+  "description": "Left Upright Strafe Walk To Stop",
+  "mixamo_id": "c9c89ca4-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__capoeira_3.fbx",
+  "name": "Capoeira",
+  "description": "Capoeira Idle",
+  "mixamo_id": "c9c6f2d7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__block.fbx",
+  "name": "Block",
+  "description": "Blocking The Chest Area With Both Arms",
+  "mixamo_id": "c9c71e73-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__body_block.fbx",
+  "name": "Body Block",
+  "description": "Blocking Body With Arms",
+  "mixamo_id": "c9c72233-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__run_backwards_3.fbx",
+  "name": "Run Backwards",
+  "description": "Run Backwards To Crouched Stop",
+  "mixamo_id": "c9c88e27-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__esquiva_5.fbx",
+  "name": "Esquiva 5",
+  "description": "Capoeira Escape",
+  "mixamo_id": "c9cbaade-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__brutal_assassination.fbx",
+  "name": "Brutal Assassination",
+  "description": "Victim Brutal Assassination With Pipe Victim",
+  "mixamo_id": "c9cd26ca-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__fist_fight_a.fbx",
+  "name": "Fist Fight A",
+  "description": "Engaged In A Fist Fight",
+  "mixamo_id": "c9caa766-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__fist_fight_b.fbx",
+  "name": "Fist Fight B",
+  "description": "Engaged In A Fist Fight",
+  "mixamo_id": "c9caa8bf-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafe_right_stop.fbx",
+  "name": "Strafe Right Stop",
+  "description": "Stop Strafe Walk Right",
+  "mixamo_id": "c9c89f96-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__ginga_variation_3.fbx",
+  "name": "Ginga Variation 3",
+  "description": "Capoeira Step",
+  "mixamo_id": "c9cbb4c3-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__bouncing_fight_idle.fbx",
+  "name": "Bouncing Fight Idle",
+  "description": "Bouncing Fight Idle With Guard Up",
+  "mixamo_id": "c9ca582c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__left_strafing_jump.fbx",
+  "name": "Left Strafing Jump",
+  "description": "Jumping While Strafing Left",
+  "mixamo_id": "c9c94644-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_7.fbx",
+  "name": "Jumping",
+  "description": "Eagle Jump",
+  "mixamo_id": "c9c627b2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafing_10.fbx",
+  "name": "Strafing",
+  "description": "Start Left Crouch Strafe Walk",
+  "mixamo_id": "c9c89828-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafing_11.fbx",
+  "name": "Strafing",
+  "description": "Start Left Crouch Strafe Run",
+  "mixamo_id": "c9c88fe6-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_2.fbx",
+  "name": "Standing",
+  "description": "Standing Into Fighting Stance From Crouching",
+  "mixamo_id": "c9c8f0d9-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_block_react_large.fbx",
+  "name": "Standing Block React Large",
+  "description": "Block Reaction",
+  "mixamo_id": "03aca155-0078-40a3-a52b-04d3eaa7287d"
+ },
+ {
+  "file": "rd_v2__outward_block.fbx",
+  "name": "Outward Block",
+  "description": "Blocking With Arm",
+  "mixamo_id": "c9c7f658-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__blocking_2.fbx",
+  "name": "Blocking",
+  "description": "Blocking Outward",
+  "mixamo_id": "c9c5fe62-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_block_idle.fbx",
+  "name": "Standing Block Idle",
+  "description": "Blocking With Both Arms Out",
+  "mixamo_id": "460d707b-f0f0-4cea-9db1-c2eda13d8c1f"
+ },
+ {
+  "file": "rd_v2__restrain.fbx",
+  "name": "Restrain",
+  "description": "Block And Restraining A Larger Person",
+  "mixamo_id": "c9c8aace-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__defender.fbx",
+  "name": "Defender",
+  "description": "Running To Tackle",
+  "mixamo_id": "c9cc27cd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dodging_back.fbx",
+  "name": "Dodging Back",
+  "description": "Jumping Backwards Dodge",
+  "mixamo_id": "c9c8f3f4-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__aerial_evade.fbx",
+  "name": "Aerial Evade",
+  "description": "Evading Projectiles In Mid-Air",
+  "mixamo_id": "c9caab79-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__corkscrew_evade.fbx",
+  "name": "Corkscrew Evade",
+  "description": "Evading Projectiles With A Jump Spin",
+  "mixamo_id": "c9cab62f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_reaction_2.fbx",
+  "name": "Hit Reaction",
+  "description": "Hit Reaction",
+  "mixamo_id": "c9c947d0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_react_large_from_right.fbx",
+  "name": "Standing React Large From Right",
+  "description": "Large Hit Reaction From The Right",
+  "mixamo_id": "9f1f301e-3b08-4403-ae42-7ebc34cee551"
+ },
+ {
+  "file": "rd_v2__standing_react_large_from_front.fbx",
+  "name": "Standing React Large From Front",
+  "description": "Large Hit Reaction From The Front",
+  "mixamo_id": "7c05dc7e-088a-48f8-a456-5722c6e9b853"
+ },
+ {
+  "file": "rd_v2__standing_react_large_from_back.fbx",
+  "name": "Standing React Large From Back",
+  "description": "Large Hit Reaction From The Back",
+  "mixamo_id": "deb3ef18-8cf1-48ae-a8e5-5bd3b9e81a7d"
+ },
+ {
+  "file": "rd_v2__standing_react_large_from_left.fbx",
+  "name": "Standing React Large From Left",
+  "description": "Large Hit Reaction From The Left",
+  "mixamo_id": "8e0cf713-44d4-4a6e-af01-64e83af3fbb5"
+ },
+ {
+  "file": "rd_v2__shoulder_hit_and_fall.fbx",
+  "name": "Shoulder Hit And Fall",
+  "description": "Hit In The Shoulder And Falls To The Ground",
+  "mixamo_id": "c9c8f331-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__getting_hit.fbx",
+  "name": "Getting Hit",
+  "description": "Getting Hit From Back",
+  "mixamo_id": "c9c71702-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_on_legs.fbx",
+  "name": "Hit On Legs",
+  "description": "Hit On Back Of Legs With An Object While Running",
+  "mixamo_id": "c9cd85fa-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_on_side_of_body.fbx",
+  "name": "Hit On Side Of Body",
+  "description": "Getting Hit On The Right Side Of The Body With An Object When Running",
+  "mixamo_id": "c9cd82ea-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_on_back_of_head.fbx",
+  "name": "Hit On Back Of Head",
+  "description": "Getting Hit On The Back Of Head With An Object When Running",
+  "mixamo_id": "c9cd8228-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_on_side_of_head.fbx",
+  "name": "Hit On Side Of Head",
+  "description": "Getting Hit On The Left Side Of The Head With An Object When Running",
+  "mixamo_id": "c9cd8541-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_on_the_back.fbx",
+  "name": "Hit On The Back",
+  "description": "Getting Hit On The Back With An Object While Running",
+  "mixamo_id": "c9cd8cc4-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_on_side_of_body_2.fbx",
+  "name": "Hit On Side Of Body",
+  "description": "Getting Hit On The Left Side Of The Body With An Object When Running",
+  "mixamo_id": "c9cd83b1-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_on_side_of_head_2.fbx",
+  "name": "Hit On Side Of Head",
+  "description": "Getting Hit On The Right Side Of The Head With An Object When Running",
+  "mixamo_id": "c9cd847a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__getting_hit_backwards.fbx",
+  "name": "Getting Hit Backwards",
+  "description": "Getting Hit And Flipping Backwards",
+  "mixamo_id": "c9cacc74-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_to_head.fbx",
+  "name": "Hit To Head",
+  "description": "Hit To The Back Of Head With Object While Running",
+  "mixamo_id": "c9cd8778-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_to_the_legs.fbx",
+  "name": "Hit To The Legs",
+  "description": "Hit To The Legs With Object While Running",
+  "mixamo_id": "c9cd88ef-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hit_to_side_of_body.fbx",
+  "name": "Hit To Side Of Body",
+  "description": "Hit To Side Of The Body With Object While Running",
+  "mixamo_id": "c9cd8836-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__grab_and_slam.fbx",
+  "name": "Grab And Slam",
+  "description": "Grabbing And Slamming Someone To The Ground",
+  "mixamo_id": "c9ca9b8a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__turn_to_knocked_unconscious.fbx",
+  "name": "Turn To Knocked Unconscious",
+  "description": "Turn To Getting Knocked Unconscious",
+  "mixamo_id": "c9cbfa52-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_to_hanging.fbx",
+  "name": "Jumping To Hanging",
+  "description": "Ledge Hit To Hanging Braced",
+  "mixamo_id": "c9c9cc39-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__swing_into_wall.fbx",
+  "name": "Swing Into Wall",
+  "description": "Swing In Hit Wall To Crouched Land",
+  "mixamo_id": "c9cac7d8-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__fall_flat.fbx",
+  "name": "Fall Flat",
+  "description": "Falling Flat On Face From A Hit To The Back While Running",
+  "mixamo_id": "c9cd86bc-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__big_body_blow.fbx",
+  "name": "Big Body Blow",
+  "description": "Receiving A Big Hit To The Midsection While Running",
+  "mixamo_id": "c9cab238-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hiding_grab.fbx",
+  "name": "Hiding Grab",
+  "description": "Grabs Radio While Hiding",
+  "mixamo_id": "c9c85003-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kettlebell_swing.fbx",
+  "name": "Kettlebell Swing",
+  "description": "End Russian Kettlebell Swing To Fitness Idle",
+  "mixamo_id": "c9cb329c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kettlebell_swing_2.fbx",
+  "name": "Kettlebell Swing",
+  "description": "Start Russian Kettlebell Swing From Fitness Idle",
+  "mixamo_id": "c9cb316a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hiding.fbx",
+  "name": "Hiding",
+  "description": "Crouched Hiding To Ducking",
+  "mixamo_id": "c9c8469a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__kettlebell_swing_3.fbx",
+  "name": "Kettlebell Swing",
+  "description": "Russian Kettlebell Swing",
+  "mixamo_id": "c9cb2cfa-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__bicycle_crunch.fbx",
+  "name": "Bicycle Crunch",
+  "description": "Crunch Position With Cycling Legs",
+  "mixamo_id": "c9cacd38-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__circle_crunch.fbx",
+  "name": "Circle Crunch",
+  "description": "Circle Crunch On Floor",
+  "mixamo_id": "c9ce8259-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jump_push_up.fbx",
+  "name": "Jump Push Up",
+  "description": "Jump Push Up",
+  "mixamo_id": "c9ce8499-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__quick_steps.fbx",
+  "name": "Quick Steps",
+  "description": "Sideways Jumps",
+  "mixamo_id": "c9ce8617-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__shoved_reaction_with_spin.fbx",
+  "name": "Shoved Reaction With Spin",
+  "description": "Reaction To Getting Clipped While Walking Unaware",
+  "mixamo_id": "c9c68950-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__shove_reaction.fbx",
+  "name": "Shove Reaction",
+  "description": "Standing Reaction To Shove",
+  "mixamo_id": "c9c687a7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__shove_reaction_2.fbx",
+  "name": "Shove Reaction",
+  "description": "Getting Shoved While Walking",
+  "mixamo_id": "c9c68871-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__golf_bad_shot.fbx",
+  "name": "Golf Bad Shot",
+  "description": "Bad Shot Reaction Var 2",
+  "mixamo_id": "c9ca75b2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__golf_bad_shot_2.fbx",
+  "name": "Golf Bad Shot",
+  "description": "Bad Shot Reaction Var 3",
+  "mixamo_id": "c9ca76d1-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_react_death_backward.fbx",
+  "name": "Standing React Death Backward",
+  "description": "Death Falling Backwards",
+  "mixamo_id": "e13a58d8-0104-45a5-9837-03fc3c307632"
+ },
+ {
+  "file": "rd_v2__golf_bad_shot_3.fbx",
+  "name": "Golf Bad Shot",
+  "description": "Bad Shot Reaction Var 1",
+  "mixamo_id": "c9ca7385-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dying_10.fbx",
+  "name": "Dying",
+  "description": "Laying On The Ground Dying",
+  "mixamo_id": "c9c6df2e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_react_death_right.fbx",
+  "name": "Standing React Death Right",
+  "description": "Death Falling To The Right",
+  "mixamo_id": "b45e7d54-42bc-43e2-8a2f-a5afe5e3d3ac"
+ },
+ {
+  "file": "rd_v2__standing_react_death_forward.fbx",
+  "name": "Standing React Death Forward",
+  "description": "Death Falling Forwards",
+  "mixamo_id": "586a54c0-5dc8-4290-be1c-aeccd94645de"
+ },
+ {
+  "file": "rd_v2__standing_react_death_left.fbx",
+  "name": "Standing React Death Left",
+  "description": "Death Falling To The Left",
+  "mixamo_id": "e916b410-6978-439c-af54-8377a9e79317"
+ },
+ {
+  "file": "rd_v2__shoved.fbx",
+  "name": "Shoved",
+  "description": "Reacting To Being Shoved While Piloting",
+  "mixamo_id": "c9c8d359-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__slipping.fbx",
+  "name": "Slipping",
+  "description": "Frantically Slip And Fall To Stomach",
+  "mixamo_id": "c9c8d0fc-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__taken_hostage_victim.fbx",
+  "name": "Taken Hostage - Victim",
+  "description": "Hostage From Behind By Armed Villain",
+  "mixamo_id": "c9cd0a59-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling_down.fbx",
+  "name": "Falling Down",
+  "description": "Knocked Over And Falling To The Ground",
+  "mixamo_id": "c9c91079-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__knocked_down.fbx",
+  "name": "Knocked Down",
+  "description": "Knocked Down To Stomach",
+  "mixamo_id": "c9c8a565-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling_into_pool.fbx",
+  "name": "Falling Into Pool",
+  "description": "Losing Balance And Falling Sideways Into A Pool",
+  "mixamo_id": "c9ccd171-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling_into_pool_2.fbx",
+  "name": "Falling Into Pool",
+  "description": "Losing Balance And Falling Forward Into A Pool",
+  "mixamo_id": "c9ccd0b0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__knocked_unconscious.fbx",
+  "name": "Knocked Unconscious",
+  "description": "Pilot Flying Helicopter Getting Knocked Unconscious",
+  "mixamo_id": "c9c8d8a2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__knocked_out.fbx",
+  "name": "Knocked Out",
+  "description": "Knocked Out Falling To Back",
+  "mixamo_id": "c9c725f7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__knocked_out_2.fbx",
+  "name": "Knocked Out",
+  "description": "Knocked Out Falling To Stomach",
+  "mixamo_id": "c9c7216e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__getting_up_3.fbx",
+  "name": "Getting Up",
+  "description": "Getting Up From Being Knocked Down On The Ground",
+  "mixamo_id": "c9c90823-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling_flat_impact.fbx",
+  "name": "Falling Flat Impact",
+  "description": "Falling Flat On Face",
+  "mixamo_id": "c9c79e98-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling_to_roll.fbx",
+  "name": "Falling To Roll",
+  "description": "Mid-Air Falling Into A Roll Game Blend",
+  "mixamo_id": "c9c9d0d6-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling.fbx",
+  "name": "Falling",
+  "description": "Falling In The Air Idle",
+  "mixamo_id": "c9c797ea-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling_2.fbx",
+  "name": "Falling",
+  "description": "Falling Over A Rope Down To The Floor",
+  "mixamo_id": "c9c82a82-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling_from_losing_balance.fbx",
+  "name": "Falling From Losing Balance",
+  "description": "Losing Balance And Falling Off An Edge",
+  "mixamo_id": "c9c78a8f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling_to_landing.fbx",
+  "name": "Falling To Landing",
+  "description": "Landing From Falling Idle",
+  "mixamo_id": "c9c9a7e8-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling_back_death.fbx",
+  "name": "Falling Back Death",
+  "description": "Dying Falling Backward",
+  "mixamo_id": "c9cdb40b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling_to_roll_2.fbx",
+  "name": "Falling To Roll",
+  "description": "Mid-Air Falling Into A Roll",
+  "mixamo_id": "c9c98dbb-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling_idle.fbx",
+  "name": "Falling Idle",
+  "description": "Mid-Air Falling Idle",
+  "mixamo_id": "c9c991b1-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling_forward_death.fbx",
+  "name": "Falling Forward Death",
+  "description": "Dying Falling Forward",
+  "mixamo_id": "c9cdb289-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__falling_3.fbx",
+  "name": "Falling",
+  "description": "Getting Scare And Goes Over A Cliff",
+  "mixamo_id": "c9c83f00-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__fall_b_land_to_standing_idle.fbx",
+  "name": "Fall B Land To Standing Idle",
+  "description": "Land From Fall B To Standing Idle",
+  "mixamo_id": "5ccc29e1-11c4-4cd6-98db-87da34c04ae3"
+ },
+ {
+  "file": "rd_v2__stumble_backwards.fbx",
+  "name": "Stumble Backwards",
+  "description": "Slip And Fall Backwards",
+  "mixamo_id": "c9c8fe6e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hard_landing.fbx",
+  "name": "Hard Landing",
+  "description": "Mid-Air Falling To A Hard Landing Game Blend",
+  "mixamo_id": "c9c9d323-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_down_6.fbx",
+  "name": "Jumping Down",
+  "description": "Jumping Down From Falling Idle Game Blend",
+  "mixamo_id": "c9c9d197-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__getting_thrown.fbx",
+  "name": "Getting Thrown",
+  "description": "Being Thrown To The Side",
+  "mixamo_id": "c9cacaed-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__fall_a_land_to_standing_idle_02.fbx",
+  "name": "Fall A Land To Standing Idle 02",
+  "description": "Land From Fall A To Standing Idle",
+  "mixamo_id": "785ad741-7f14-43d4-9948-3436973c2c76"
+ },
+ {
+  "file": "rd_v2__hard_landing_2.fbx",
+  "name": "Hard Landing",
+  "description": "Mid-Air Falling To A Hard Landing",
+  "mixamo_id": "c9c99c82-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__tripping.fbx",
+  "name": "Tripping",
+  "description": "Walk To Tripping And Falling",
+  "mixamo_id": "c9cca21b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dying_backwards.fbx",
+  "name": "Dying Backwards",
+  "description": "Shot To The Chest Falling Backwards",
+  "mixamo_id": "c9c6dcf2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__fall_a_land_to_standing_idle_01.fbx",
+  "name": "Fall A Land To Standing Idle 01",
+  "description": "Land From Fall A To Standing Idle",
+  "mixamo_id": "c9ceb621-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__fall_a_land_to_run_forward.fbx",
+  "name": "Fall A Land To Run Forward",
+  "description": "Land From Fall A To Run Forward",
+  "mixamo_id": "c9ceb6f2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__getting_up_4.fbx",
+  "name": "Getting Up",
+  "description": "Standing From A Lying Prone",
+  "mixamo_id": "c9cd89ad-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stand_up.fbx",
+  "name": "Stand Up",
+  "description": "Standing Up From Back",
+  "mixamo_id": "c9c6d314-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stand_up_2.fbx",
+  "name": "Stand Up",
+  "description": "Standing Up From Seated Position",
+  "mixamo_id": "c9c7937e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__climbing_to_top.fbx",
+  "name": "Climbing To Top",
+  "description": "Climbing Up A Ladder To Standing",
+  "mixamo_id": "c9c9611b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_cover_turn.fbx",
+  "name": "Standing Cover Turn",
+  "description": "Changing Direction In Stand Cover",
+  "mixamo_id": "c9c9cb6b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__crouch_turn_to_stand.fbx",
+  "name": "Crouch Turn To Stand",
+  "description": "Crouch Turn 180 To Stand",
+  "mixamo_id": "c9cc0199-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stand.fbx",
+  "name": "Stand",
+  "description": "Standing From Crouched Hands On Ground",
+  "mixamo_id": "c9c804f0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__spin_in_place.fbx",
+  "name": "Spin In Place",
+  "description": "Standing Spin In Place",
+  "mixamo_id": "c9cd8bfa-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_3.fbx",
+  "name": "Standing",
+  "description": "Standing From A Crouch",
+  "mixamo_id": "c9c8fa8d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__wobbling.fbx",
+  "name": "Wobbling",
+  "description": "Wobbling On A Ledge",
+  "mixamo_id": "c9c9e75c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__unarmed_jump.fbx",
+  "name": "Unarmed Jump",
+  "description": "Jumping And Landing In Place",
+  "mixamo_id": "c9ceec50-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dizzy_idle.fbx",
+  "name": "Dizzy Idle",
+  "description": "Rocking Back And Forth As If Dizzy",
+  "mixamo_id": "c9c69efe-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_tired.fbx",
+  "name": "Running Tired",
+  "description": "Running Tired To Dizzy",
+  "mixamo_id": "c9c8f9a7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__taunt_gesture.fbx",
+  "name": "Taunt Gesture",
+  "description": "Sporty Granny Taunting Gesture",
+  "mixamo_id": "c9cd92e4-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__taunt_2.fbx",
+  "name": "Taunt",
+  "description": "Taunting Throwing Arms Back",
+  "mixamo_id": "c9c71b7f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__taunt_3.fbx",
+  "name": "Taunt",
+  "description": "Flexing Muscles",
+  "mixamo_id": "c9c706d2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__taunt_4.fbx",
+  "name": "Taunt",
+  "description": "Spank Twice",
+  "mixamo_id": "c9c728e1-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stand_to_roll.fbx",
+  "name": "Stand To Roll",
+  "description": "Dive Roll From Standing",
+  "mixamo_id": "c9c9a122-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__dive_roll.fbx",
+  "name": "Dive Roll",
+  "description": "Dive Roll From Standing",
+  "mixamo_id": "c9c95f5e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__run_to_rolling.fbx",
+  "name": "Run To Rolling",
+  "description": "Run Ro Roll Eveade To Run",
+  "mixamo_id": "c9cac590-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__sprinting_forward_roll.fbx",
+  "name": "Sprinting Forward Roll",
+  "description": "Sprint To Forward Roll To Sprinting",
+  "mixamo_id": "c9cbf0c0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__quick_roll_to_run.fbx",
+  "name": "Quick Roll To Run",
+  "description": "Quick Roll Eveade To Run",
+  "mixamo_id": "c9cac657-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__au_to_role.fbx",
+  "name": "Au To Role",
+  "description": "Capoeira Cartwheel To Roll Escape",
+  "mixamo_id": "c9cba02e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jump_over.fbx",
+  "name": "Jump Over",
+  "description": "Flying Jump Rolling To Run",
+  "mixamo_id": "c9caae47-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_2.fbx",
+  "name": "Running",
+  "description": "Action Move Running And Rolling",
+  "mixamo_id": "c9c81fce-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__neck_stretching.fbx",
+  "name": "Neck Stretching",
+  "description": "Stretching Neck Rolling Side To Side",
+  "mixamo_id": "c9c9113b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__big_jump.fbx",
+  "name": "Big Jump",
+  "description": "Big Jump To Roll",
+  "mixamo_id": "c9caace6-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__wall_crash.fbx",
+  "name": "Wall Crash",
+  "description": "Swing To Crashing Into A Wall",
+  "mixamo_id": "c9cac954-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__military_signaling.fbx",
+  "name": "Military Signaling",
+  "description": "Military Signaling \"Follow\" While Crouched",
+  "mixamo_id": "c9c6a494-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__run_to_dive.fbx",
+  "name": "Run To Dive",
+  "description": "Diving From A Run Pose",
+  "mixamo_id": "c9ce7cd1-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__change_direction.fbx",
+  "name": "Change Direction",
+  "description": "Change Direction 180 Degrees While Running",
+  "mixamo_id": "c9c817ba-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__crouch_cover_turn.fbx",
+  "name": "Crouch Cover Turn",
+  "description": "Changing Direction In Crouch Cover",
+  "mixamo_id": "c9c9cdbd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_slide.fbx",
+  "name": "Running Slide",
+  "description": "Running To Slide And Back To Running",
+  "mixamo_id": "c9ca55d5-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__ginga_sideways_1.fbx",
+  "name": "Ginga Sideways 1",
+  "description": "Capoeira Step To The Side",
+  "mixamo_id": "c9cbaf32-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__ginga_sideways_to_au.fbx",
+  "name": "Ginga Sideways To Au",
+  "description": "Capoeira Step To Cartwheel",
+  "mixamo_id": "c9cbcff1-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__right_strafe.fbx",
+  "name": "Right Strafe",
+  "description": "Running Strafe To The Right",
+  "mixamo_id": "c9c97c58-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__left_strafe_walk.fbx",
+  "name": "Left Strafe Walk",
+  "description": "Walking Strafe To The Left",
+  "mixamo_id": "c9c9829c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__walk_strafe_left.fbx",
+  "name": "Walk Strafe Left",
+  "description": "Walking Strafe To The Left",
+  "mixamo_id": "c9c9d9d6-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__right_strafe_walking.fbx",
+  "name": "Right Strafe Walking",
+  "description": "Strafe Walking To The Right",
+  "mixamo_id": "c9c96924-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__left_strafe_walking.fbx",
+  "name": "Left Strafe Walking",
+  "description": "Strafe Walking To The Left",
+  "mixamo_id": "c9c96857-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__right_strafe_walk.fbx",
+  "name": "Right Strafe Walk",
+  "description": "Walking Strafe To The Right",
+  "mixamo_id": "c9c985b7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafe_3.fbx",
+  "name": "Strafe",
+  "description": "Running Sideways Facing Forward",
+  "mixamo_id": "c9c73337-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__left_shimmy.fbx",
+  "name": "Left Shimmy",
+  "description": "Free Hanging Shimmy Left",
+  "mixamo_id": "c9c9abd3-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__right_shimmy.fbx",
+  "name": "Right Shimmy",
+  "description": "Free Hanging Shimmy Right",
+  "mixamo_id": "c9c9bd67-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__braced_hang_shimmy.fbx",
+  "name": "Braced Hang Shimmy",
+  "description": "Right Braced Hang Shimmy",
+  "mixamo_id": "c9c99e03-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__run.fbx",
+  "name": "Run",
+  "description": "Run Forward Facing Sideways",
+  "mixamo_id": "c9c72c68-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__moving_while_hanging.fbx",
+  "name": "Moving While Hanging",
+  "description": "Moving Sideways While Hanging From A Bar",
+  "mixamo_id": "c9c807f5-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__flying_back_death.fbx",
+  "name": "Flying Back Death",
+  "description": "Dying Flying Backward",
+  "mixamo_id": "c9cdb4c8-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__flying_shoulder_throw.fbx",
+  "name": "Flying Shoulder Throw",
+  "description": "Lucha Libre Style Aerial Shoulder Throw",
+  "mixamo_id": "c9cab0fc-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__pilot_flips_switches.fbx",
+  "name": "Pilot Flips Switches",
+  "description": "Pilot Flips Low Switches In A Helicopter",
+  "mixamo_id": "c9c8c81f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__pilot_flips_switches_2.fbx",
+  "name": "Pilot Flips Switches",
+  "description": "Pilot Flips High Switches In A Helicopter",
+  "mixamo_id": "c9c8bb8a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_out_of_a_plane.fbx",
+  "name": "Jumping Out Of A Plane",
+  "description": "Quick Exit Out The Top Of A Flying Plane",
+  "mixamo_id": "c9ccd825-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__throw.fbx",
+  "name": "Throw",
+  "description": "Throwing An Object From A Standard Pose",
+  "mixamo_id": "c9cb09fa-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stroke_shrugging.fbx",
+  "name": "Stroke Shrugging",
+  "description": "Stroke Victim Laying Shrugging",
+  "mixamo_id": "c9ce68e0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stroke_hand_gesture.fbx",
+  "name": "Stroke Hand Gesture",
+  "description": "Stroke Victim Laying Gesturing With Hand",
+  "mixamo_id": "c9ce69a8-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jump_to_hang.fbx",
+  "name": "Jump To Hang",
+  "description": "Jump Grab To Free Hanging",
+  "mixamo_id": "c9c9d3e0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stylish_flip.fbx",
+  "name": "Stylish Flip",
+  "description": "Aerial Backflip To Land",
+  "mixamo_id": "c9caba56-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jump.fbx",
+  "name": "Jump",
+  "description": "Backward Running Jump",
+  "mixamo_id": "c9ccec92-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stroke_nodding.fbx",
+  "name": "Stroke Nodding",
+  "description": "Stroke Victim Laying Nodding",
+  "mixamo_id": "c9ce6749-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_forward_flip.fbx",
+  "name": "Running Forward Flip",
+  "description": "Doing A Forward Flip While Running",
+  "mixamo_id": "c9c9e994-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__start_swinging.fbx",
+  "name": "Start Swinging",
+  "description": "Male Starts A Swing",
+  "mixamo_id": "c9ca9021-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__front_flip.fbx",
+  "name": "Front Flip",
+  "description": "Big Front Flip",
+  "mixamo_id": "c9cab793-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__front_twist_flip.fbx",
+  "name": "Front Twist Flip",
+  "description": "Run To Twist Flip To Run",
+  "mixamo_id": "c9cacbb3-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jump_2.fbx",
+  "name": "Jump",
+  "description": "Forward Running Jump",
+  "mixamo_id": "c9ccebcf-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jump_3.fbx",
+  "name": "Jump",
+  "description": "Jumping In Place",
+  "mixamo_id": "c9c97f8f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__forward_jump.fbx",
+  "name": "Forward Jump",
+  "description": "Jumping Forward",
+  "mixamo_id": "c9c7282b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_rope.fbx",
+  "name": "Jumping Rope",
+  "description": "Jumping Rope",
+  "mixamo_id": "c9c71644-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jump_4.fbx",
+  "name": "Jump",
+  "description": "Jump In Place",
+  "mixamo_id": "c9ccee21-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__joyful_jump.fbx",
+  "name": "Joyful Jump",
+  "description": "Ecstatic Jumping With Both Legs And Arms",
+  "mixamo_id": "c9c6cbcb-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stroke_shaking_head.fbx",
+  "name": "Stroke Shaking Head",
+  "description": "Stroke Victim Laying Shaking Head",
+  "mixamo_id": "c9ce680a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_jump.fbx",
+  "name": "Running Jump",
+  "description": "Jumping From A Sprint",
+  "mixamo_id": "c9c81bb4-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__frisbee_throw.fbx",
+  "name": "Frisbee Throw",
+  "description": "Throwing Frisbee Forward",
+  "mixamo_id": "c9c9d85a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__throwing.fbx",
+  "name": "Throwing",
+  "description": "Throwing And Object",
+  "mixamo_id": "c9c835e6-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__goalie_throw.fbx",
+  "name": "Goalie Throw",
+  "description": "Goalie Overhand Throw",
+  "mixamo_id": "c9cc31d6-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__rummaging.fbx",
+  "name": "Rummaging",
+  "description": "Reaching To Rummage Through Items",
+  "mixamo_id": "c9c82832-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__climbing_down.fbx",
+  "name": "Climbing Down",
+  "description": "Climb Through Fence And Jump Down",
+  "mixamo_id": "c9c8b4dd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hell_slammer_b.fbx",
+  "name": "Hell Slammer B",
+  "description": "Hell Slammer Victim",
+  "mixamo_id": "c9c7f035-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_3.fbx",
+  "name": "Running",
+  "description": "Running Leaning Back Or Forth",
+  "mixamo_id": "c9c6cb0d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__slow_run.fbx",
+  "name": "Slow Run",
+  "description": "Slow Run Forward",
+  "mixamo_id": "c9ce777f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__fast_run.fbx",
+  "name": "Fast Run",
+  "description": "Running Fast",
+  "mixamo_id": "c9ce7bbc-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_backward.fbx",
+  "name": "Running Backward",
+  "description": "Backwards Running",
+  "mixamo_id": "c9ccc765-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standard_run.fbx",
+  "name": "Standard Run",
+  "description": "Standard Running",
+  "mixamo_id": "c9ccc5dd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__medium_run.fbx",
+  "name": "Medium Run",
+  "description": "Medium Speed Running",
+  "mixamo_id": "c9ce78f7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__backward_right_turn.fbx",
+  "name": "Backward Right Turn",
+  "description": "Backward Run Turning Right",
+  "mixamo_id": "c9ccc82d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_right_turn.fbx",
+  "name": "Running Right Turn",
+  "description": "Turning Right While Running",
+  "mixamo_id": "c9ccc6a1-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_4.fbx",
+  "name": "Running",
+  "description": "Running Forward Quickly",
+  "mixamo_id": "c9c97eca-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__goofy_running.fbx",
+  "name": "Goofy Running",
+  "description": "Feminine Scared Cartoon-Like Goofy Run",
+  "mixamo_id": "c9c66672-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__treadmill_running.fbx",
+  "name": "Treadmill Running",
+  "description": "Running On A Treadmill From Slow To Fast",
+  "mixamo_id": "c9ce7e95-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__injured_run_right_turn.fbx",
+  "name": "Injured Run Right Turn",
+  "description": "Injured Running Turning Right",
+  "mixamo_id": "c9ce4ff2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__injured_run_left_turn.fbx",
+  "name": "Injured Run Left Turn",
+  "description": "Injured Running Turning Left",
+  "mixamo_id": "c9ce4f31-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_5.fbx",
+  "name": "Running",
+  "description": "Silly Run",
+  "mixamo_id": "c9c8222d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__sprint_turn.fbx",
+  "name": "Sprint Turn",
+  "description": "Turning While Sprinting",
+  "mixamo_id": "c9ce79b8-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_turn_180.fbx",
+  "name": "Running Turn 180",
+  "description": "Turning 180 Degrees While Running",
+  "mixamo_id": "c9c9a4ed-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__left_strafe.fbx",
+  "name": "Left Strafe",
+  "description": "Running Strafe To The Left",
+  "mixamo_id": "c9c96c6d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__turn_to_running.fbx",
+  "name": "Turn To Running",
+  "description": "Turn Right And Run",
+  "mixamo_id": "c9c8fffc-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__injured_run.fbx",
+  "name": "Injured Run",
+  "description": "Injured Running",
+  "mixamo_id": "c9ce4e73-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__injured_run_backwards_left_turn.fbx",
+  "name": "Injured Run Backwards Left Turn",
+  "description": "Injured Running Backwards Turning Left",
+  "mixamo_id": "c9ce5235-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_6.fbx",
+  "name": "Running",
+  "description": "Running With Intention",
+  "mixamo_id": "c9c99715-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__wall_run.fbx",
+  "name": "Wall Run",
+  "description": "Wall Run To Jump Pose",
+  "mixamo_id": "c9c9e2f0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_7.fbx",
+  "name": "Running",
+  "description": "Turn To Silly Run Away",
+  "mixamo_id": "c9c83790-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__descending_stairs.fbx",
+  "name": "Descending Stairs",
+  "description": "Running Down A Set Of Stairs",
+  "mixamo_id": "c9cca996-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__unarmed_run_back.fbx",
+  "name": "Unarmed Run Back",
+  "description": "Running Backwards",
+  "mixamo_id": "c9ceedd8-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_to_turn.fbx",
+  "name": "Running To Turn",
+  "description": "Fast Run To 180 Degree Turn",
+  "mixamo_id": "c9c8d7db-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__unarmed_run_forward.fbx",
+  "name": "Unarmed Run Forward",
+  "description": "Running Forward",
+  "mixamo_id": "c9ceee9c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_up_stairs.fbx",
+  "name": "Running Up Stairs",
+  "description": "Running Up Stairs",
+  "mixamo_id": "c9ccaa5c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__injured_run_backwards.fbx",
+  "name": "Injured Run Backwards",
+  "description": "Injured Running Backwards",
+  "mixamo_id": "c9ce50b2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__injured_run_backwards_right_turn.fbx",
+  "name": "Injured Run Backwards Right Turn",
+  "description": "Injured Running Backwards Turning Right",
+  "mixamo_id": "c9ce5175-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__evading_a_threat.fbx",
+  "name": "Evading A Threat",
+  "description": "Clumsily Running To Evade A Threat",
+  "mixamo_id": "c9c8da25-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__administering_cpr.fbx",
+  "name": "Administering Cpr",
+  "description": "Administering Cpr To A Victim On The Ground",
+  "mixamo_id": "c9c959ad-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__brutal_assassination_2.fbx",
+  "name": "Brutal Assassination",
+  "description": "Attacker Brutal Assassination With Pipe",
+  "mixamo_id": "c9cd2609-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__run_and_swing.fbx",
+  "name": "Run And Swing",
+  "description": "Run To Swing To Run",
+  "mixamo_id": "c9c9c82c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stomping.fbx",
+  "name": "Stomping",
+  "description": "Stomping Foot On Ground",
+  "mixamo_id": "c9ccae10-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stomp.fbx",
+  "name": "Stomp",
+  "description": "Hard Floor Stomp",
+  "mixamo_id": "c9cca5cc-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__run_to_stop.fbx",
+  "name": "Run To Stop",
+  "description": "Run To Stop Against Object",
+  "mixamo_id": "c9c8276d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__run_to_stop_2.fbx",
+  "name": "Run To Stop",
+  "description": "Crouched Run To A Crouched Stop",
+  "mixamo_id": "c9c952ac-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__cover_to_stand.fbx",
+  "name": "Cover To Stand",
+  "description": "Crouch Cover To Standing Ready",
+  "mixamo_id": "c9ca93a4-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stand_to_cover.fbx",
+  "name": "Stand To Cover",
+  "description": "Standing To A Crouched Cover Position",
+  "mixamo_id": "c9c9a371-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__crouch_cover_to_cover.fbx",
+  "name": "Crouch Cover To Cover",
+  "description": "Crouch Cover To Cover",
+  "mixamo_id": "c9c9ca8b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__crouched_to_standing.fbx",
+  "name": "Crouched To Standing",
+  "description": "Crouch To Stand Transition",
+  "mixamo_id": "c9cc0a18-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__digging.fbx",
+  "name": "Digging",
+  "description": "Digging Hole With Shovel",
+  "mixamo_id": "c9c6cd3e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__prone_death.fbx",
+  "name": "Prone Death",
+  "description": "Dying From A Prone Position",
+  "mixamo_id": "c9c8a3f3-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__sprint.fbx",
+  "name": "Sprint",
+  "description": "Standard Sprint",
+  "mixamo_id": "c9cbfef5-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__crouched_to_sprinting.fbx",
+  "name": "Crouched To Sprinting",
+  "description": "Crouch To Sprinting",
+  "mixamo_id": "c9cc05f7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__sprint_to_backslide.fbx",
+  "name": "Sprint To Backslide",
+  "description": "Sprint To Backslide",
+  "mixamo_id": "c9cc047b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_sprint_forward.fbx",
+  "name": "Standing Sprint Forward",
+  "description": "Sprinting Forward",
+  "mixamo_id": "2691bf58-3ef8-4684-a1a7-6154977569e1"
+ },
+ {
+  "file": "rd_v2__sprint_to_wall_climb.fbx",
+  "name": "Sprint To Wall Climb",
+  "description": "Sprint To Wall Climb To Crouch Idle",
+  "mixamo_id": "c9cc0053-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__two_cycle_sprint.fbx",
+  "name": "Two Cycle Sprint",
+  "description": "Full Speed Sprint For Two Cycles",
+  "mixamo_id": "c9cbfd9c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_down_7.fbx",
+  "name": "Jumping Down",
+  "description": "Male Hulking Giant Jump Down",
+  "mixamo_id": "c9c6490f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_8.fbx",
+  "name": "Jumping",
+  "description": "Jump Up",
+  "mixamo_id": "c9c7fab0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_9.fbx",
+  "name": "Jumping",
+  "description": "Male Jumping Down From 2ft High Platform With One Foot",
+  "mixamo_id": "c9c66b89-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jump_down.fbx",
+  "name": "Jump Down",
+  "description": "Jumping Down From 2 Feet Platform With 2 Feet",
+  "mixamo_id": "c9c6695e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_10.fbx",
+  "name": "Jumping",
+  "description": "Male Jumping Over An Obstacle With 2 Hands Planted",
+  "mixamo_id": "c9ca8bbd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_11.fbx",
+  "name": "Jumping",
+  "description": "Step Up To Jump Over Object",
+  "mixamo_id": "c9c849de-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_down_8.fbx",
+  "name": "Jumping Down",
+  "description": "Jumping Down Over A Railing",
+  "mixamo_id": "c9c8476e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jump_from_wall.fbx",
+  "name": "Jump From Wall",
+  "description": "Hanging On Wall To Jump Off",
+  "mixamo_id": "c9c9995b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_down_9.fbx",
+  "name": "Jumping Down",
+  "description": "Squatting Jump Down To Squatting",
+  "mixamo_id": "c9c84c29-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__braced_hang_hop_left.fbx",
+  "name": "Braced Hang Hop Left",
+  "description": "Braced Hang Hop Left To Another Braced Hang",
+  "mixamo_id": "c9c9ab0e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__injured_standing_jump.fbx",
+  "name": "Injured Standing Jump",
+  "description": "Injured Jumping While Standing",
+  "mixamo_id": "c9ce5825-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__injured_run_jump.fbx",
+  "name": "Injured Run Jump",
+  "description": "Injured Jumping While Running",
+  "mixamo_id": "c9ce576a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_up.fbx",
+  "name": "Jumping Up",
+  "description": "Jumping Up From Action Idle Game Blend",
+  "mixamo_id": "c9c9d019-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__braced_hang.fbx",
+  "name": "Braced Hang",
+  "description": "Braced Hang From Mid-Air",
+  "mixamo_id": "c9c9ae20-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_12.fbx",
+  "name": "Jumping",
+  "description": "Jumping From Action Idle",
+  "mixamo_id": "c9c9a668-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__running_jump_2.fbx",
+  "name": "Running Jump",
+  "description": "Fast Run To Jump Up Onto Higher Level",
+  "mixamo_id": "c9c8fc30-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_down_10.fbx",
+  "name": "Jumping Down",
+  "description": "Jumping Down From Higher Level",
+  "mixamo_id": "c9c8ca31-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_up_2.fbx",
+  "name": "Jumping Up",
+  "description": "Jumping Up From Action Idle",
+  "mixamo_id": "c9c9d919-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__unarmed_jump_running.fbx",
+  "name": "Unarmed Jump Running",
+  "description": "Running Jump And Landing",
+  "mixamo_id": "c9ceed14-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__free_hang_hop_right.fbx",
+  "name": "Free Hang Hop Right",
+  "description": "Free Hang Hop Right To Another Free Hang",
+  "mixamo_id": "c9c9b941-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__braced_hang_hop_right.fbx",
+  "name": "Braced Hang Hop Right",
+  "description": "Braced Hang Hop Right To Another Braced Hang",
+  "mixamo_id": "c9c9aa4c-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jumping_down_11.fbx",
+  "name": "Jumping Down",
+  "description": "Jump Down Over A Rail Clumsily",
+  "mixamo_id": "c9c843ba-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__free_hang_hop_left.fbx",
+  "name": "Free Hang Hop Left",
+  "description": "Free Hang Hop Left To Another Free Hang",
+  "mixamo_id": "c9c9afb5-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__braced_hang_hop_up.fbx",
+  "name": "Braced Hang Hop Up",
+  "description": "Braced Hang Hop Up To Another Braced Hang",
+  "mixamo_id": "c9c9b5d5-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_jump_running_to_run_forward.fbx",
+  "name": "Standing Jump Running To Run Forward",
+  "description": "Running Jump To Run Forward",
+  "mixamo_id": "469ad0f4-2f7f-47a1-b12c-203ca355a7f5"
+ },
+ {
+  "file": "rd_v2__standing_run_left.fbx",
+  "name": "Standing Run Left",
+  "description": "Running Left",
+  "mixamo_id": "bb7b9d57-8448-40aa-a789-e21237d1692b"
+ },
+ {
+  "file": "rd_v2__run_backwards_4.fbx",
+  "name": "Run Backwards",
+  "description": "Crouch To Run Backwards",
+  "mixamo_id": "c9c89472-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_jump_running.fbx",
+  "name": "Standing Jump Running",
+  "description": "Jumping While Running",
+  "mixamo_id": "e2f04a83-de21-48be-8318-67dfa056c42c"
+ },
+ {
+  "file": "rd_v2__run_strafing_jump.fbx",
+  "name": "Run Strafing Jump",
+  "description": "Jumping While Run Strafing Right",
+  "mixamo_id": "c9c9511f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_run_back.fbx",
+  "name": "Standing Run Back",
+  "description": "Running Backwards",
+  "mixamo_id": "c1b55370-430a-42fb-a858-2b466e7245cf"
+ },
+ {
+  "file": "rd_v2__standing_run_right.fbx",
+  "name": "Standing Run Right",
+  "description": "Running Right",
+  "mixamo_id": "1dc8d38f-ecef-491b-b0a0-d067629274c3"
+ },
+ {
+  "file": "rd_v2__standing_run_forward.fbx",
+  "name": "Standing Run Forward",
+  "description": "Running Forwards",
+  "mixamo_id": "bc9bacbc-3968-41f8-b813-c95471177c00"
+ },
+ {
+  "file": "rd_v2__standing_jump_running_landing.fbx",
+  "name": "Standing Jump Running Landing",
+  "description": "Landing From Running  Jump Into Run Forward",
+  "mixamo_id": "4bc6d762-60d4-438f-b7d1-ae46df74b075"
+ },
+ {
+  "file": "rd_v2__run_to_stop_3.fbx",
+  "name": "Run To Stop",
+  "description": "Fast Stop From Full Run",
+  "mixamo_id": "c9c9a5a7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__diagonal_wall_run.fbx",
+  "name": "Diagonal Wall Run",
+  "description": "Diagonal Wall Run To Jumping",
+  "mixamo_id": "c9c9dd2f-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__run_to_flip.fbx",
+  "name": "Run To Flip",
+  "description": "Running To Flip Off Wall",
+  "mixamo_id": "c9c9bf01-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__wall_run_2.fbx",
+  "name": "Wall Run",
+  "description": "Male Runs Up A Wall Onto A Platform",
+  "mixamo_id": "c9ca9161-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafe_right.fbx",
+  "name": "Strafe Right",
+  "description": "Start Strafe Walk Right",
+  "mixamo_id": "c9c89d61-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__walk_strafe_right.fbx",
+  "name": "Walk Strafe Right",
+  "description": "Walking Strafe To The Right",
+  "mixamo_id": "c9c9db9e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__left_strafe_jump.fbx",
+  "name": "Left Strafe Jump",
+  "description": "Jumping While Strafing Left- Loop",
+  "mixamo_id": "c9c94ad6-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__strafing_jump.fbx",
+  "name": "Strafing Jump",
+  "description": "Jumping While Strafing Right",
+  "mixamo_id": "c9c93840-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_jump.fbx",
+  "name": "Standing Jump",
+  "description": "Jumping And Landing In Place",
+  "mixamo_id": "f75e91f2-0446-47a3-8bf7-d9c464863c8b"
+ },
+ {
+  "file": "rd_v2__backward_jump.fbx",
+  "name": "Backward Jump",
+  "description": "Jumping While Walking Backwards",
+  "mixamo_id": "c9c939cf-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__jump_to_freehang.fbx",
+  "name": "Jump To Freehang",
+  "description": "Standing Jump To Freehang",
+  "mixamo_id": "c9c9cf55-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__landing.fbx",
+  "name": "Landing",
+  "description": "Landing From Jump",
+  "mixamo_id": "c9c808ef-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__stand_to_freehang.fbx",
+  "name": "Stand To Freehang",
+  "description": "Standing Jump To Freehang",
+  "mixamo_id": "c9c9be3d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__swing_to_land.fbx",
+  "name": "Swing To Land",
+  "description": "Poor Swing In To Crouched Land",
+  "mixamo_id": "c9cac71d-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__swing_to_land_2.fbx",
+  "name": "Swing To Land",
+  "description": "Swing Backflip To Crouched Land",
+  "mixamo_id": "c9cac896-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__scared.fbx",
+  "name": "Scared",
+  "description": "Surprised Jumping Out Of Seat",
+  "mixamo_id": "c9c77b46-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__swing_to_land_3.fbx",
+  "name": "Swing To Land",
+  "description": "High Leg Swing To Crouched Land",
+  "mixamo_id": "c9caca13-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__swing_to_land_4.fbx",
+  "name": "Swing To Land",
+  "description": "Swing Backflip To Superhero Pose",
+  "mixamo_id": "c9ce7f5b-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__backflip_2.fbx",
+  "name": "Backflip",
+  "description": "Backflip Moving Backward",
+  "mixamo_id": "c9c6afea-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__standing_land_to_standing_idle.fbx",
+  "name": "Standing Land To Standing Idle",
+  "description": "Landing From Running Jump Into Standing Idle",
+  "mixamo_id": "38a6c4a9-90c8-4a88-8c65-a4fb799fc798"
+ },
+ {
+  "file": "rd_v2__climbing_up_wall.fbx",
+  "name": "Climbing Up Wall",
+  "description": "Climbing Up A Wall",
+  "mixamo_id": "c9c9b079-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__climbing_down_wall.fbx",
+  "name": "Climbing Down Wall",
+  "description": "Climbing Down A Wall",
+  "mixamo_id": "c9c9b2b7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__hanging_idle.fbx",
+  "name": "Hanging Idle",
+  "description": "Hanging By Hands Against Wall",
+  "mixamo_id": "c9c98bd7-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__one_shoulder_lean.fbx",
+  "name": "One Shoulder Lean",
+  "description": "Leaning Against A Wall With Various Postures",
+  "mixamo_id": "c9c695f0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__braced_hang_to_crouch.fbx",
+  "name": "Braced Hang To Crouch",
+  "description": "Climb Wall From Braced Hang To Crouch",
+  "mixamo_id": "c9cc0304-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__crouch_walk.fbx",
+  "name": "Crouch Walk",
+  "description": "Crouched Against Wall To Crouch Walk",
+  "mixamo_id": "c9c8c75e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__leaning.fbx",
+  "name": "Leaning",
+  "description": "Leaning Square With Shoulders Against A Wall",
+  "mixamo_id": "c9c69770-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__leaning_2.fbx",
+  "name": "Leaning",
+  "description": "Leaning Square Against A Wall With One Leg Up",
+  "mixamo_id": "c9c696b0-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__climbing.fbx",
+  "name": "Climbing",
+  "description": "Ladder Climb Two Steps At A Time",
+  "mixamo_id": "c9c615dd-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__climbing_down_2.fbx",
+  "name": "Climbing Down",
+  "description": "Climbing Down To Standing",
+  "mixamo_id": "c9c84593-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__climbing_2.fbx",
+  "name": "Climbing",
+  "description": "Run To Start Climbing",
+  "mixamo_id": "c9c8c5e5-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__climbing_ladder.fbx",
+  "name": "Climbing Ladder",
+  "description": "Climbing Up A Ladder",
+  "mixamo_id": "c9c95e7a-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__climbing_a_rope.fbx",
+  "name": "Climbing A Rope",
+  "description": "Climbing A Rope With Hands",
+  "mixamo_id": "c9cd0e52-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__freehang_climb.fbx",
+  "name": "Freehang Climb",
+  "description": "Freehang Climb To Standing",
+  "mixamo_id": "c9c9ce91-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__climbing_3.fbx",
+  "name": "Climbing",
+  "description": "Ladder Climb One Step At A Time",
+  "mixamo_id": "c9c6150e-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__climbing_4.fbx",
+  "name": "Climbing",
+  "description": "Climbing Up A Slope",
+  "mixamo_id": "c9c83859-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__rope_climb.fbx",
+  "name": "Rope Climb",
+  "description": "Climbing A Rope Without Using Legs",
+  "mixamo_id": "c9c670f2-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__start_climbing_ladder.fbx",
+  "name": "Start Climbing Ladder",
+  "description": "Standing To Climb Ladder Quickly",
+  "mixamo_id": "c9c8e009-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__climbing_a_rope_2.fbx",
+  "name": "Climbing A Rope",
+  "description": "Climbing A Rope With Hands And Feet",
+  "mixamo_id": "c9cd0fbb-b96c-11e4-a802-0aaa78deedf9"
+ },
+ {
+  "file": "rd_v2__climbing_5.fbx",
+  "name": "Climbing",
+  "description": "Pulling Up To A Ledge",
+  "mixamo_id": "c9c803b5-b96c-11e4-a802-0aaa78deedf9"
+ }
+]
