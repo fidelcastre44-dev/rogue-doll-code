@@ -1,0 +1,498 @@
+{
+ "_doc": "Animations Mixamo reprises sur nos squelettes (tools/bake/bake.gd). Clé = nom dans la bibliothèque mx/ ; valeur = [source, options]. Sources : v2:<nom> = anim_library/mixamo_v2/rd_v2__<nom>.fbx ; v1:<nom> = proto_combat/mixamo_src/rd_<nom>.fbx. Options : loop, mirror (aussi <nom>_m), keep_root (paires), no_vert.",
+ "idle": [
+  "v2:fighting_idle",
+  [
+   "loop"
+  ]
+ ],
+ "idle_open": [
+  "v2:fight_idle",
+  [
+   "loop"
+  ]
+ ],
+ "run": [
+  "v2:standard_run",
+  [
+   "loop"
+  ]
+ ],
+ "sprint": [
+  "v2:sprint",
+  [
+   "loop"
+  ]
+ ],
+ "run_stop": [
+  "v2:run_to_stop",
+  []
+ ],
+ "walk_fwd": [
+  "v2:walking_3",
+  [
+   "loop"
+  ]
+ ],
+ "run_back": [
+  "v2:standing_run_back",
+  [
+   "loop"
+  ]
+ ],
+ "jab": [
+  "v2:lead_jab_3",
+  []
+ ],
+ "jab_long": [
+  "v2:lead_jab_5",
+  []
+ ],
+ "cross": [
+  "v2:boxing_8",
+  []
+ ],
+ "cross_2": [
+  "v2:cross_punch",
+  []
+ ],
+ "elbow": [
+  "v1:punch__elbow_punch",
+  []
+ ],
+ "spin_kick": [
+  "v2:mma_kick_6",
+  []
+ ],
+ "spin_kick_adv": [
+  "v2:kicking_8",
+  []
+ ],
+ "uppercut": [
+  "v2:uppercut",
+  []
+ ],
+ "uppercut_lead": [
+  "v2:boxing_7",
+  []
+ ],
+ "uppercut_rear": [
+  "v2:boxing_6",
+  []
+ ],
+ "hook_big": [
+  "v2:hook_punch",
+  []
+ ],
+ "hook_rear": [
+  "v2:boxing_5",
+  []
+ ],
+ "sweep": [
+  "v2:leg_sweep_2",
+  []
+ ],
+ "sweep_back": [
+  "v2:leg_sweep_4",
+  []
+ ],
+ "push_kick": [
+  "v2:kicking_2",
+  []
+ ],
+ "bencao": [
+  "v2:bencao",
+  []
+ ],
+ "slide": [
+  "v2:running_slide",
+  []
+ ],
+ "backslide": [
+  "v2:sprint_to_backslide",
+  []
+ ],
+ "flying_kick": [
+  "v2:flying_kick",
+  [
+   "flat"
+  ]
+ ],
+ "side_kick": [
+  "v2:mma_kick_2",
+  [
+   "flat"
+  ]
+ ],
+ "side_kick_2": [
+  "v2:side_kick",
+  [
+   "flat"
+  ]
+ ],
+ "stomp": [
+  "v2:stomp",
+  [
+   "flat"
+  ]
+ ],
+ "knee": [
+  "v2:illegal_knee",
+  []
+ ],
+ "knee_lead": [
+  "v2:knee_kick_lead",
+  []
+ ],
+ "flying_knee": [
+  "v2:flying_knee_punch_combo",
+  [
+   "flat"
+  ]
+ ],
+ "drop_kick": [
+  "v2:drop_kick",
+  [
+   "flat"
+  ]
+ ],
+ "hurricane": [
+  "v2:hurricane_kick",
+  []
+ ],
+ "block_idle": [
+  "v2:standing_block_idle",
+  [
+   "loop"
+  ]
+ ],
+ "block_in": [
+  "v2:inward_block",
+  []
+ ],
+ "block_react": [
+  "v2:standing_block_react_large",
+  []
+ ],
+ "block_both": [
+  "v2:block",
+  []
+ ],
+ "roll": [
+  "v2:quick_roll_to_run",
+  []
+ ],
+ "roll_dive": [
+  "v2:dive_roll",
+  []
+ ],
+ "roll_stand": [
+  "v2:stand_to_roll",
+  []
+ ],
+ "jump_up": [
+  "v2:jumping_up",
+  [
+   "flat"
+  ]
+ ],
+ "jump_up_2": [
+  "v2:jumping_up_2",
+  [
+   "flat"
+  ]
+ ],
+ "fall_idle": [
+  "v2:falling_idle",
+  [
+   "loop",
+   "flat"
+  ]
+ ],
+ "land": [
+  "v2:landing",
+  []
+ ],
+ "land_hard": [
+  "v2:hard_landing",
+  []
+ ],
+ "land_roll": [
+  "v1:move__falling_to_roll",
+  []
+ ],
+ "flip": [
+  "v2:stylish_flip",
+  [
+   "flat"
+  ]
+ ],
+ "backflip": [
+  "v2:backflip",
+  [
+   "flat"
+  ]
+ ],
+ "air_evade": [
+  "v2:aerial_evade",
+  [
+   "flat"
+  ]
+ ],
+ "air_corkscrew": [
+  "v2:corkscrew_evade",
+  [
+   "flat"
+  ]
+ ],
+ "dodge_fwd": [
+  "v2:dodging_2",
+  []
+ ],
+ "dodge_back": [
+  "v2:dodging",
+  []
+ ],
+ "h_light_straight": [
+  "v2:head_hit_3",
+  []
+ ],
+ "h_light_left": [
+  "v2:head_hit_4",
+  []
+ ],
+ "h_light_right": [
+  "v2:head_hit_9",
+  []
+ ],
+ "h_med_straight": [
+  "v2:head_hit_5",
+  []
+ ],
+ "h_med_right": [
+  "v2:head_hit_2",
+  []
+ ],
+ "h_med_left": [
+  "v2:head_hit_8",
+  []
+ ],
+ "h_big_straight": [
+  "v2:head_hit",
+  []
+ ],
+ "h_big_left": [
+  "v2:head_hit_6",
+  []
+ ],
+ "h_big_right": [
+  "v2:head_hit_7",
+  []
+ ],
+ "b_straight": [
+  "v2:hit_to_body_4",
+  []
+ ],
+ "b_big": [
+  "v2:big_stomach_hit",
+  []
+ ],
+ "b_light": [
+  "v2:stomach_hit",
+  []
+ ],
+ "r_back_small": [
+  "v2:standing_react_small_from_back",
+  []
+ ],
+ "r_back_big": [
+  "v2:standing_react_large_from_back",
+  []
+ ],
+ "r_left_small": [
+  "v2:standing_react_small_from_left",
+  []
+ ],
+ "r_right_small": [
+  "v2:standing_react_small_from_right",
+  []
+ ],
+ "r_left_big": [
+  "v2:standing_react_large_from_left",
+  []
+ ],
+ "r_right_big": [
+  "v2:standing_react_large_from_right",
+  []
+ ],
+ "r_uppercut": [
+  "v2:receiving_an_uppercut",
+  []
+ ],
+ "r_uppercut_big": [
+  "v2:receiving_a_big_uppercut",
+  []
+ ],
+ "sweep_fall": [
+  "v2:sweep_fall",
+  []
+ ],
+ "ko_back": [
+  "v2:knocked_out",
+  []
+ ],
+ "ko_front": [
+  "v2:knocked_out_2",
+  []
+ ],
+ "ko_punch": [
+  "v2:stunned",
+  []
+ ],
+ "getup_back": [
+  "v2:getting_up",
+  []
+ ],
+ "getup_front": [
+  "v2:getting_up_2",
+  []
+ ],
+ "getup_3": [
+  "v2:getting_up_3",
+  []
+ ],
+ "fall_back": [
+  "v2:falling_back_death",
+  []
+ ],
+ "flip_back_hit": [
+  "v2:getting_hit_backwards",
+  []
+ ],
+ "dizzy": [
+  "v2:dizzy_idle",
+  [
+   "loop"
+  ]
+ ],
+ "stumble": [
+  "v2:stumble_backwards",
+  []
+ ],
+ "e_low_kick": [
+  "v2:mma_kick_3",
+  []
+ ],
+ "e_mid_kick": [
+  "v2:mma_kick_4",
+  []
+ ],
+ "e_high_kick": [
+  "v2:mma_kick_5",
+  []
+ ],
+ "e_round_kick": [
+  "v1:kick__melee_kick_2",
+  []
+ ],
+ "slam_a": [
+  "v2:hell_slammer_a",
+  [
+   "keep_root"
+  ]
+ ],
+ "slam_b": [
+  "v2:hell_slammer_b",
+  [
+   "keep_root"
+  ]
+ ],
+ "grab_slam_solo": [
+  "v1:grab__grab_and_slam",
+  []
+ ],
+ "strangled": [
+  "v1:grab__being_strangled",
+  []
+ ],
+ "choke_lift": [
+  "v1:grab__superhuman_choke_lift",
+  []
+ ],
+ "shove_react": [
+  "v2:shove_reaction",
+  []
+ ],
+ "takedown_a": [
+  "v2:double_leg_takedown_attacker",
+  [
+   "keep_root"
+  ]
+ ],
+ "takedown_b": [
+  "v2:double_leg_takedown_victim",
+  [
+   "keep_root"
+  ]
+ ],
+ "ground_spin": [
+  "v2:chapaeu_de_couro",
+  []
+ ],
+ "sweep_360": [
+  "v2:leg_sweep",
+  []
+ ],
+ "sweep_360_front": [
+  "v2:leg_sweep_3",
+  []
+ ],
+ "rasteira": [
+  "v2:rasteira_2",
+  []
+ ],
+ "low_spin": [
+  "v2:meia_lua_de_compasso",
+  []
+ ],
+ "martelo": [
+  "v2:martelo_do_chau",
+  []
+ ],
+ "roll_kick": [
+  "v2:roll_kicking",
+  []
+ ],
+ "e_cross": [
+  "v2:cross_punch",
+  []
+ ],
+ "e_hook": [
+  "v2:hook_punch",
+  []
+ ],
+ "jump_run": [
+  "v2:standing_jump_running",
+  []
+ ],
+ "run_jump": [
+  "v2:running_jump",
+  []
+ ],
+ "land_run": [
+  "v2:standing_jump_running_landing",
+  []
+ ],
+ "fall_flat": [
+  "v2:fall_flat",
+  []
+ ],
+ "getting_thrown": [
+  "v2:getting_thrown",
+  []
+ ],
+ "slam_victim_solo": [
+  "v2:falling_flat_impact",
+  []
+ ]
+}
