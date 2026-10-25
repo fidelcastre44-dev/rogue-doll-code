@@ -227,19 +227,25 @@ func hit_sphere() -> Array:
 		var k := float(f - int(mv.startup)) / maxf(float(mv.active), 1.0)
 		fwd += k * 0.6
 	var c := global_position + facing * fwd + Vector3.UP * float(b[1])
-	return [c, float(b[2])]
+	# coups aériens : zone haute qui descend (on attrape un ennemi debout en lui sautant dessus, retour de Thibaud)
+	return [c, float(b[2]), float(mv.get("tall", 0.0))]
 
 
 ## La capsule est-elle touchée par la sphère (centre, rayon) ?
-func capsule_hit(c: Vector3, r: float, low := false) -> bool:
+func capsule_hit(c: Vector3, r: float, low := false, tall := 0.0) -> bool:
 	var a := global_position + Vector3.UP * RADIUS
 	var b := global_position + Vector3.UP * (HEIGHT - RADIUS)
 	if low and state == "air_hit" and global_position.y > 0.9:
 		return false
 	var ab := b - a
-	var t := clampf((c - a).dot(ab) / ab.length_squared(), 0.0, 1.0)
-	var p := a + ab * t
-	return p.distance_to(c) <= r + RADIUS
+	var steps := 1 + int(ceil(tall / 0.3))
+	for i in steps:
+		var ci := c - Vector3.UP * (tall * i / maxf(steps - 1, 1))
+		var t := clampf((ci - a).dot(ab) / ab.length_squared(), 0.0, 1.0)
+		var p := a + ab * t
+		if p.distance_to(ci) <= r + RADIUS:
+			return true
+	return false
 
 
 func hittable() -> bool:

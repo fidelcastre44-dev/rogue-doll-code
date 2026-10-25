@@ -226,6 +226,9 @@ func _draw_hitboxes() -> void:
 			any = true
 		var c: Vector3 = s[0]
 		var r: float = s[1]
+		if s[2] > 0.0:
+			_im.surface_add_vertex(c)
+			_im.surface_add_vertex(c - Vector3.UP * float(s[2]))
 		for ring in 3:
 			var prev := Vector3.ZERO
 			for i in 25:

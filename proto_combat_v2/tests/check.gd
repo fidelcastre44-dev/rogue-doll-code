@@ -93,7 +93,7 @@ func _run() -> void:
 	inp = root.get_node("Inputs")
 	w.stepped.connect(_on_events)
 	var only := OS.get_environment("TESTS")
-	for t in ["move", "jump", "roll", "combo", "launch_air", "heavy", "hold_moves", "sprint_moves", "guard_parry", "dodge_perfect", "grab", "foes", "ko", "two_players"]:
+	for t in ["move", "jump", "roll", "combo", "launch_air", "heavy", "hold_moves", "sprint_moves", "guard_parry", "dodge_perfect", "grab", "foes", "ko", "two_players", "air_catch"]:
 		if only == "" or t in only.split(","):
 			await call("t_" + t)
 	print("")
@@ -325,7 +325,7 @@ func t_hold_moves() -> void:
 	await tap("jump")
 	await wait(8)
 	hold("heavy")
-	await wait(16)
+	await wait(30)
 	ok(hero().move_id == "dive_kick", "Y maintenu en l'air → coup de pied plongeant (%s)" % hero().move_id)
 	let_go("heavy")
 	await wait(60)
@@ -532,3 +532,21 @@ func t_two_players() -> void:
 	inp.fake[1] = null
 	await wait(2)
 	ok(w.players.size() == 1, "2e joueur retiré")
+
+
+func t_air_catch() -> void:
+	print("\n[coups aériens : attraper un ennemi debout]")
+	await setup("centre", 1, "passive", 1.3)
+	await tap("jump")
+	await wait(10)
+	await tap("attack")
+	await wait(14)
+	ok(landed() >= 1, "jab aérien en sautant sur un sbire debout : touché (%d)" % landed())
+	await wait(60)
+	await setup("centre", 1, "passive", 1.3)
+	await tap("jump")
+	await wait(10)
+	await tap("heavy")
+	await wait(16)
+	ok(landed() >= 1, "gros genou aérien sur un sbire debout : touché")
+	await wait(80)

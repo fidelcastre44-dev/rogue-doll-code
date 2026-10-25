@@ -31,6 +31,7 @@ var slam_hit := false
 var combo_x := 0              # jabs enchaînés (le lanceur demande 2 X)
 var move_start_cmd := Vector3.ZERO
 var wall_run := 0
+var hold_done := false        # le maintien a déjà transformé ce coup
 
 
 func _init(f: Fighter) -> void:
@@ -214,6 +215,7 @@ func _begin_move(idm: String, s: Vector3) -> void:
 			lunge = lerpf(float(m.get("lunge", 0.0)) * Tuning.v("lunge_scale"), clampf(need, 0.0, 4.5), assist)
 	me.start_move(idm, lunge)
 	charge_f = 0
+	hold_done = false
 	move_start_cmd = s
 
 
@@ -338,10 +340,11 @@ func _attack(cmd, s: Vector3) -> void:
 	var phase := me.move_phase()
 	var air: bool = m.get("air", false)
 	# coups maintenus : l'appui court est déjà parti, le maintien transforme le coup en cours
-	if m.has("hold") and phase != "recovery":
+	if m.has("hold"):
 		var hb := "attack" if me.move_id in ["jab", "air_jab"] else "heavy"
 		var need := Tuning.vi("hold_sweep") if m.hold == "sweep" else (Tuning.vi("hold_dive") if m.hold == "dive_kick" else int(Tuning.v("charge_min") * 60.0))
-		if hold_t.get(hb, 0) >= need and hold_t.get(hb, 0) <= need + 2:
+		if hold_t.get(hb, 0) >= need and not hold_done:
+			hold_done = true
 			if m.hold == "charged":
 				me.go("charge")
 				charge_f = 0

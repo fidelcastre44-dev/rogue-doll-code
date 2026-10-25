@@ -30,7 +30,9 @@ Fait, décidé, reste à faire. Mis à jour à chaque étape. Référence : le c
 - **Panneau de réglage** (Start) : 4 pages (labo, déplacement, combat, ennemis / ragdoll / caméra), modification en direct,
   sauvegarde `user://tuning.json`, « Exporter » copie le texte des réglages à coller dans le carnet.
 - **Deux manettes sur un PC** : Start sur la 2e manette (ou P), caméra commune.
-- Tests : `tests/check.gd` (RESULTAT: OK, 110 vérifications), `tests/play.gd` (captures), `tests/smoke.gd`.
+- Zones des coups aériens qui descendent de 1,2 m (`tall`) : un jab ou un genou aérien attrape un ennemi debout.
+- Carnet : `versions/v0-2`, `config/main`, 23 fiches `moves/v2_*`, 15 notes de Thibaud (`th114-*`) marquées réglées avec réponse.
+- Tests : `tests/check.gd` (RESULTAT: OK, 112 vérifications), `tests/play.gd` (captures), `tests/smoke.gd`.
 
 ### Décidé (hors cahier, à confirmer)
 - Les capsules se bloquent entre elles au sol ; en l'air, projeté, tenu ou en chope, un perso traverse les autres

@@ -209,7 +209,7 @@ func _resolve_hits() -> void:
 		for t in fighters:
 			if t == a or t.team == a.team or t.id in a.hits_done:
 				continue
-			if not t.capsule_hit(sph[0], sph[1], bool(a.mv.get("low", false))):
+			if not t.capsule_hit(sph[0], sph[1], bool(a.mv.get("low", false)), sph[2]):
 				continue
 			a.hits_done.append(t.id)
 			var dir := t.global_position - a.global_position
